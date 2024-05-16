@@ -1,0 +1,23 @@
+A **marketing manager** in a **large consumer goods company** deciding which advertising campaigns to run.
+An **operations manager** at a **mid-sized manufacturing firm** deciding production schedules.
+A **funds manager** in a **non-profit organization** deciding on the allocation of funds across different community programs.
+A **human resources manager** at a **tech startup** deciding the recruitment strategy.
+A **product manager** in a **software company** deciding on the features to include in the next product release.
+A **supply chain manager** in a **global pharmaceutical company** deciding on the suppliers of raw material deliveries.
+A **sales manager** at an **automotive dealership** deciding on the incentive programs for the sales team.
+An **IT manager** in a **healthcare organization** deciding on the implementation of cybersecurity measures.
+A **project manager** in a **construction company** deciding on project timelines.
+A **retail manager** in a **fashion chain** deciding the merchandise mix for the upcoming season.
+A **research and development manager** at a **biotechnology firm** deciding which research projects to conduct.
+A **customer service manager** at a **telecommunications company** deciding on customer service policies.
+A **strategic manager** in an **energy company** deciding which renewable energy projects to invest in.
+An **event manager** in a **large convention center** deciding the schedule and logistics for upcoming trade shows and conferences.
+A **compliance manager** at a **financial services firm** deciding how to address new regulatory requirements.
+A **logistics manager** at an **e-commerce company** deciding delivery routes.
+A **public relations manager** in a **multinational chemicals corporation** deciding the crisis communication strategy in response to a product recall.
+A **training and development manager** at a **hospitality chain** deciding leadership development measures for middle managers.
+A **sustainability manager** at a **large retail corporation** deciding which initiatives to pursue to reduce the company’s carbon footprint.
+A **facilities manager** in a **university** deciding on the maintenance schedule for campus buildings.
+An **financial manager** in a **fintech startup** deciding on the next round of venture capital funding.
+A **quality assurance manager** in a **food production company** deciding quality control measures.
+A **general manager** at a **small family-owned restaurant** deciding on the menu changes.
