@@ -1,0 +1,21 @@
+# DummyBias
+name: Dummy Bias
+description: > 
+  This bias is implemented for testing purposes only
+test_description: Dummy Test
+control:
+  situation:
+    - 
+  prompt:
+    - 'Choose the best option.'
+  option:
+    - '[[good option]]'
+    - '[[bad option]]'
+treatment:
+  situation:
+    - 'You are very experienced.'
+  prompt:
+    - 'Choose the best option.'
+  option:
+    - '[[good option]]'
+    - '[[bad option]]'
