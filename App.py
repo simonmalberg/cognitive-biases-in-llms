@@ -1,6 +1,7 @@
 import generation as gen
 from models import RandomModel
 import random
+import yaml
 
 
 if __name__ == "__main__":
@@ -15,8 +16,16 @@ if __name__ == "__main__":
     # Randomly pick a scenario
     scenario = random.choice(scenarios)
 
+    # Randomly pick a cognitive bias
+    bias = random.choice(['DummyBias']) # TODO: come up with an approach to store all biases' names
+    
+    # Load the pre-defined YAML file for the selected cognitive bias
+    with open(f'biases/{bias}.yml') as f:
+        bias_dict = yaml.safe_load(f)
+
     # Generate a dummy test case and print it 
     model = RandomModel()
-    generator = gen.DummyTestGenerator()
-    test_case = generator.generate(model, scenario)
+    # Load the respective test generator for bias
+    generator = gen.get_generator(bias)
+    test_case = generator.generate(model, bias_dict, scenario)
     print(test_case)

@@ -8,7 +8,7 @@ class DecisionResult:
     A class representing the result of a decision made by an LLM for a specific test case.
     """
 
-    def __init__(self, model: LLM):
+    def __init__(self, model):
         pass
 
 

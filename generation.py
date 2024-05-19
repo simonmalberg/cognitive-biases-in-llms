@@ -15,12 +15,13 @@ class TestGenerator(ABC):
         self.BIAS = "None"
     
     @abstractmethod
-    def generate(self, model: LLM, scenario: str) -> TestCase:
+    def generate(self, model: LLM, bias_dict: dict, scenario: str) -> TestCase:
         """
         Generates a test case for the cognitive bias associated with this test generator.
 
         Args:
             model (LLM): The LLM model to use for generating the test case.
+            bias_dict (dict): A dictionary containing the bias data for the test case from the respective YAML file.
             scenario (str): The scenario for which to generate the test case.
 
         Returns:
@@ -55,7 +56,7 @@ class TestGenerator(ABC):
         return control, treatment
 
 
-class DummyTestGenerator(TestGenerator):
+class DummyBiasTestGenerator(TestGenerator):
     """
     Dummy test generator for generating test cases. This class is implemented for testing purposes only.
 
@@ -66,21 +67,21 @@ class DummyTestGenerator(TestGenerator):
     def __init__(self):
         self.BIAS = "Dummy Bias"
 
-    def generate(self, model: LLM, scenario: str) -> TestCase:
+    def generate(self, model: LLM, bias_dict: dict, scenario: str) -> TestCase:
         # Create a dummy template for the control variant of the test case
         control: Template = Template()
-        control.add_situation('You are a [[type]] manager at [[organization]].')
-        control.add_prompt('Choose the best option.')
-        control.add_option('[[good option]]')
-        control.add_option('[[bad option]]')
+        control.add_situation(scenario)
+        control.add_prompt(bias_dict['control']['prompt'][0])
+        control.add_option(bias_dict['control']['option'][0])
+        control.add_option(bias_dict['control']['option'][1])
         
         # Create a dummy template for the treatment variant of the test case
         treatment: Template = Template()
-        treatment.add_situation('You are a [[type]] manager at [[organization]].')
-        treatment.add_situation('You are very experienced.')
-        treatment.add_prompt('Choose the best option.')
-        treatment.add_option('[[good option]]')
-        treatment.add_option('[[bad option]]')
+        treatment.add_situation(scenario)
+        treatment.add_situation(bias_dict['treatment']['situation'][0])
+        treatment.add_prompt(bias_dict['treatment']['prompt'][0])
+        treatment.add_option(bias_dict['treatment']['option'][0])
+        treatment.add_option(bias_dict['treatment']['option'][1])
 
         # Populate the templates using the model and scenario
         control, treatment = super().populate(model, control, treatment, scenario)
@@ -95,3 +96,19 @@ class DummyTestGenerator(TestGenerator):
         )
 
         return test_case
+    
+
+def get_generator(bias: str) -> TestGenerator:
+    """
+    Returns a test generator for the specified cognitive bias.
+
+    Args:
+        bias (str): The name of the cognitive bias for which to get the test generator.
+
+    Returns:
+        A TestGenerator object for the specified cognitive bias.
+    """
+    try:
+        return globals()[f"{bias}TestGenerator"]()
+    except KeyError:
+        raise ValueError(f"Invalid (or not CamelCased) name of bias: {bias}")
