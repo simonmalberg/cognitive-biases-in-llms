@@ -134,7 +134,6 @@ class HaloEffectMetric:
             control_answer (np.array): The answer(s) chosen for the control variant.
             treatment_answer (np.array): The answer(s) chosen for the treatment variant.
             answer_options (np.array): The answer options available in the test case.
-            anchor (float): The anchor value(s) used in the test case.
 
         Returns:
             The halo effect bias metric value.
