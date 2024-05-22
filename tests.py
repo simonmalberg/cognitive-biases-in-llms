@@ -1,10 +1,12 @@
 import re
+import xml.etree.ElementTree as ET
 
 
 class Template:  
     """
     A class representing a single template (e.g., the control or treatment variant) for a cognitive bias test case.
     """
+    # TODO: Refactor to use ElementTree internally for easier handling, serialization, and parsing
     
     def __init__(self, from_string: str = None):
         if from_string is not None:
@@ -148,6 +150,112 @@ class TemplateNew:
         assembled_text = assembled_text.replace('{scenario}', self.scenario)
 
         return assembled_text
+
+
+class TestConfig:
+    """
+    A class representing a configuration file for a cognitive bias test.
+
+    Attributes:
+        path (str): The path to the XML configuration file.
+        config (ET): An ElementTree object representing the XML configuration file.
+    """
+
+    def __init__(self, path: str):
+        self.path = path
+        self.config = self.load(self.path)
+    
+    def load(self, path: str) -> ET:
+        """
+        Loads the XML configuration file for the specified cognitive bias.
+
+        Args:
+            bias (str): The name of the cognitive bias for which to load the configuration.
+
+        Returns:
+            An ElementTree object representing the XML configuration file.
+        """
+        return ET.parse(path)
+
+    def get_bias_name(self) -> str:
+        """
+        Returns the name of the cognitive bias being tested.
+
+        Returns:
+            The name of the cognitive bias being tested.
+        """
+        return self.config.getroot().get('bias')
+
+    def get_template(self, template_type: str = "control", variant: str = None) -> Template:
+        """
+        Returns a template from the test configuration.
+
+        Args:
+            template_type (str): The type of the template, e.g., "control" or "treatment".
+            variant (str): The name of the variant. Defaults to None. Only needed if the test configuration includes multiple variants.
+
+        Returns:
+            A Template object representing the control template.
+        """
+        root = self.config.getroot()
+        variants = list(root.findall('variant'))
+
+        if not variants:
+            # No variant elements, treat the root as the variant element
+            variant_element = root
+        elif len(variants) == 1:
+            # Only one variant element present
+            variant_element = variants[0]
+        else:
+            # Multiple variant elements, find the specified one
+            variant_element = None
+            for v in variants:
+                if v.get('name') == variant:
+                    variant_element = v
+                    break
+            if variant_element is None:
+                raise ValueError(f"Variant '{variant}' not found in the configuration.")
+
+        # Find the template with the specified type
+        template_config = variant_element.find(f"template[@type='{template_type}']")
+        if template_config is None:
+            raise ValueError(f"No template with type '{template_type}' found in variant '{variant}'.")
+
+        # Extract the components of the template
+        template = Template()
+        for c in list(template_config):
+            if c.tag == 'situation':
+                template.add_situation(c.text)
+            elif c.tag == 'prompt':
+                template.add_prompt(c.text)
+            elif c.tag == 'option':
+                template.add_option(c.text)
+
+        return template
+
+    def get_control_template(self, variant: str = None) -> Template:
+        """
+        Returns the control template for the specified variant or the Default variant if none is specified.
+
+        Args:
+            variant (str): The name of the variant. Defaults to "Default".
+
+        Returns:
+            A Template object representing the control template.
+        """
+        return self.get_template("control", variant)
+
+    def get_treatment_template(self, variant: str = None) -> Template:
+        """
+        Returns the treatment template for the specified variant or the Default variant if none is specified.
+
+        Args:
+            variant (str): The name of the variant. Defaults to "Default".
+
+        Returns:
+            A Template object representing the treatment template.
+        """
+        return self.get_template("treatment", variant)
 
 
 class TestCase:

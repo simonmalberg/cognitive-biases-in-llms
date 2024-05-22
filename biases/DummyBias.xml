@@ -1,0 +1,17 @@
+<config bias="Dummy Bias">
+    <variant name="default">
+        <template type="control">
+            <situation>You are a [[type]] manager at [[organization]].</situation>
+            <prompt>Choose the best option.</prompt>
+            <option>[[good option]]</option>
+            <option>[[bad option]]</option>
+        </template>
+        <template type="treatment">
+            <situation>You are a [[type]] manager at [[organization]].</situation>
+            <situation>You have {{years_of_experience}} years of experience in your current job.</situation>
+            <prompt>Choose the best option.</prompt>
+            <option>[[good option]]</option>
+            <option>[[bad option]]</option>
+        </template>
+    </variant>
+</config>
