@@ -115,6 +115,41 @@ class Template:
         return self.format(insert_headings=False, show_type=True, show_generated=True)
 
 
+class TemplateNew:
+    """
+    A (new) class representing a single template (e.g., the control or treatment variant) for a cognitive bias test case.
+
+    Attributes:
+        allowed_parts (list[str]): A list of strings specifying the allowed types of elements in the template.
+        variant (dict): A dictionary representing the template variant data from YAML.
+        scenario (str): The scenario for the given test template
+    """
+
+    def __init__(self, variant: dict, scenario: str, allowed_parts: list[str] = ['Situation', 'Question', 'Answer options']):
+        self.allowed_parts = allowed_parts
+        self.variant = variant
+        self.scenario = scenario.lower()
+
+    def complete_template(self) -> str:
+        prev_type = self.variant[0]['type']
+        assert prev_type == 'Generation', f"First block type must be 'Generation', not {prev_type}" 
+        assembled_text = self.variant[0]['content']
+        for block in self.variant[1:]:
+            if block['type'] not in self.allowed_parts:
+                print(f"Block type {block['type']} not in allowed parts {self.allowed_parts}, skipping it")
+            else:
+                if block['type'] == prev_type:
+                    assembled_text = ' '.join((assembled_text, block['content']))
+                else:
+                    assembled_text = '\n'.join((assembled_text, block['type'], block['content']))
+                prev_type = block['type']
+        
+        # insert scenario
+        assembled_text = assembled_text.replace('{scenario}', self.scenario)
+
+        return assembled_text
+
+
 class TestCase:
     """
     A class representing a cognitive bias test case.
