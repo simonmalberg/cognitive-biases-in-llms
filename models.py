@@ -43,6 +43,7 @@ class RandomModel(LLM):
     def __init__(self):
         self.NAME = "random-model"
 
+    # TODO: discuss how we track that control and treatment options are populated identically
     def populate(self, control: str, treatment: str, scenario: str):
         # Replace any text between brackets with a random sample of 1-4 words from the scenario
         def replace_with_sample(match):

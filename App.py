@@ -3,6 +3,9 @@ from models import RandomModel
 import random
 import yaml
 
+# currently supported biases
+BIASES = ['AnchoringBias', 'LossAversion', 'HaloEffect']
+
 
 if __name__ == "__main__":
 
@@ -17,7 +20,7 @@ if __name__ == "__main__":
     scenario = random.choice(scenarios)
 
     # Randomly pick a cognitive bias
-    bias = random.choice(['DummyBias']) # TODO: come up with an approach to store all biases' names
+    bias = random.choice(BIASES) # TODO: come up with an approach to store all biases' names
     
     # Load the pre-defined YAML file for the selected cognitive bias
     with open(f'biases/{bias}.yml') as f:

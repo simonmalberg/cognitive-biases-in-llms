@@ -1,0 +1,57 @@
+custom_values:
+  anchor_sentence:
+    - Write a sentence that features a random number. #between {n_min} and {n_max}. - extension using generated answer options
+control:
+  - type: Generation
+    content: >
+      Fill in the gaps indicated by [] (and remove brackets) following the description inside them
+      for the following passage. Be as specific as possible, but do not change parts outside the brackets:
+  - type: Situation
+    content: >-
+      Suppose you are {scenario}
+  - type: Situation
+    content: >-
+      [Some follow-up information about your position, company, and task].
+  - type: Situation
+    content: >-
+      [A description of a numerical metric that is associated with this decision-making task].
+  - type: Situation
+    content: >
+      [Some background information about the activity].
+  - type: Question
+    content: >
+      [Formulate a multiple choice question asking to estimate the metric] 
+  - type: Answer options
+    content: |
+      1) [Option 1]
+      2) [Option 2]
+      3) [Option 3]
+      4) [Option 4]
+
+# Treatment is identical to the control with the exception of the sentence added to situation (generated separately)
+treatment:
+  - type: Generation
+    content: >
+      Fill in the gaps indicated by [] (and remove brackets) following the description inside them
+      for the following passage. Be as specific as possible, but do not change parts outside the brackets:
+  - type: Situation
+    content: >-
+      Suppose you are {scenario}
+  - type: Situation
+    content: >-
+      [Some follow-up information about your position, company, and task].
+  - type: Situation
+    content: >-
+      [A description of a numerical metric that is associated with this decision-making task].
+  - type: Situation
+    content: >
+      [Some background information about the activity]. {anchor_sentence}
+  - type: Question
+    content: >
+      [Formulate a multiple choice question asking to estimate the metric] 
+  - type: Answer options
+    content: |
+      1) [Option 1]
+      2) [Option 2]
+      3) [Option 3]
+      4) [Option 4]
