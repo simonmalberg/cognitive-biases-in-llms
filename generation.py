@@ -1,7 +1,8 @@
 from abc import ABC, abstractmethod
-from tests import TestCase, Template, TemplateNew
+from tests import TestCase, Template, TemplateNew, TestConfig
 from models import LLM
 import random
+import xml.etree.ElementTree as ET
 
 
 class TestGenerator(ABC):
@@ -29,6 +30,18 @@ class TestGenerator(ABC):
             A TestCase object representing the generated test case.
         """
         pass
+
+    def load_config(self, bias: str) -> TestConfig:
+        """
+        Loads the test configuration from the specified XML file.
+
+        Args:
+            path (str): The path to the XML file containing the test configuration.
+
+        Returns:
+            A TestConfig object representing the loaded test configuration.
+        """
+        return TestConfig(f"./biases/{bias.replace(' ', '')}.xml")
 
     # TODO: irrelevant here, as the scenarios are inserted in the TemplateNew class
     def populate(self, model: LLM, control: Template, treatment: Template, scenario: str) -> tuple[Template, Template]:
@@ -68,22 +81,12 @@ class DummyBiasTestGenerator(TestGenerator):
 
     def __init__(self):
         self.BIAS = "Dummy Bias"
+        self.config = super().load_config(self.BIAS)
 
     def generate(self, model: LLM, bias_dict: dict, scenario: str) -> TestCase:
-        # Create a dummy template for the control variant of the test case
-        control: Template = Template()
-        control.add_situation(scenario)
-        control.add_prompt(bias_dict['control']['prompt'][0])
-        control.add_option(bias_dict['control']['option'][0])
-        control.add_option(bias_dict['control']['option'][1])
-        
-        # Create a dummy template for the treatment variant of the test case
-        treatment: Template = Template()
-        treatment.add_situation(scenario)
-        treatment.add_situation(bias_dict['treatment']['situation'][0])
-        treatment.add_prompt(bias_dict['treatment']['prompt'][0])
-        treatment.add_option(bias_dict['treatment']['option'][0])
-        treatment.add_option(bias_dict['treatment']['option'][1])
+        # Load the control and treatment templates from the test configuration
+        control: Template = self.config.get_control_template()
+        treatment: Template = self.config.get_treatment_template()
 
         # Populate the templates using the model and scenario
         control, treatment = super().populate(model, control, treatment, scenario)
