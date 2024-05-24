@@ -13,6 +13,7 @@ class Template:
             self.elements = self.parse(from_string)
         else:
             self.elements = []
+        self.inserted_values = {}
 
     def add_situation(self, situation: str) -> None:
         self.elements.append((situation, 'situation'))
@@ -110,46 +111,20 @@ class Template:
 
         return True
 
+    def insert_custom_values(self, patterns: list[str], values: list[str]) -> None:
+        # assumes that pattern is always enclosed in double curly brackets: {{pattern}}
+        for pattern, value in zip(patterns, values):
+            # remember the inserted value
+            self.inserted_values[pattern] = value
+            for idx, _ in enumerate(self.elements):
+                current = self.elements[idx][0]
+                self.elements[idx] = (current.replace('{{' + pattern + '}}', (value or '')),) + self.elements[idx][1:]
+
     def __str__(self) -> str:
         return self.format(insert_headings=True, show_type=False, show_generated=False)
 
     def __repr__(self) -> str:
         return self.format(insert_headings=False, show_type=True, show_generated=True)
-
-
-class TemplateNew:
-    """
-    A (new) class representing a single template (e.g., the control or treatment variant) for a cognitive bias test case.
-
-    Attributes:
-        allowed_parts (list[str]): A list of strings specifying the allowed types of elements in the template.
-        variant (dict): A dictionary representing the template variant data from YAML.
-        scenario (str): The scenario for the given test template
-    """
-
-    def __init__(self, variant: dict, scenario: str, allowed_parts: list[str] = ['Situation', 'Question', 'Answer options']):
-        self.allowed_parts = allowed_parts
-        self.variant = variant
-        self.scenario = scenario.lower()
-
-    def complete_template(self) -> str:
-        prev_type = self.variant[0]['type']
-        assert prev_type == 'Generation', f"First block type must be 'Generation', not {prev_type}" 
-        assembled_text = self.variant[0]['content']
-        for block in self.variant[1:]:
-            if block['type'] not in self.allowed_parts:
-                print(f"Block type {block['type']} not in allowed parts {self.allowed_parts}, skipping it")
-            else:
-                if block['type'] == prev_type:
-                    assembled_text = ' '.join((assembled_text, block['content']))
-                else:
-                    assembled_text = '\n'.join((assembled_text, block['type'], block['content']))
-                prev_type = block['type']
-        
-        # insert scenario
-        assembled_text = assembled_text.replace('{scenario}', self.scenario)
-
-        return assembled_text
 
 
 class TestConfig:
@@ -185,6 +160,23 @@ class TestConfig:
             The name of the cognitive bias being tested.
         """
         return self.config.getroot().get('bias')
+    
+    def get_custom_values(self) -> dict:
+        """
+        Returns the custom values defined in the configuration file.
+
+        Returns:
+            A dictionary containing the custom values defined in the configuration file.
+        """
+        custom_values = self.config.getroot().findall('custom_values')
+        custom_values_dict = {}
+        for custom_value in custom_values:
+            key = custom_value.get('name')
+            custom_values_dict[key] = []
+            for value in custom_value:
+                custom_values_dict[key].append(value.text)
+        
+        return custom_values_dict
 
     def get_template(self, template_type: str = "control", variant: str = None) -> Template:
         """
@@ -268,21 +260,27 @@ class TestCase:
         TREATMENT (Template): The treatment template for the test case.
         GENERATOR (str): The name of the LLM generator used to generate the treatment template.
         SCENARIO (str): The scenario in which the test case is being conducted.
+        CONTROL_CUSTOM_VALUES (dict, optional): Custom values used in the control template of the test case.
+        TREATMENT_CUSTOM_VALUES (dict, optional): Custom values used in the treatment template of the test case.
         VARIANT (str, optional): The variant of the test case.
         REMARKS (str, optional): Any additional remarks about the test case.
     """
 
-    def __init__(self, bias: str, control: Template, treatment: Template, generator: str, scenario: str, variant: str = None, remarks: str = None):
+    def __init__(self, bias: str, control: Template, treatment: Template, generator: str, 
+                 scenario: str, control_custom_values: dict = None, treatment_custom_values: dict = None,
+                 variant: str = None, remarks: str = None):
         self.BIAS: str = bias
         self.CONTROL: Template = control
         self.TREATMENT: Template = treatment
         self.GENERATOR: str = generator
         self.SCENARIO: str = scenario
+        self.CONTROL_CUSTOM_VALUES: dict = control_custom_values
+        self.TREATMENT_CUSTOM_VALUES: dict = treatment_custom_values
         self.VARIANT: str = variant
         self.REMARKS: str = remarks
 
     def __str__(self) -> str:
-        return f'---TestCase---\n\nBIAS: {self.BIAS}\nVARIANT: {self.VARIANT}\nSCENARIO: {self.SCENARIO}\nGENERATOR: {self.GENERATOR}\n\nCONTROL:\n{self.CONTROL}\n\nTREATMENT:\n{self.TREATMENT}\n\nREMARKS:\n{self.REMARKS}\n\n------'
+        return f'---TestCase---\n\nBIAS: {self.BIAS}\nVARIANT: {self.VARIANT}\nSCENARIO: {self.SCENARIO}\nGENERATOR: {self.GENERATOR}\nCONTROL_CUSTOM_VALUES: {self.CONTROL_CUSTOM_VALUES}\nTREATMENT_CUSTOM_VALUES: {self.TREATMENT_CUSTOM_VALUES}\n\nCONTROL:\n{self.CONTROL}\n\nTREATMENT:\n{self.TREATMENT}\n\nREMARKS:\n{self.REMARKS}\n\n------'
 
     def __repr__(self) -> str:
         return self.__str__()
