@@ -294,6 +294,62 @@ class HaloEffectTestGenerator(TestGenerator):
         return test_case
     
 
+class ConfirmationBiasTestGenerator(TestGenerator):
+    """
+    Test generator for the Confirmation Bias.
+
+    Attributes:
+        BIAS (str): The cognitive bias associated with this test generator.
+        config (TestConfig): The test configuration for the Confirmation Bias.
+    """
+
+    def __init__(self):
+        self.BIAS = "Confirmation Bias"
+        self.config = super().load_config(self.BIAS)
+
+    def custom_population(self, completed_template: Template) -> None:
+        """
+        Custom population method for the Confirmation Bias test case.
+
+        Args:
+            completed_template (Template): The assembled template for the test case.
+        """
+        NUM_ARGUMENTS = 4
+
+        # Loading the dict with custom values
+        custom_values = self.config.get_custom_values()
+        # Loading the possible kinds of arguments
+        outcomes = custom_values['argument']
+        # Sampling N pros and N cons arguments and shuffling them
+        outcomes = outcomes * NUM_ARGUMENTS
+        random.shuffle(outcomes)
+        # insertion of the arguments into the respective answer places of the template
+        to_be_filled = [f'argument_{i}' for i in range(1, 2 * NUM_ARGUMENTS + 1)]
+        completed_template.insert_custom_values(to_be_filled, outcomes)
+
+    def generate(self, model: LLM, scenario: str) -> TestCase:
+
+        control: Template = self.config.get_control_template()
+        treatment: Template = self.config.get_treatment_template()
+
+        self.custom_population(treatment)
+
+        treatment_inserted_values = treatment.inserted_values
+        control, treatment = super().populate(model, control, treatment, scenario)
+
+        test_case = TestCase(
+            bias=self.BIAS,
+            control=control,
+            treatment=treatment,
+            generator=model.NAME,
+            control_custom_values=None,
+            treatment_custom_values=treatment_inserted_values,
+            scenario=scenario
+        )
+
+        return test_case
+
+
 def get_generator(bias: str) -> TestGenerator:
     """
     Returns a test generator for the specified cognitive bias.

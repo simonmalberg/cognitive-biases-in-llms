@@ -3,7 +3,7 @@ from models import RandomModel
 import random
 
 # currently supported biases
-BIASES = ['DummyBias', 'AnchoringBias', 'HaloEffect', 'LossAversion']
+BIASES = ['DummyBias', 'AnchoringBias', 'HaloEffect', 'LossAversion', 'ConfirmationBias']
 
 
 if __name__ == "__main__":

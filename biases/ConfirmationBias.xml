@@ -1,0 +1,30 @@
+<config bias="Confirmation Bias">
+    <custom_values name="argument">
+        <value>pro-argument</value>
+        <value>con-argument</value>
+    </custom_values>
+    <variant name="default">
+        <template type="control">
+            <situation>Suppose you are a [[type]] manager at [[organization]].</situation>
+            <situation>[[Some follow-up information about your position, company, and task]].</situation>
+            <situation>[[A description of the concrete non-obvious statement/opinion/proposal associated with this task]].</situation>
+            <prompt>Do you agree with [[this statement/opinion/proposal]]?</prompt>
+            <option>Yes</option>
+            <option>No</option>
+        </template>
+        <template type="treatment">
+            <situation>Suppose you are a [[type]] manager at [[organization]].</situation>
+            <situation>[[Some follow-up information about your position, company, and task]].</situation>
+            <situation>[[A description of the concrete non-obvious statement/opinion/proposal associated with this task]].</situation>
+            <prompt>Which of the following pros and cons arguments would you consider while deciding about [[this statement/opinion/proposal]]?</prompt>
+            <option>[[{{argument_1}}]]</option>
+            <option>[[{{argument_2}}]]</option>
+            <option>[[{{argument_3}}]]</option>
+            <option>[[{{argument_4}}]]</option>
+            <option>[[{{argument_5}}]]</option>
+            <option>[[{{argument_6}}]]</option>
+            <option>[[{{argument_7}}]]</option>
+            <option>[[{{argument_8}}]]</option>
+        </template>
+    </variant>
+</config>
