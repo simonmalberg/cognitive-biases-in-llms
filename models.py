@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from tests import Template
+from tests import Template, TestCase
 import re
 import random
 import openai
@@ -12,6 +12,7 @@ class DecisionResult:
     """
 
     def __init__(self, model):
+        # TODO chosen option, confidence in each option, (explanation)
         pass
 
 
@@ -31,7 +32,7 @@ class LLM(ABC):
         pass
 
     @abstractmethod
-    def decide(self) -> DecisionResult:
+    def decide(self, test_case: TestCase) -> DecisionResult:
         pass
 
 
@@ -87,6 +88,8 @@ class GptThreePointFiveTurbo(LLM):
         return text
 
     def populate(self, control: Template, treatment: Template, scenario: str) -> tuple[Template, Template]:
+        # TODO be able to handle empty templates (e.g., control = None)
+
         # Define the prompt to the LLM
         prompt = f"""\
 You will be given a scenario, a control template, and a treatment template. \
@@ -112,6 +115,8 @@ Please provide the texts to fill in the gaps in the following JSON format:
 Fill in the gaps according to the instructions and scenario.\
 """
 
+        # TODO enable OpenAI's JSON mode
+
         # Obtain a response from the LLM
         response = openai.ChatCompletion.create(
             model=self.NAME,
@@ -124,9 +129,13 @@ Fill in the gaps according to the instructions and scenario.\
         # Parse the replacements proposed by the LLM
         replacements = json.loads(response.choices[0].message['content'].strip())
 
+        # TODO validation of replacements
+
         # Insert the proposed replacements into the template gaps
         filled_control_text = self._fill_gaps(control.serialize(), replacements)
         filled_treatment_text = self._fill_gaps(treatment.serialize(), replacements)
+
+        # TODO create a function in the template class to insert LLM-generated parts, i.e., [[ ... ]] to avoid serializing and parsing
 
         # Create new templates with the gaps filled
         filled_control = Template(filled_control_text)
