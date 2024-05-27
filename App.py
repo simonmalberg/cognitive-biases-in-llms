@@ -1,5 +1,5 @@
 import generation as gen
-from models import RandomModel
+from models import RandomModel, GptThreePointFiveTurbo
 import random
 
 # currently supported biases
@@ -21,9 +21,11 @@ if __name__ == "__main__":
     # Randomly pick a cognitive bias
     bias = random.choice(BIASES) # TODO: come up with an approach to store all biases' names
                                  # TODO: load bias from command line arguments
+    bias = "DummyBias"
 
     # Generate a dummy test case and print it 
-    model = RandomModel()
+    # model = RandomModel()
+    model = GptThreePointFiveTurbo()
     # Load the respective test generator for bias
     generator = gen.get_generator(bias)
     test_case = generator.generate(model, scenario)
