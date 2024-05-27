@@ -1,0 +1,30 @@
+<config bias="Anchoring Bias">
+    <custom_values name="anchor_sentence">
+        <!-- Actual value: "Write a sentence that features a random number." -->
+        <value>This is a sentence that features number 10 and supposed to be LLM-generated.</value>
+    </custom_values>
+    <variant name="default">
+        <template type="control">
+            <situation>Suppose you are a [[type]] manager at [[organization]].</situation>
+            <situation>[[Some follow-up information about your position, company, and task]].</situation>
+            <situation>[[A description of a numerical metric that is associated with this decision-making task]].</situation>
+            <situation>[[Some background information about the activity]].</situation>
+            <prompt>[[Formulate a multiple choice question asking to estimate the metric]]</prompt>
+            <option>[[Option 1]]</option>
+            <option>[[Option 2]]</option>
+            <option>[[Option 3]]</option>
+            <option>[[Option 4]]</option>
+        </template>
+        <template type="treatment">
+            <situation>Suppose you are a [[type]] manager at [[organization]].</situation>
+            <situation>[[Some follow-up information about your position, company, and task]].</situation>
+            <situation>[[A description of a numerical metric that is associated with this decision-making task]].</situation>
+            <situation>[[Some background information about the activity]]. {{anchor_sentence}}</situation>
+            <prompt>[[Formulate a multiple choice question asking to estimate the metric]]</prompt>
+            <option>[[Option 1]]</option>
+            <option>[[Option 2]]</option>
+            <option>[[Option 3]]</option>
+            <option>[[Option 4]]</option>
+        </template>
+    </variant>
+</config>

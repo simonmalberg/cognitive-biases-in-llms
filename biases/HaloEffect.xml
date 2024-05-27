@@ -1,0 +1,34 @@
+<config bias="Halo Effect">
+    <custom_values name="experience_sentiment">
+        <value>positive</value>
+        <value>negative</value>
+    </custom_values>
+    <variant name="default">
+        <template type="control">
+            <situation>Suppose you are a [[type]] manager at [[organization]].</situation>
+            <situation>[[Some follow-up information about your position, company, and task]].</situation>
+            <situation>[[A description of your concrete {{experience_sentiment}} experience of a person, company,
+country, brand, or product associated with a similar task]].</situation>
+            <situation>With that in mind, you are making a decision on your task.</situation>
+            <prompt>[[A formulation of a question for a concrete numerical decision that features the initial task]].
+Provide a single digit of the answer only.</prompt>
+            <option>[[Single number that corresponds to the most optimistic answer]]</option>
+            <option>[[Single number that corresponds to the mildly optimistic answer]]</option>
+            <option>[[Single number that corresponds to the mildly pessimistic answer]]</option>
+            <option>[[Single number that corresponds to the most pessimistic answer]]</option>
+        </template>
+        <template type="treatment">
+            <situation>Suppose you are a [[type]] manager at [[organization]].</situation>
+            <situation>[[Some follow-up information about your position, company, and task]].</situation>
+            <situation>[[A description of your concrete {{experience_sentiment}} experience of a person, company,
+country, brand, or product associated with a similar task]].</situation>
+            <situation>With that in mind, you are making a decision on your task.</situation>
+            <prompt>[[A formulation of a question for a concrete numerical decision that features the initial task]].
+In addition, justify your decision with a written statement for the upper management.</prompt>
+            <option>[[Single number that corresponds to the most optimistic answer]]</option>
+            <option>[[Single number that corresponds to the mildly optimistic answer]]</option>
+            <option>[[Single number that corresponds to the mildly pessimistic answer]]</option>
+            <option>[[Single number that corresponds to the most pessimistic answer]]</option>
+        </template>
+    </variant>
+</config>

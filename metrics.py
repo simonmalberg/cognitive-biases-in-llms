@@ -222,3 +222,63 @@ class LossAversionMetric:
         result = 1 - np.sum(answer / lambda_val) / np.sum(1 / lambda_val)
 
         return result
+
+
+class ConfirmationBiasMetric:
+    """
+    A class that describes the quantitative evaluation of the confirmation bias in a model.
+
+    Individual metric:
+    𝔅ᵢ = max(0, [aᵢ(aᵢ⁺ − aᵢ⁻) + (1 − aᵢ)(aᵢ⁻ − aᵢ⁺)]/(aᵢ⁺ + aᵢ⁻))  ∀i = 1,.., n;
+
+
+    Batch metric: [TODO: potentially can also use simple average]
+    𝔅 = (𝔅₁N₁ + ... + 𝔅ₙNₙ) / (N₁ + ... + Nₙ),
+
+    where:
+    aᵢ ∈ {0,1} is the chosen answer in the control version of the i-th test;
+    aᵢ⁺ is the number of pro-arguments selected in the treatment version of the i-th test;
+    aᵢ⁻ is the number of con-arguments selected in the treatment version of the i-th test;
+    Nᵢ is the number of arguments in the treatment version of the i-th test;
+    n is number of test cases in the batch.
+
+    Attributes:
+        overall (bool): A flag that is used to indicate that a single result per batch of test is required.
+    """
+
+    def __init__(self, overall: bool):
+        self.overall = overall
+
+    def compute(
+        self,
+        answer: np.array,
+        pro_answer: np.array,
+        con_answer: np.array,
+        n_args: np.array,
+    ) -> np.array:
+        """
+        Computes the confirmation bias metric for the given batch of test instances.
+
+        Args:
+            answer (np.array, shape (batch, 1)): The answer(s) chosen in the control version(s).
+            pro_answer (np.array, shape (batch, 1)): The number of pro-arguments chosen in the treatment version(s).
+            con_answer (np.array, shape (batch, 1)): The number of con-arguments chosen in the treatment version(s).
+            n_args (np.array, shape (batch, 1)): The number of arguments available in the treatment version(s).
+
+        Returns:
+            The confirmation bias metric value.
+        """
+        result = np.maximum(
+            0,
+            (
+                answer * (pro_answer - con_answer)
+                + (1 - answer) * (con_answer - pro_answer)
+            )
+            / (pro_answer + con_answer),
+        )
+        if not self.overall:
+            return result
+
+        result = np.sum(result * n_args) / np.sum(n_args)
+
+        return result
