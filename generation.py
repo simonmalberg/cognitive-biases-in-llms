@@ -57,15 +57,8 @@ class TestGenerator(ABC):
             A tuple containing the populated control and treatment templates.
         """
 
-        # Serialize the templates into strings
-        control_str = control.serialize()
-        treatment_str = treatment.serialize()
-
-        # Populate the serialized templates using the model and scenario
-        control_str, treatment_str = model.populate(control_str, treatment_str, scenario)
-
-        # Deserialize the populated strings back into templates
-        control, treatment = Template(control_str), Template(treatment_str)
+        # Populate the templates using the model and scenario
+        control, treatment = model.populate(control, treatment, scenario)
 
         return control, treatment
 
