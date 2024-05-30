@@ -1,6 +1,9 @@
 import generation as gen
 from models import RandomModel, GptThreePointFiveTurbo
 import random
+from dotenv import load_dotenv
+
+load_dotenv()  # take environment variables from .env.
 
 # currently supported biases
 BIASES = ['DummyBias', 'AnchoringBias', 'HaloEffect', 'LossAversion', 'ConfirmationBias']
@@ -21,7 +24,6 @@ if __name__ == "__main__":
     # Randomly pick a cognitive bias
     bias = random.choice(BIASES) # TODO: come up with an approach to store all biases' names
                                  # TODO: load bias from command line arguments
-    bias = "DummyBias"
 
     # Generate a dummy test case and print it 
     # model = RandomModel()

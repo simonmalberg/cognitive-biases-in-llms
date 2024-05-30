@@ -1,7 +1,13 @@
 <config bias="Confirmation Bias">
     <custom_values name="argument">
-        <value>pro-argument</value>
-        <value>con-argument</value>
+        <value>pro_argument_1</value>
+        <value>pro_argument_2</value>
+        <value>pro_argument_3</value>
+        <value>pro_argument_4</value>
+        <value>con_argument_1</value>
+        <value>con_argument_2</value>
+        <value>con_argument_3</value>
+        <value>con_argument_4</value>
     </custom_values>
     <variant name="default">
         <template type="control">

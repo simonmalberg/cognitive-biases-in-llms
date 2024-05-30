@@ -8,11 +8,10 @@
         <value></value>
     </custom_values>
     <variant name="default">
-        <template type="control">
+        <template type="treatment">
             <situation>Suppose you are a [[type]] manager at [[organization]].</situation>
-            <situation>[[Some follow-up information about your position, company, and task]].</situation>
-            <situation>[[A description of a risky choice connected to this task that features a potential {{first_outcome}}
-of an amount {{first_amount}}X and a {{second_outcome}} of amount {{second_amount}}X]].</situation>
+            <situation>[[Some follow-up information about your position, company, and task]]</situation>
+            <situation>[[Provide a description of a risky choice connected to this task that features a potential {{first_outcome}} of some amount {{first_amount}}X and a {{second_outcome}} of some amount {{second_amount}}X]]</situation>
             <situation>The exact probabilities of both outcomes are unknown.</situation>
             <prompt>Would you pursue this opportunity?</prompt>
             <option>Yes.</option>

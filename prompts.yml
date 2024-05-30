@@ -1,0 +1,47 @@
+system_prompt: >-
+    You are a helpful assistant designed to output JSON.
+first_prompt: >-
+    You will be given a scenario and a template.
+    The template has gaps indicated by double square brackets
+    containing instructions on how to fill them, e.g., [[Fill in the blanks]].
+
+
+    --- SCENARIO ---
+
+    {{scenario}}
+
+
+    --- TEMPLATE ---
+
+    {{control_template}}
+
+
+    Please provide the texts to fill in the gaps in the following JSON format:
+
+    {
+        "[[blank]]": "replacement1",
+        "[[blank]]": "replacement2",
+        ...
+    }
+
+    Fill in the gaps according to the instructions and scenario.
+second_prompt: >-
+    You will be given a template.
+    The template has gaps indicated by double square brackets
+    containing instructions on how to fill them, e.g., [[Fill in the blanks]].
+
+
+    --- TEMPLATE ---
+
+    {{treatment_template}}
+
+    
+    Please provide the texts to fill in the gaps in the following JSON format:
+
+    {
+        "[[Blank 1]]": "replacement1",
+        "[[Blank 2]]": "replacement2",
+        ...
+    }
+
+    Fill in the gaps according to the instructions and scenario.

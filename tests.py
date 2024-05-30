@@ -120,6 +120,15 @@ class Template:
                 current = self.elements[idx][0]
                 self.elements[idx] = (current.replace('{{' + pattern + '}}', (value or '')),) + self.elements[idx][1:]
 
+    def insert_generated_values(self, generated_dict: dict) -> None:
+        # assumes that pattern is always enclosed in double square brackets: [[pattern]],
+        # and that the generated_dict contains: 
+        # {pattern: value}, where pattern EXACTLY matches the pattern in the template.
+        for pattern, value in generated_dict.items():
+            for idx, _ in enumerate(self.elements):
+                current = self.elements[idx][0]
+                self.elements[idx] = (current.replace(f'{pattern}', value),) + self.elements[idx][1:]
+
     def __str__(self) -> str:
         return self.format(insert_headings=True, show_type=False, show_generated=False)
 

@@ -98,6 +98,7 @@ class DummyBiasTestGenerator(TestGenerator):
         return test_case
     
 
+# TODO: add functionality to generate the anchor from the answer options' interval
 class AnchoringBiasTestGenerator(TestGenerator):
     """
     Test generator for the Anchoring Bias.
@@ -111,22 +112,19 @@ class AnchoringBiasTestGenerator(TestGenerator):
         self.BIAS = "Anchoring Bias"
         self.config = super().load_config(self.BIAS)
 
-    def custom_population(self, model: LLM, completed_template: str) -> None:
+    def custom_population(self, model: LLM, completed_template: Template) -> None:
         """
         Custom population method for the Anchoring Bias test case.
 
         Args:
-            bias_dict (dict): A dictionary containing the data for the test case from the respective YAML file.
             model (LLM): The LLM model to use for generating the anchor sentence.
-            completed_template (str): The assembled template with scenario for the test case.
+            completed_template (Template): The assembled template with scenario for the test case.
         """
         custom_values = self.config.get_custom_values()
         # Loading the anchor sentence generation prompt
         anchor_sentence = custom_values['anchor_sentence'][0]
-
-        # TODO: add functionality to get LLM-generated result given prompt
-        # anchor_sentence = model.populate(anchor_sentence)
-
+        # generate the anchor sentence
+        anchor_sentence = model.generate_misc(anchor_sentence)
         # Inserting the anchor into the template
         completed_template.insert_custom_values(['anchor_sentence'], [anchor_sentence])
         # Explicitly extract the numerical value from the generated anchor sentence
@@ -178,7 +176,7 @@ class LossAversionTestGenerator(TestGenerator):
         Custom population method for the Loss Aversion test case.
 
         Args:
-            completed_template (str): The assembled template for the test case.
+            completed_template (Template): The assembled template for the test case.
         """
         # Loading the dict with custom values
         custom_values = self.config.get_custom_values()
@@ -207,21 +205,20 @@ class LossAversionTestGenerator(TestGenerator):
 
     def generate(self, model: LLM, scenario: str) -> TestCase:
 
-        control: Template = self.config.get_control_template()
-        self.custom_population(control)
-        control_custom_values = control.inserted_values
+        treatment: Template = self.config.get_treatment_template()
+        self.custom_population(treatment)
+        treatment_custom_values = treatment.inserted_values
 
-        # TODO: Include possibility of having a single template in a text, currently yields an error
-        # control, _ = super().populate(model, control, None, scenario)
+        _, treatment = super().populate(model, None, treatment, scenario)
 
         # Create a test case object and remember the sampled lambda value
         test_case = TestCase(
             bias=self.BIAS,
-            control=control,
-            treatment=None,
+            control=None,
+            treatment=treatment,
             generator=model.NAME,
-            control_custom_values=control_custom_values,
-            treatment_custom_values=None,
+            control_custom_values=None,
+            treatment_custom_values=treatment_custom_values,
             scenario=scenario
         )
 
@@ -307,17 +304,15 @@ class ConfirmationBiasTestGenerator(TestGenerator):
         Args:
             completed_template (Template): The assembled template for the test case.
         """
-        NUM_ARGUMENTS = 4
-
         # Loading the dict with custom values
         custom_values = self.config.get_custom_values()
         # Loading the possible kinds of arguments
         outcomes = custom_values['argument']
-        # Sampling N pros and N cons arguments and shuffling them
-        outcomes = outcomes * NUM_ARGUMENTS
+        num_arguments = len(outcomes)
+        # Shuffling arguments
         random.shuffle(outcomes)
         # insertion of the arguments into the respective answer places of the template
-        to_be_filled = [f'argument_{i}' for i in range(1, 2 * NUM_ARGUMENTS + 1)]
+        to_be_filled = [f'argument_{i}' for i in range(1, 2 * num_arguments + 1)]
         completed_template.insert_custom_values(to_be_filled, outcomes)
 
     def generate(self, model: LLM, scenario: str) -> TestCase:
