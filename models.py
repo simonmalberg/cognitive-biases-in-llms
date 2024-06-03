@@ -5,6 +5,15 @@ import random
 from openai import OpenAI
 import json
 import yaml
+import warnings
+
+class PopulationError(Exception):
+    """A class for exceptions raised during the population of test cases."""
+    pass
+
+class DecisionError(Exception):
+    """A class for exceptions raised during the decision of test cases."""
+    pass
 
 
 class DecisionResult:
@@ -196,22 +205,31 @@ class GptThreePointFiveTurbo(LLM):
                 {"role": "user", "content": prompt}
             ]
             )
-        # Parse the replacements proposed by the LLM (NOTE: response have other, potentially useful, components)
+        # Parse the replacements proposed by the LLM
         replacements = json.loads(response.choices[0].message.content)
-        # TODO: validate the replacements
-        self.validate_population() 
+        self.validate_population(control, replacements)
         # Insert the proposed replacements into the template gaps
         control.insert_generated_values(replacements)
         treatment.insert_generated_values(replacements)
         
         return control, treatment
     
-    # TODO validation of replacements (e.g., check if all placeholders are filled - i.e., number of placeholders
-    # in the control template is equal to the number of replacements proposed by the LLM + check if the replacements are not empty, 
-    # that the inserted values are not the same as the initial placeholders, etc.)
-    def validate_population(self):
-        pass
-    
+
+    def validate_population(self, template: Template, replacements: dict):
+            # test 1: check that number of replacements is equal to the number of placeholders in the template
+            template_entries = re.findall(r'\[\[(.*?)\]\]', template.serialize())
+            if len(replacements) < len(template_entries):
+                raise PopulationError("Not enough replacements generated.")
+            # check that all placeholders are filled, and the replacements are not empty / same as the initial placeholders
+            for ((placeholder, replacement), entry) in zip(replacements.items(), template_entries):
+                if not placeholder == "[[" + entry + "]]":
+                    raise PopulationError("A placeholder was skipped/altered.") 
+                if not replacement:
+                    raise PopulationError("A placeholder was not filled.")
+                if replacement == entry:
+                    raise PopulationError("Generated passage is the same as the placeholder.")
+
+
     def populate_difference(self, treatment: Template) -> Template:
         # Load the prompt to the LLM
         prompt = self.PROMPTS['second_prompt']
@@ -229,25 +247,34 @@ class GptThreePointFiveTurbo(LLM):
                 {"role": "user", "content": prompt}
             ]
             )
-        # Parse the replacements proposed by the LLM (NOTE: response have other, potentially useful, components)
+        # Parse the replacements proposed by the LLM
         replacements = json.loads(response.choices[0].message.content)
-        # TODO: validate the replacements
-        self.validate_population() 
+        self.validate_population(treatment, replacements) 
         treatment.insert_generated_values(replacements)
 
         return treatment
 
 
     def populate(self, control: Template, treatment: Template, scenario: str) -> tuple[Template, Template]:
-        if not control:
-            control = treatment
-            treatment, control = self.populate_intersection(control, treatment, scenario)
-            control = None
-        else:
-            control, treatment = self.populate_intersection(control, treatment, scenario)
-            treatment = self.populate_difference(treatment)
+        try:
+            if not control:
+                control = treatment
+                treatment, control = self.populate_intersection(control, treatment, scenario)
+                control = None
+            else:
+                control, treatment = self.populate_intersection(control, treatment, scenario)
+                # Check if there are any placeholders left in the treatment template
+                if re.findall(r'\[\[(.*?)\]\]', treatment.serialize()):
+                    treatment = self.populate_difference(treatment)
+        except PopulationError as e:
+            warnings.warn(e)
+            return None, None
         
         return control, treatment
     
     def decide(self):
-        pass
+        try:
+            pass
+        except DecisionError as e:
+            warnings.warn(e)
+            return None, None

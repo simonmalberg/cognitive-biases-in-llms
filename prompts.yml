@@ -39,8 +39,8 @@ second_prompt: >-
     Please provide the texts to fill in the gaps in the following JSON format:
 
     {
-        "[[Blank 1]]": "replacement1",
-        "[[Blank 2]]": "replacement2",
+        "[[blank]]": "replacement1",
+        "[[blank]]": "replacement2",
         ...
     }
 

@@ -217,8 +217,7 @@ class LossAversionMetric:
         if not self.overall:
             return answer
 
-        # increase sharpness decreasing λᵢ by 1 (base value λ₀)
-        lambda_val = lambda_val - 1
+        lambda_val = lambda_val
         result = 1 - np.sum(answer / lambda_val) / np.sum(1 / lambda_val)
 
         return result

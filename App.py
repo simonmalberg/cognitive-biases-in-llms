@@ -6,7 +6,7 @@ from dotenv import load_dotenv
 load_dotenv()  # take environment variables from .env.
 
 # currently supported biases
-BIASES = ['DummyBias', 'AnchoringBias', 'HaloEffect', 'LossAversion', 'ConfirmationBias']
+BIASES = ['AnchoringBias', 'HaloEffect', 'LossAversion', 'ConfirmationBias']
 
 
 if __name__ == "__main__":
