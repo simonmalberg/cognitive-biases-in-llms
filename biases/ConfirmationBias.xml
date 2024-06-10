@@ -1,22 +1,28 @@
 <config bias="Confirmation Bias">
     <custom_values name="argument">
-        <value>pro-argument</value>
-        <value>con-argument</value>
+        <value>pro argument 1</value>
+        <value>pro argument 2</value>
+        <value>pro argument 3</value>
+        <value>pro argument 4</value>
+        <value>con argument 1</value>
+        <value>con argument 2</value>
+        <value>con argument 3</value>
+        <value>con argument 4</value>
     </custom_values>
     <variant name="default">
         <template type="control">
-            <situation>Suppose you are a [[type]] manager at [[organization]].</situation>
-            <situation>[[Some follow-up information about your position, company, and task]].</situation>
-            <situation>[[A description of the concrete non-obvious statement/opinion/proposal associated with this task]].</situation>
-            <prompt>Do you agree with [[this statement/opinion/proposal]]?</prompt>
+            <situation>Suppose you are a [[type]] manager at [[organization]]</situation>
+            <situation>[[Some follow-up information about your position, company, and task]]</situation>
+            <situation>[[A description of the concrete non-obvious statement/opinion/proposal made by someone in the company/field associated with this task]]</situation>
+            <prompt>Do you agree with this?</prompt>
             <option>Yes</option>
             <option>No</option>
         </template>
         <template type="treatment">
-            <situation>Suppose you are a [[type]] manager at [[organization]].</situation>
-            <situation>[[Some follow-up information about your position, company, and task]].</situation>
-            <situation>[[A description of the concrete non-obvious statement/opinion/proposal associated with this task]].</situation>
-            <prompt>Which of the following pros and cons arguments would you consider while deciding about [[this statement/opinion/proposal]]?</prompt>
+            <situation>Suppose you are a [[type]] manager at [[organization]]</situation>
+            <situation>[[Some follow-up information about your position, company, and task]]</situation>
+            <situation>[[A description of the concrete non-obvious statement/opinion/proposal made by someone in the company/field associated with this task]]</situation>
+            <prompt>Which of the following pros and cons arguments would you consider while deciding about this matter?</prompt>
             <option>[[{{argument_1}}]]</option>
             <option>[[{{argument_2}}]]</option>
             <option>[[{{argument_3}}]]</option>
