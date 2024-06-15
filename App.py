@@ -6,7 +6,7 @@ from dotenv import load_dotenv
 load_dotenv()  # take environment variables from .env.
 
 # currently supported biases
-BIASES = ['AnchoringBias', 'HaloEffect', 'LossAversion', 'ConfirmationBias']
+BIASES = ['AnchoringBias', 'LossAversion', 'ConfirmationBias'] #TODO: Halo Effect test needs to be fixed
 
 
 if __name__ == "__main__":
@@ -24,11 +24,12 @@ if __name__ == "__main__":
     # Randomly pick a cognitive bias
     bias = random.choice(BIASES) # TODO: come up with an approach to store all biases' names
                                  # TODO: load bias from command line arguments
-
-    # Generate a dummy test case and print it 
-    # model = RandomModel()
-    model = GptThreePointFiveTurbo()
+    population_model = GptThreePointFiveTurbo()
     # Load the respective test generator for bias
     generator = gen.get_generator(bias)
-    test_case = generator.generate(model, scenario)
+    test_case = generator.generate(population_model, scenario)
     print(test_case)
+    # declare the decision model (might differ from the population model)
+    decision_model = GptThreePointFiveTurbo()
+    decision = decision_model.decide(test_case)
+    print(decision)

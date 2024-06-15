@@ -6,6 +6,8 @@ from openai import OpenAI
 import json
 import yaml
 import warnings
+import lmql
+import tiktoken
 
 class PopulationError(Exception):
     """A class for exceptions raised during the population of test cases."""
@@ -21,9 +23,19 @@ class DecisionResult:
     A class representing the result of a decision made by an LLM for a specific test case.
     """
 
-    def __init__(self, model):
+    def __init__(self, control_option: int, treatment_option: int, confidences: list, explanation: str):
         # TODO chosen option, confidence in each option, (explanation)
-        pass
+        self.CONTROL_OPTION = control_option
+        self.TREATMENT_OPTION = treatment_option
+        self.CONFIDENCES = None
+        self.EXPLANATION = None
+
+    def __str__(self) -> str:
+        return f'---DecisionResult---\n\nCONTROL OPTION: {self.CONTROL_OPTION}\nTREATMENT OPTION: {self.TREATMENT_OPTION}\n\n------'
+
+    def __repr__(self) -> str:
+        return self.__str__()
+
 
 
 class LLM(ABC):
@@ -41,7 +53,7 @@ class LLM(ABC):
             self.PROMPTS = yaml.safe_load(prompts)
 
     @abstractmethod
-    def populate(self, control: Template, treatment: Template, scenario: str) -> tuple[Template, Template]:
+    def populate(self, control: Template, treatment: Template, scenario: str) -> tuple[Template, Template, dict]:
         pass
 
     @abstractmethod
@@ -82,82 +94,6 @@ class RandomModel(LLM):
     def decide(self):
         pass
 
-'''
-class GptThreePointFiveTurbo(LLM):
-    """
-    A class representing a GPT-3.5-Turbo LLM that populates test cases according to the scenario.
-
-    Attributes:
-        NAME (str): The name of the model.
-    """
-
-    def __init__(self):
-        super().__init__()
-        self.NAME = "gpt-3.5-turbo"
-
-    def _fill_gaps(self, text, replacements):
-        for placeholder, replacement in replacements.items():
-            text = text.replace(f"[[{placeholder}]]", replacement)
-        return text
-
-    def populate(self, control: Template, treatment: Template, scenario: str) -> tuple[Template, Template]:
-        # TODO be able to handle empty templates (e.g., control = None)
-
-        # Define the prompt to the LLM
-        prompt = f"""\
-You will be given a scenario, a control template, and a treatment template. \
-The templates have gaps indicated by double square brackets containing instructions on how to fill them, e.g., [[Fill in the blanks]]. \
-Some gaps can be present in both the control and treatment templates.
-
---- SCENARIO ---
-{scenario}
-
---- CONTROL TEMPLATE ---
-{control.format(insert_headings=True, show_type=False, show_generated=True)}
-
---- TREATMENT TEMPLATE ---
-{treatment.format(insert_headings=True, show_type=False, show_generated=True)}
-
-Please provide the texts to fill in the gaps in the following JSON format:
-{{
-    "placeholder1": "replacement1",
-    "placeholder2": "replacement2",
-    ...
-}}
-
-Fill in the gaps according to the instructions and scenario.\
-"""
-
-        # TODO enable OpenAI's JSON mode
-
-        # Obtain a response from the LLM
-        response = self.client.chat.completions.create(
-            model=self.NAME,
-            messages=[
-                {"role": "system", "content": "You are a helpful assistant."},
-                {"role": "user", "content": prompt}
-            ]
-        )
-
-        # Parse the replacements proposed by the LLM
-        replacements = json.loads(response.choices[0].message['content'].strip())
-
-        # TODO validation of replacements
-
-        # Insert the proposed replacements into the template gaps
-        filled_control_text = self._fill_gaps(control.serialize(), replacements)
-        filled_treatment_text = self._fill_gaps(treatment.serialize(), replacements)
-
-        # Create new templates with the gaps filled
-        filled_control = Template(filled_control_text)
-        filled_treatment = Template(filled_treatment_text)
-
-        return filled_control, filled_treatment
-
-    def decide(self):
-        pass
-'''
-
     
 class GptThreePointFiveTurbo(LLM):
     """
@@ -167,6 +103,7 @@ class GptThreePointFiveTurbo(LLM):
 
     Attributes:
         NAME (str): The name of the model.
+        DECODER (str): The decoding method used to generate completions from the model.
         CLIENT (OpenAI): The OpenAI client used to interact with the GPT-3.5-Turbo model.
         PROMPTS (dict): A dictionary containing the prompts used to interact with the model.
     """
@@ -174,6 +111,7 @@ class GptThreePointFiveTurbo(LLM):
     def __init__(self):
         super().__init__()
         self.NAME = "gpt-3.5-turbo"
+        self.DECODER = "argmax"
         self.client = OpenAI()
 
     def generate_misc(self, prompt: str) -> str:
@@ -187,7 +125,7 @@ class GptThreePointFiveTurbo(LLM):
         )
         return response.choices[0].message.content
 
-    def populate_intersection(self, control: Template, treatment: Template, scenario: str) -> tuple[Template, Template]:
+    def populate_intersection(self, control: Template, treatment: Template, scenario: str) -> tuple[Template, Template, dict]:
         # Load the prompt to the LLM
         prompt = self.PROMPTS['first_prompt']
         system_content = self.PROMPTS['system_prompt']
@@ -212,7 +150,7 @@ class GptThreePointFiveTurbo(LLM):
         control.insert_generated_values(replacements)
         treatment.insert_generated_values(replacements)
         
-        return control, treatment
+        return control, treatment, replacements
     
 
     def validate_population(self, template: Template, replacements: dict):
@@ -230,7 +168,7 @@ class GptThreePointFiveTurbo(LLM):
                     raise PopulationError("Generated passage is the same as the placeholder.")
 
 
-    def populate_difference(self, treatment: Template) -> Template:
+    def populate_difference(self, treatment: Template) -> tuple[Template, dict]:
         # Load the prompt to the LLM
         prompt = self.PROMPTS['second_prompt']
         system_content = self.PROMPTS['system_prompt']
@@ -252,29 +190,84 @@ class GptThreePointFiveTurbo(LLM):
         self.validate_population(treatment, replacements) 
         treatment.insert_generated_values(replacements)
 
-        return treatment
+        return treatment, replacements
 
-
-    def populate(self, control: Template, treatment: Template, scenario: str) -> tuple[Template, Template]:
+    def populate(self, control: Template, treatment: Template, scenario: str) -> tuple[Template, Template, dict]:
         try:
             if not control:
                 control = treatment
-                treatment, control = self.populate_intersection(control, treatment, scenario)
+                treatment, control, replacements = self.populate_intersection(control, treatment, scenario)
                 control = None
             else:
-                control, treatment = self.populate_intersection(control, treatment, scenario)
+                control, treatment, replacements = self.populate_intersection(control, treatment, scenario)
                 # Check if there are any placeholders left in the treatment template
                 if re.findall(r'\[\[(.*?)\]\]', treatment.serialize()):
-                    treatment = self.populate_difference(treatment)
+                    treatment, augm_dict = self.populate_difference(treatment)
+                    replacements.update(augm_dict)
         except PopulationError as e:
             warnings.warn(e)
-            return None, None
+            return None, None, None
         
-        return control, treatment
+        return control, treatment, replacements
     
-    def decide(self):
+    # The ChatGPT model does not support the constraint on the answer, hence rewrote the functions. 
+    # Did not delete the code since it should work with other models.
+    #
+    # Two possible implementations: 
+    #
+    # @lmql.query
+    # def get_decision(prompt_case):
+    #     '''lmql
+    #     "{promp_case}. The selected option is: [ANSWER: int]"
+    #     return ANSWER
+    #     '''
+    # 
+    # def get_decision(self, prompt_case: str) -> int:
+    #     answer = lmql.F("{promp_case}. The selected option is: [ANSWER: int]")
+    #     return answer(prompt_case, model=lmql.model(self.NAME), decoder=self.DECODER)
+    
+    
+    # functions using the OpenAI API (naive extraction of the digits in the answer, 
+    # since the model does not support constraints on the answer + logit_bias does not guarantee the exclusion of other options)
+    #
+    # def extract_numerical(self, answer: str) -> int:
+        # extract all numbers from the answer and return their concatenation
+        # return int(''.join(re.findall(r'.*(\d+):.*', answer)))
+    
+    def get_decision(self, prompt_case: str) -> int:
+        # Get the tokeniser corresponding to a given OpenAI model
+        # enc = tiktoken.encoding_for_model(self.NAME)
+        # Extract answer options from the prompt
+        # answer_options = re.findall(r'Option (\d+): .*', prompt_case)
+        # logit_bias_map = {}
+        # for option in answer_options:
+            # making sure that the model has a high bias towards the options in the output (obviously problematic)
+            # logit_bias_map[str(enc.encode(option)[0])] = 100
+        completions = self.client.chat.completions.create(
+            model=self.NAME,
+            messages=[{"role": "user", "content": prompt_case}],
+            # logit_bias=logit_bias_map
+        )
+        chosen_option = completions.choices[0].message.content
+        # chosen_option = self.extract_numerical(chosen_option)
+        
+        return chosen_option 
+    
+    def decide(self, test_case: TestCase) -> DecisionResult:
         try:
-            pass
+            prompt = self.PROMPTS['decision_prompt']
+            test_prompt = prompt.replace("{{test_case}}", test_case.TREATMENT.format(insert_headings=True,
+                                                                                     show_type=False, 
+                                                                                     show_generated=True))
+            treatment_option = self.get_decision(test_prompt)
+            if not test_case.CONTROL:
+                return DecisionResult(None, treatment_option, None, None)
+            else:
+                test_prompt = prompt.replace("{{test_case}}", test_case.CONTROL.format(insert_headings=True,
+                                                                                       show_type=False, 
+                                                                                       show_generated=True))
+                control_option = self.get_decision(test_prompt)
+                return DecisionResult(control_option, treatment_option, None, None)
         except DecisionError as e:
             warnings.warn(e)
-            return None, None
+            return DecisionResult(None, None, None)

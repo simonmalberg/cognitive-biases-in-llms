@@ -45,3 +45,9 @@ second_prompt: >-
     }
 
     Fill in the gaps according to the instructions and scenario.
+decision_prompt: >-
+    You will be given a decision-making task, question, and answer options. Please select a single option only and return its number only. 
+    If the task supports multiple correct answers, please select all correct options and return them as a concatenated int.
+
+
+    {{test_case}}

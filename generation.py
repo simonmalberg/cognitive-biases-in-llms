@@ -58,9 +58,9 @@ class TestGenerator(ABC):
         """
 
         # Populate the templates using the model and scenario
-        control, treatment = model.populate(control, treatment, scenario)
+        control, treatment, replacements = model.populate(control, treatment, scenario)
 
-        return control, treatment
+        return control, treatment, replacements
 
 
 class DummyBiasTestGenerator(TestGenerator):
@@ -142,7 +142,7 @@ class AnchoringBiasTestGenerator(TestGenerator):
         self.custom_population(model, treatment)
         treatment_inserted_values = treatment.inserted_values
 
-        control, treatment = super().populate(model, control, treatment, scenario)
+        control, treatment, replacements = super().populate(model, control, treatment, scenario)
 
         # Create a test case object
         test_case = TestCase(
@@ -152,6 +152,7 @@ class AnchoringBiasTestGenerator(TestGenerator):
             generator=model.NAME,
             control_custom_values=None,
             treatment_custom_values=treatment_inserted_values,
+            replacements=replacements,
             scenario=scenario
         )
 
@@ -209,7 +210,7 @@ class LossAversionTestGenerator(TestGenerator):
         self.custom_population(treatment)
         treatment_custom_values = treatment.inserted_values
 
-        _, treatment = super().populate(model, None, treatment, scenario)
+        _, treatment, replacements = super().populate(model, None, treatment, scenario)
 
         # Create a test case object and remember the sampled lambda value
         test_case = TestCase(
@@ -219,6 +220,7 @@ class LossAversionTestGenerator(TestGenerator):
             generator=model.NAME,
             control_custom_values=None,
             treatment_custom_values=treatment_custom_values,
+            replacements=replacements,
             scenario=scenario
         )
 
@@ -269,7 +271,7 @@ class HaloEffectTestGenerator(TestGenerator):
         control_inserted_values = control.inserted_values
         treatment_inserted_values = treatment.inserted_values
 
-        control, treatment = super().populate(model, control, treatment, scenario)
+        control, treatment, replacements = super().populate(model, control, treatment, scenario)
 
         test_case = TestCase(
             bias=self.BIAS,
@@ -278,6 +280,7 @@ class HaloEffectTestGenerator(TestGenerator):
             generator=model.NAME,
             control_custom_values=control_inserted_values,
             treatment_custom_values=treatment_inserted_values,
+            replacements=replacements,
             scenario=scenario
         )
 
@@ -323,7 +326,7 @@ class ConfirmationBiasTestGenerator(TestGenerator):
         self.custom_population(treatment)
 
         treatment_inserted_values = treatment.inserted_values
-        control, treatment = super().populate(model, control, treatment, scenario)
+        control, treatment, replacements = super().populate(model, control, treatment, scenario)
 
         test_case = TestCase(
             bias=self.BIAS,
@@ -332,6 +335,7 @@ class ConfirmationBiasTestGenerator(TestGenerator):
             generator=model.NAME,
             control_custom_values=None,
             treatment_custom_values=treatment_inserted_values,
+            replacements=replacements,
             scenario=scenario
         )
 

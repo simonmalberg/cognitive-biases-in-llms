@@ -1,3 +1,4 @@
 .idx/dev.nix
 *.pyc
+*.ipynb
 .env
