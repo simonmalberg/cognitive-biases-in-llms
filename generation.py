@@ -8,16 +8,16 @@ import re
 class TestGenerator(ABC):
     """
     Abstract base class for test generators. A test generator is responsible for generating test cases for a particular cognitive bias.
-    
+
     Attributes:
-        BIAS (str): The cognitive bias associated with this test generator.    
+        BIAS (str): The cognitive bias associated with this test generator.
     """
 
     def __init__(self):
         self.BIAS = "None"
-    
+
     @abstractmethod
-    def generate(self, model: LLM, bias_dict: dict, scenario: str) -> TestCase: 
+    def generate(self, model: LLM, bias_dict: dict, scenario: str) -> TestCase:
         """
         Generates a test case for the cognitive bias associated with this test generator.
 
@@ -43,7 +43,9 @@ class TestGenerator(ABC):
         """
         return TestConfig(f"./biases/{bias.replace(' ', '')}.xml")
 
-    def populate(self, model: LLM, control: Template, treatment: Template, scenario: str) -> tuple[Template, Template]:
+    def populate(
+        self, model: LLM, control: Template, treatment: Template, scenario: str
+    ) -> tuple[Template, Template]:
         """
         Populates the control and treatment templates using the provided LLM model and scenario.
 
@@ -92,11 +94,11 @@ class DummyBiasTestGenerator(TestGenerator):
             generator=model.NAME,
             control_custom_values=None,
             treatment_custom_values=None,
-            scenario=scenario
+            scenario=scenario,
         )
 
         return test_case
-    
+
 
 # TODO: add functionality to generate the anchor from the answer options' interval
 class AnchoringBiasTestGenerator(TestGenerator):
@@ -122,16 +124,18 @@ class AnchoringBiasTestGenerator(TestGenerator):
         """
         custom_values = self.config.get_custom_values()
         # Loading the anchor sentence generation prompt
-        anchor_sentence = custom_values['anchor_sentence'][0]
+        anchor_sentence = custom_values["anchor_sentence"][0]
         # generate the anchor sentence
         anchor_sentence = model.generate_misc(anchor_sentence)
         # Inserting the anchor into the template
-        completed_template.insert_custom_values(['anchor_sentence'], [anchor_sentence])
+        completed_template.insert_custom_values(["anchor_sentence"], [anchor_sentence])
         # Explicitly extract the numerical value from the generated anchor sentence
-        anchor = re.findall(r'\d+', anchor_sentence)
-        assert len(anchor) == 1, "The anchor sentence should contain exactly one numerical value"
+        anchor = re.findall(r"\d+", anchor_sentence)
+        assert (
+            len(anchor) == 1
+        ), "The anchor sentence should contain exactly one numerical value"
         # technically, we don't insert anything (just remember the value in template)
-        completed_template.insert_custom_values(['anchor'], anchor)
+        completed_template.insert_custom_values(["anchor"], anchor)
 
     def generate(self, model: LLM, scenario: str) -> TestCase:
 
@@ -142,7 +146,9 @@ class AnchoringBiasTestGenerator(TestGenerator):
         self.custom_population(model, treatment)
         treatment_inserted_values = treatment.inserted_values
 
-        control, treatment, replacements = super().populate(model, control, treatment, scenario)
+        control, treatment, replacements = super().populate(
+            model, control, treatment, scenario
+        )
 
         # Create a test case object
         test_case = TestCase(
@@ -153,11 +159,11 @@ class AnchoringBiasTestGenerator(TestGenerator):
             control_custom_values=None,
             treatment_custom_values=treatment_inserted_values,
             replacements=replacements,
-            scenario=scenario
+            scenario=scenario,
         )
 
         return test_case
-    
+
 
 class LossAversionTestGenerator(TestGenerator):
     """
@@ -182,8 +188,8 @@ class LossAversionTestGenerator(TestGenerator):
         # Loading the dict with custom values
         custom_values = self.config.get_custom_values()
         # Loading the possible outcomes and amounts
-        outcome = custom_values['outcome']
-        amount = custom_values['amount']
+        outcome = custom_values["outcome"]
+        amount = custom_values["amount"]
 
         # Sampling one of ['gain', 'loss'] and taking the index:
         first_outcome = random.choice(outcome)
@@ -195,14 +201,13 @@ class LossAversionTestGenerator(TestGenerator):
         second_amount = amount[(first_idx + 1) % 2]
 
         # Inserting the outcomes and amounts into the template
-        patterns = ['first_outcome', 'second_outcome', 'first_amount', 'second_amount']
+        patterns = ["first_outcome", "second_outcome", "first_amount", "second_amount"]
         values = [first_outcome, second_outcome, first_amount, second_amount]
         completed_template.insert_custom_values(patterns, values)
 
         # Sampling the value of lambda - TODO: might be better to sample a vector for several tests, discuss it
-        lambda_coef = round(random.uniform(1, 2), 1) # TODO: select the distribution
-        completed_template.insert_custom_values(['lambda_coef'], [str(lambda_coef)])
-        
+        lambda_coef = round(random.uniform(1, 2), 1)  # TODO: select the distribution
+        completed_template.insert_custom_values(["lambda_coef"], [str(lambda_coef)])
 
     def generate(self, model: LLM, scenario: str) -> TestCase:
 
@@ -221,11 +226,11 @@ class LossAversionTestGenerator(TestGenerator):
             control_custom_values=None,
             treatment_custom_values=treatment_custom_values,
             replacements=replacements,
-            scenario=scenario
+            scenario=scenario,
         )
 
         return test_case
-    
+
 
 class HaloEffectTestGenerator(TestGenerator):
     """
@@ -252,26 +257,30 @@ class HaloEffectTestGenerator(TestGenerator):
         """
         # Loading the dict with custom values
         custom_values = self.config.get_custom_values()
-        experience_sentiments = custom_values['experience_sentiment']
+        experience_sentiments = custom_values["experience_sentiment"]
         # Sampling one of the outcomes
         experience_sentiment = random.choice(experience_sentiments)
-        completed_template.insert_custom_values(['experience_sentiment'], [experience_sentiment])
+        completed_template.insert_custom_values(
+            ["experience_sentiment"], [experience_sentiment]
+        )
 
         return experience_sentiment
 
     def generate(self, model: LLM, scenario: str) -> TestCase:
-        
+
         control: Template = self.config.get_control_template()
         treatment: Template = self.config.get_treatment_template()
 
         # sample a sentiment for control version, insert it in the treatment
         experience_sentiment = self.custom_population(control)
-        treatment.insert_custom_values(['experience_sentiment'], [experience_sentiment])
+        treatment.insert_custom_values(["experience_sentiment"], [experience_sentiment])
         # get dictionary of inserted values
         control_inserted_values = control.inserted_values
         treatment_inserted_values = treatment.inserted_values
 
-        control, treatment, replacements = super().populate(model, control, treatment, scenario)
+        control, treatment, replacements = super().populate(
+            model, control, treatment, scenario
+        )
 
         test_case = TestCase(
             bias=self.BIAS,
@@ -281,11 +290,11 @@ class HaloEffectTestGenerator(TestGenerator):
             control_custom_values=control_inserted_values,
             treatment_custom_values=treatment_inserted_values,
             replacements=replacements,
-            scenario=scenario
+            scenario=scenario,
         )
 
         return test_case
-    
+
 
 class ConfirmationBiasTestGenerator(TestGenerator):
     """
@@ -310,12 +319,12 @@ class ConfirmationBiasTestGenerator(TestGenerator):
         # Loading the dict with custom values
         custom_values = self.config.get_custom_values()
         # Loading the possible kinds of arguments
-        outcomes = custom_values['argument']
+        outcomes = custom_values["argument"]
         num_arguments = len(outcomes)
         # Shuffling arguments
         random.shuffle(outcomes)
         # insertion of the arguments into the respective answer places of the template
-        to_be_filled = [f'argument_{i}' for i in range(1, 2 * num_arguments + 1)]
+        to_be_filled = [f"argument_{i}" for i in range(1, 2 * num_arguments + 1)]
         completed_template.insert_custom_values(to_be_filled, outcomes)
 
     def generate(self, model: LLM, scenario: str) -> TestCase:
@@ -326,7 +335,9 @@ class ConfirmationBiasTestGenerator(TestGenerator):
         self.custom_population(treatment)
 
         treatment_inserted_values = treatment.inserted_values
-        control, treatment, replacements = super().populate(model, control, treatment, scenario)
+        control, treatment, replacements = super().populate(
+            model, control, treatment, scenario
+        )
 
         test_case = TestCase(
             bias=self.BIAS,
@@ -336,7 +347,7 @@ class ConfirmationBiasTestGenerator(TestGenerator):
             control_custom_values=None,
             treatment_custom_values=treatment_inserted_values,
             replacements=replacements,
-            scenario=scenario
+            scenario=scenario,
         )
 
         return test_case
