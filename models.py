@@ -1,39 +1,9 @@
-from abc import ABC, abstractmethod
-from tests import Template, TestCase
+from base import LLM
+from tests import Template, TestCase, DecisionResult
 import re
 import random
 import openai
 import json
-
-
-class DecisionResult:
-    """
-    A class representing the result of a decision made by an LLM for a specific test case.
-    """
-
-    def __init__(self, model):
-        # TODO chosen option, confidence in each option, (explanation)
-        pass
-
-
-class LLM(ABC):
-    """
-    Abstract base class representing a Large Language Model (LLM) capable of generating and performing cognitive bias test cases.
-    
-    Attributes:
-        NAME (str): The name of the model.
-    """
-
-    def __init__(self):
-        self.NAME = "llm-abstract-base-class"
-
-    @abstractmethod
-    def populate(self, control: Template, treatment: Template, scenario: str) -> tuple[Template, Template]:
-        pass
-
-    @abstractmethod
-    def decide(self, test_case: TestCase) -> DecisionResult:
-        pass
 
 
 class RandomModel(LLM):

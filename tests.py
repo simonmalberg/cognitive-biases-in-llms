@@ -2,6 +2,16 @@ import re
 import xml.etree.ElementTree as ET
 
 
+class DecisionResult:
+    """
+    A class representing the result of a decision made by an LLM for a specific test case.
+    """
+
+    def __init__(self, model):
+        # TODO chosen option, confidence in each option, (explanation)
+        pass
+
+
 class Template:  
     """
     A class representing a single template (e.g., the control or treatment variant) for a cognitive bias test case.
