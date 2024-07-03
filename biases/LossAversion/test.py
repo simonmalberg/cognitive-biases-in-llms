@@ -47,9 +47,13 @@ class LossAversionTestGenerator(TestGenerator):
         # Sampling the value of lambda - TODO: might be better to sample a vector for several tests, discuss it
         lambda_coef = round(random.uniform(1, 2), 1) # TODO: select the distribution
         completed_template.insert_custom_values(['lambda_coef'], [str(lambda_coef)])
-        
 
-    def generate(self, model: LLM, scenario: str) -> TestCase:
+    def generate_all(self, model: LLM, scenarios: list[str], config_values: dict, seed: int) -> list[TestCase]:
+        # TODO Implement functionality to generate multiple test cases at once (potentially following the ranges or distributions outlined in the config values)
+        pass
+
+    def generate(self, model: LLM, scenario: str, config_values: dict, seed: int) -> TestCase:
+        # TODO Refactor to use only the config values passed to this method (i.e., only the values to be applied to the generation of this very test case)
 
         control: Template = self.config.get_control_template()
         self.custom_population(control)

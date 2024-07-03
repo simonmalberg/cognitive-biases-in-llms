@@ -32,9 +32,13 @@ class TestGenerator(ABC):
 
     def __init__(self):
         self.BIAS = "None"
+
+    @abstractmethod
+    def generate_all(self, model: LLM, scenarios: list[str], config_values: dict, seed: int) -> list[TestCase]:
+        pass
     
     @abstractmethod
-    def generate(self, model: LLM, bias_dict: dict, scenario: str) -> TestCase: 
+    def generate(self, model: LLM, scenario: str, config_values: dict, seed: int) -> TestCase: 
         """
         Generates a test case for the cognitive bias associated with this test generator.
 

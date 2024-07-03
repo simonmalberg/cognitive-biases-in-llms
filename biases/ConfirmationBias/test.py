@@ -37,7 +37,12 @@ class ConfirmationBiasTestGenerator(TestGenerator):
         to_be_filled = [f'argument_{i}' for i in range(1, 2 * NUM_ARGUMENTS + 1)]
         completed_template.insert_custom_values(to_be_filled, outcomes)
 
-    def generate(self, model: LLM, scenario: str) -> TestCase:
+    def generate_all(self, model: LLM, scenarios: list[str], config_values: dict, seed: int) -> list[TestCase]:
+        # TODO Implement functionality to generate multiple test cases at once (potentially following the ranges or distributions outlined in the config values)
+        pass
+
+    def generate(self, model: LLM, scenario: str, config_values: dict, seed: int) -> TestCase:
+        # TODO Refactor to use only the config values passed to this method (i.e., only the values to be applied to the generation of this very test case)
 
         control: Template = self.config.get_control_template()
         treatment: Template = self.config.get_treatment_template()
