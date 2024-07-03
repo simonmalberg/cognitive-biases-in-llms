@@ -41,3 +41,20 @@ class DummyBiasTestGenerator(TestGenerator):
         )
 
         return test_case
+
+
+class DummyBiasMetric(Metric):
+    """
+    Metric for the dummy bias. A metric is responsible for measuring the presence and strength of a cognitive bias in a Large Language Model (LLM).
+
+    This dummy metric always returns a bias strength of 0.0.
+    
+    Attributes:
+        BIAS (str): The cognitive bias associated with this metric.
+    """
+
+    def __init__(self):
+        self.BIAS = "Dummy Bias"
+
+    def compute(self, test_results: list[tuple[TestCase, DecisionResult]]) -> float:
+        return 0.0
