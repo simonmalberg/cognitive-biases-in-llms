@@ -1,9 +1,7 @@
 from utils import get_generator
 from models import RandomModel, GptThreePointFiveTurbo
 import random
-from dotenv import load_dotenv
 
-load_dotenv()  # take environment variables from .env.
 
 # currently supported biases
 BIASES = ['AnchoringBias', 'HaloEffect', 'LossAversion', 'ConfirmationBias']
