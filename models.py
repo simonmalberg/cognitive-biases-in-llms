@@ -4,7 +4,6 @@ import re
 import random
 from openai import OpenAI
 import json
-import yaml
 import warnings
 
 

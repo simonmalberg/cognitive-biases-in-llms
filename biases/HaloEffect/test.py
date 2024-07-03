@@ -36,11 +36,11 @@ class HaloEffectTestGenerator(TestGenerator):
 
         return experience_sentiment
 
-    def generate_all(self, model: LLM, scenarios: list[str], config_values: dict, seed: int) -> list[TestCase]:
+    def generate_all(self, model: LLM, scenarios: list[str], config_values: dict = {}, seed: int = 42) -> list[TestCase]:
         # TODO Implement functionality to generate multiple test cases at once (potentially following the ranges or distributions outlined in the config values)
         pass
 
-    def generate(self, model: LLM, scenario: str, config_values: dict, seed: int) -> TestCase:
+    def generate(self, model: LLM, scenario: str, config_values: dict = {}, seed: int = 42) -> TestCase:
         # TODO Refactor to use only the config values passed to this method (i.e., only the values to be applied to the generation of this very test case)
         
         control: Template = self.config.get_control_template()

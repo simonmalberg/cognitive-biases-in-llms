@@ -30,7 +30,7 @@ class AnchoringBiasTestGenerator(TestGenerator):
         # Loading the anchor sentence generation prompt
         anchor_sentence = custom_values['anchor_sentence'][0]
         # generate the anchor sentence
-        anchor_sentence = model.generate_misc(anchor_sentence)
+        anchor_sentence = model.generate_misc(anchor_sentence) # TODO This line causes an error when used with RandomModel as it doesn't have a generate_misc function
         # Inserting the anchor into the template
         completed_template.insert_custom_values(['anchor_sentence'], [anchor_sentence])
         # Explicitly extract the numerical value from the generated anchor sentence
@@ -39,11 +39,11 @@ class AnchoringBiasTestGenerator(TestGenerator):
         # technically, we don't insert anything (just remember the value in template)
         completed_template.insert_custom_values(['anchor'], anchor)
 
-    def generate_all(self, model: LLM, scenarios: list[str], config_values: dict, seed: int) -> list[TestCase]:
+    def generate_all(self, model: LLM, scenarios: list[str], config_values: dict = {}, seed: int = 42) -> list[TestCase]:
         # TODO Implement functionality to generate multiple test cases at once (potentially following the ranges or distributions outlined in the config values)
         pass
 
-    def generate(self, model: LLM, scenario: str, config_values: dict, seed: int) -> TestCase:
+    def generate(self, model: LLM, scenario: str, config_values: dict = {}, seed: int = 42) -> TestCase:
         # TODO Refactor to use only the config values passed to this method (i.e., only the values to be applied to the generation of this very test case)
 
         control: Template = self.config.get_control_template()

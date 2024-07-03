@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
 from tests import TestCase, Template, TestConfig, DecisionResult
+import yaml
 
 
 class LLM(ABC):
@@ -37,7 +38,7 @@ class TestGenerator(ABC):
         self.BIAS = "None"
 
     @abstractmethod
-    def generate_all(self, model: LLM, scenarios: list[str], config_values: dict, seed: int) -> list[TestCase]:
+    def generate_all(self, model: LLM, scenarios: list[str], config_values: dict = {}, seed: int = 42) -> list[TestCase]:
         """
         Generates all test cases at once for the cognitive bias associated with this test generator.
 
@@ -53,7 +54,7 @@ class TestGenerator(ABC):
         pass
     
     @abstractmethod
-    def generate(self, model: LLM, scenario: str, config_values: dict, seed: int) -> TestCase:
+    def generate(self, model: LLM, scenario: str, config_values: dict = {}, seed: int = 42) -> TestCase:
         """
         Generates a test case for the cognitive bias associated with this test generator.
 
@@ -78,7 +79,7 @@ class TestGenerator(ABC):
         Returns:
             A TestConfig object representing the loaded test configuration.
         """
-        return TestConfig(f"./biases/{bias.replace(' ', '')}.xml")
+        return TestConfig(f"./biases/{bias.replace(' ', '')}/config.xml")
 
     def populate(self, model: LLM, control: Template, treatment: Template, scenario: str) -> tuple[Template, Template]:
         """
