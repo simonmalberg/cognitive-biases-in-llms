@@ -17,7 +17,7 @@ class AnchoringBiasTestGenerator(TestGenerator):
         self.BIAS = "Anchoring Bias"
         self.config = super().load_config(self.BIAS)
 
-    def custom_population(self, model: LLM, completed_template: str) -> None:
+    def _custom_population(self, model: LLM, completed_template: str) -> None:
         """
         Custom population method for the Anchoring Bias test case.
 
@@ -101,7 +101,7 @@ class AnchoringBiasMetric(Metric):
         self.anchor_agnostic = anchor_agnostic
         self.overall = overall
 
-    def anchor_agnostic_metric(
+    def _anchor_agnostic_metric(
         self,
         control_answer: np.array,
         treatment_answer: np.array,
@@ -128,7 +128,7 @@ class AnchoringBiasMetric(Metric):
 
         return result
 
-    def anchor_specific_metric(
+    def _anchor_specific_metric(
         self,
         control_answer: np.array,
         treatment_answer: np.array,
@@ -157,7 +157,7 @@ class AnchoringBiasMetric(Metric):
 
         return result
 
-    def compute_internal(
+    def _compute_internal(
         self,
         control_answer: np.array,
         treatment_answer: np.array,

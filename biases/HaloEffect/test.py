@@ -17,7 +17,7 @@ class HaloEffectTestGenerator(TestGenerator):
         self.BIAS = "Halo Effect"
         self.config = super().load_config(self.BIAS)
 
-    def custom_population(self, completed_template: Template) -> str:
+    def _custom_population(self, completed_template: Template) -> str:
         """
         Custom population method for the Halo Effect test case.
 
@@ -91,7 +91,7 @@ class HaloEffectMetric(Metric):
     def __init__(self, overall: bool):
         self.overall = overall
 
-    def compute_internal(
+    def _compute_internal(
         self,
         control_answer: np.array,
         treatment_answer: np.array,

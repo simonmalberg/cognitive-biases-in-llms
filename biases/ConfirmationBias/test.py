@@ -17,7 +17,7 @@ class ConfirmationBiasTestGenerator(TestGenerator):
         self.BIAS = "Confirmation Bias"
         self.config = super().load_config(self.BIAS)
 
-    def custom_population(self, completed_template: Template) -> None:
+    def _custom_population(self, completed_template: Template) -> None:
         """
         Custom population method for the Confirmation Bias test case.
 
@@ -90,7 +90,7 @@ class ConfirmationBiasMetric(Metric):
     def __init__(self, overall: bool):
         self.overall = overall
 
-    def compute_internal(
+    def _compute_internal(
         self,
         answer: np.array,
         pro_answer: np.array,

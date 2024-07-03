@@ -17,7 +17,7 @@ class LossAversionTestGenerator(TestGenerator):
         self.BIAS = "Loss Aversion"
         self.config = super().load_config(self.BIAS)
 
-    def custom_population(self, completed_template: Template) -> None:
+    def _custom_population(self, completed_template: Template) -> None:
         """
         Custom population method for the Loss Aversion test case.
 
@@ -98,7 +98,7 @@ class LossAversionMetric(Metric):
     def __init__(self, overall: bool):
         self.overall = overall
 
-    def compute_internal(self, answer: np.array, lambda_val: np.array) -> np.array:
+    def _compute_internal(self, answer: np.array, lambda_val: np.array) -> np.array:
         """
         Computes the loss aversion bias metric for the given batch of test instances.
 
