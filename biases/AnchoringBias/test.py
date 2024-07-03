@@ -1,5 +1,5 @@
 from base import TestGenerator, LLM, Metric
-from tests import TestCase, Template, TestConfig
+from tests import TestCase, Template, TestConfig, DecisionResult
 import re
 import numpy as np
 
