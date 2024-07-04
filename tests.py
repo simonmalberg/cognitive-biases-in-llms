@@ -3,11 +3,10 @@ import random
 import xml.etree.ElementTree as ET
 
 
-class Template:
+class Template:  
     """
     A class representing a single template (e.g., the control or treatment variant) for a cognitive bias test case.
     """
-
     # TODO: Refactor to use ElementTree internally for easier handling, serialization, and parsing
 
     def __init__(self, from_string: str = None):
@@ -84,7 +83,7 @@ class Template:
         return [(element[1], element[0]) for element in elements]
 
     def validate(self, allow_incomplete=False) -> bool:
-        for element in self.elements:
+        for element in self.elements:           
             # Validate that all elements are of type tuple[str, str]
             if not (isinstance(element, tuple) and len(element) == 2 and isinstance(element[0], str) and isinstance(element[1], str)):
                 raise TypeError('All elements must be tuples of length 2, with a string as first and second element.')
@@ -95,11 +94,11 @@ class Template:
 
         # Validate that all element types appear in sufficient quantity
         if not allow_incomplete:
-            if (len([element for element in self.elements if element[1] == 'situation']) == 0):
+            if len([element for element in self.elements if element[1] == 'situation']) == 0:
                 raise ValueError('At least one situation element must be provided.')
-            if (len([element for element in self.elements if element[1] == 'prompt']) == 0):
+            if len([element for element in self.elements if element[1] == 'prompt']) == 0:
                 raise ValueError('At least one prompt element must be provided.')
-            if (len([element for element in self.elements if element[1] == "option"]) < 2):
+            if len([element for element in self.elements if element[1] == 'option']) < 2:
                 raise ValueError('At least two option elements must be provided.')
 
         # Validate that option elements are never separated by other elements
@@ -125,7 +124,7 @@ class Template:
 
     def insert_generated_values(self, generated_dict: dict) -> None:
         # assumes that pattern is always enclosed in double square brackets: [[pattern]],
-        # and that the generated_dict contains:
+        # and that the generated_dict contains: 
         # {pattern: value}, where pattern EXACTLY matches the pattern in the template.
         for pattern, value in generated_dict.items():
             for idx, _ in enumerate(self.elements):
@@ -278,7 +277,7 @@ class TestCase:
         REMARKS (str, optional): Any additional remarks about the test case.
     """
 
-    def __init__(self, bias: str, control: Template, treatment: Template, generator: str,
+    def __init__(self, bias: str, control: Template, treatment: Template, generator: str, 
                  scenario: str, replacements: dict = None, control_custom_values: dict = None, treatment_custom_values: dict = None,
                  variant: str = None, remarks: str = None):
         self.BIAS: str = bias

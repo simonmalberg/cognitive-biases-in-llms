@@ -10,7 +10,7 @@ class TestGenerator(ABC):
     Abstract base class for test generators. A test generator is responsible for generating test cases for a particular cognitive bias.
 
     Attributes:
-        BIAS (str): The cognitive bias associated with this test generator.
+        BIAS (str): The cognitive bias associated with this test generator.    
     """
 
     def __init__(self):
@@ -126,10 +126,10 @@ class AnchoringBiasTestGenerator(TestGenerator):
         # generate the anchor sentence
         anchor_sentence = model.generate_misc(anchor_sentence)
         # Inserting the anchor into the template
-        completed_template.insert_custom_values(["anchor_sentence"], [anchor_sentence])
+        completed_template.insert_custom_values(['anchor_sentence'], [anchor_sentence])
         # Explicitly extract the numerical value from the generated anchor sentence
         anchor = re.findall(r'\d+', anchor_sentence)
-        assert (len(anchor) == 1), "The anchor sentence should contain exactly one numerical value"
+        assert len(anchor) == 1, "The anchor sentence should contain exactly one numerical value"
         # technically, we don't insert anything (just remember the value in template)
         completed_template.insert_custom_values(['anchor'], anchor)
 
@@ -200,7 +200,7 @@ class LossAversionTestGenerator(TestGenerator):
         completed_template.insert_custom_values(patterns, values)
 
         # Sampling the value of lambda - TODO: might be better to sample a vector for several tests, discuss it
-        lambda_coef = round(random.uniform(1, 2), 1)  # TODO: select the distribution
+        lambda_coef = round(random.uniform(1, 2), 1) # TODO: select the distribution
         completed_template.insert_custom_values(['lambda_coef'], [str(lambda_coef)])
 
     def generate(self, model: LLM, scenario: str) -> TestCase:
@@ -282,7 +282,7 @@ class HaloEffectTestGenerator(TestGenerator):
             replacements=replacements,
             scenario=scenario
         )
-
+    
         return test_case
 
 

@@ -107,9 +107,7 @@ class LLM(ABC):
         return control, control_options, treatment, treatment_options
 
     @abstractmethod
-    def populate(
-        self, control: Template, treatment: Template, scenario: str
-    ) -> tuple[Template, Template, dict]:
+    def populate(self, control: Template, treatment: Template, scenario: str) -> tuple[Template, Template, dict]:
         pass
 
     @abstractmethod
@@ -153,8 +151,8 @@ class RandomModel(LLM):
 
 class GptThreePointFiveTurbo(LLM):
     """
-    A class representing a GPT-3.5-Turbo LLM that populates test cases according to the scenario
-    starting from the brackets that are either identical for both control and treatment or unique for control,
+    A class representing a GPT-3.5-Turbo LLM that populates test cases according to the scenario 
+    starting from the brackets that are either identical for both control and treatment or unique for control, 
     and then adding those unique for treatment.
 
     Attributes:
@@ -175,7 +173,7 @@ class GptThreePointFiveTurbo(LLM):
         Utility function to generate a miscellaneous prompt to the LLM.
         """
         response = self.client.chat.completions.create(
-            model=self.NAME, 
+            model=self.NAME,
             messages=[{"role": "user", "content": prompt}
             ]
         )
@@ -209,7 +207,7 @@ class GptThreePointFiveTurbo(LLM):
         system_content = self.PROMPTS['system_prompt']
         # Insert the scenario and control template into the prompt
         prompt = prompt.replace("{{scenario}}", scenario)
-        prompt = prompt.replace("{{control_template}}", control.format(insert_headings=True, 
+        prompt = prompt.replace("{{control_template}}", control.format(insert_headings=True,
                                                                        show_type=False, 
                                                                        show_generated=True))
         # Obtain a response from the LLM
@@ -236,7 +234,7 @@ class GptThreePointFiveTurbo(LLM):
         system_content = self.PROMPTS['system_prompt']
         # Insert the treatment template into the prompt
         prompt = prompt.replace("{{treatment_template}}", treatment.format(insert_headings=True,
-                                                                           show_type=False,
+                                                                           show_type=False, 
                                                                            show_generated=True))
         # Obtain a response from the LLM
         response = self.client.chat.completions.create(
@@ -249,7 +247,7 @@ class GptThreePointFiveTurbo(LLM):
             )
         # Parse the replacements proposed by the LLM
         replacements = json.loads(response.choices[0].message.content)
-        self.validate_population(treatment, replacements)
+        self.validate_population(treatment, replacements) 
         treatment.insert_generated_values(replacements)
 
         return treatment, replacements

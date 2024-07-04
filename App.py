@@ -14,7 +14,7 @@ if __name__ == "__main__":
     # Load the pre-defined scenario strings
     with open('scenarios.txt') as f:
         scenarios = f.readlines()
-
+    
     # Format the scenario strings by removing any markdown
     scenarios = [s.strip().replace('**', '') for s in scenarios]
 
