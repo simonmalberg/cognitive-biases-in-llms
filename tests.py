@@ -1,6 +1,34 @@
 import re
-import random
 import xml.etree.ElementTree as ET
+
+
+class DecisionResult:
+    """
+    A class representing the result of a decision made by an LLM for a specific test case.
+    """
+
+    def __init__(
+        self,
+        control_options: dict,
+        control_decision: int,
+        treatment_options: dict,
+        treatment_decision: int,
+        confidences: list,
+        explanation: str,
+    ):
+        # TODO chosen option, confidence in each option, (explanation)
+        self.CONTROL_OPTIONS = control_options
+        self.CONTROL_DECISION = control_decision
+        self.TREATMENT_OPTIONS = treatment_options
+        self.TREATMENT_DECISION = treatment_decision
+        self.CONFIDENCES = None
+        self.EXPLANATION = None
+
+    def __str__(self) -> str:
+        return f"---DecisionResult---\n\nCONTROL OPTIONS: {self.CONTROL_OPTIONS}\nCONTROL DECISION: {self.CONTROL_DECISION}\nTREATMENT OPTIONS: {self.TREATMENT_OPTIONS}\nTREATMENT DECISION: {self.TREATMENT_DECISION}\n\n------"
+
+    def __repr__(self) -> str:
+        return self.__str__()
 
 
 class Template:  
@@ -8,7 +36,7 @@ class Template:
     A class representing a single template (e.g., the control or treatment variant) for a cognitive bias test case.
     """
     # TODO: Refactor to use ElementTree internally for easier handling, serialization, and parsing
-
+    
     def __init__(self, from_string: str = None):
         if from_string is not None:
             self.elements = self.parse(from_string)
@@ -83,7 +111,7 @@ class Template:
         return [(element[1], element[0]) for element in elements]
 
     def validate(self, allow_incomplete=False) -> bool:
-        for element in self.elements:           
+        for element in self.elements:            
             # Validate that all elements are of type tuple[str, str]
             if not (isinstance(element, tuple) and len(element) == 2 and isinstance(element[0], str) and isinstance(element[1], str)):
                 raise TypeError('All elements must be tuples of length 2, with a string as first and second element.')
@@ -150,7 +178,7 @@ class TestConfig:
     def __init__(self, path: str):
         self.path = path
         self.config = self.load(self.path)
-
+    
     def load(self, path: str) -> ET:
         """
         Loads the XML configuration file for the specified cognitive bias.
@@ -171,7 +199,7 @@ class TestConfig:
             The name of the cognitive bias being tested.
         """
         return self.config.getroot().get('bias')
-
+    
     def get_custom_values(self) -> dict:
         """
         Returns the custom values defined in the configuration file.
@@ -186,7 +214,7 @@ class TestConfig:
             custom_values_dict[key] = []
             for value in custom_value:
                 custom_values_dict[key].append(value.text)
-
+        
         return custom_values_dict
 
     def get_template(self, template_type: str = "control", variant: str = None) -> Template:
@@ -278,21 +306,20 @@ class TestCase:
     """
 
     def __init__(self, bias: str, control: Template, treatment: Template, generator: str, 
-                 scenario: str, replacements: dict = None, control_custom_values: dict = None, treatment_custom_values: dict = None,
+                 scenario: str, control_custom_values: dict = None, treatment_custom_values: dict = None,
                  variant: str = None, remarks: str = None):
         self.BIAS: str = bias
         self.CONTROL: Template = control
         self.TREATMENT: Template = treatment
         self.GENERATOR: str = generator
         self.SCENARIO: str = scenario
-        self.REPLACEMENTS: dict = replacements
         self.CONTROL_CUSTOM_VALUES: dict = control_custom_values
         self.TREATMENT_CUSTOM_VALUES: dict = treatment_custom_values
         self.VARIANT: str = variant
         self.REMARKS: str = remarks
 
     def __str__(self) -> str:
-        return f'---TestCase---\n\nBIAS: {self.BIAS}\nVARIANT: {self.VARIANT}\nSCENARIO: {self.SCENARIO}\nGENERATOR: {self.GENERATOR}\nREPLACEMENTS: {self.REPLACEMENTS}\nCONTROL_CUSTOM_VALUES: {self.CONTROL_CUSTOM_VALUES}\nTREATMENT_CUSTOM_VALUES: {self.TREATMENT_CUSTOM_VALUES}\n\nCONTROL:\n{self.CONTROL}\n\nTREATMENT:\n{self.TREATMENT}\n\nREMARKS:\n{self.REMARKS}\n\n------'
+        return f'---TestCase---\n\nBIAS: {self.BIAS}\nVARIANT: {self.VARIANT}\nSCENARIO: {self.SCENARIO}\nGENERATOR: {self.GENERATOR}\nCONTROL_CUSTOM_VALUES: {self.CONTROL_CUSTOM_VALUES}\nTREATMENT_CUSTOM_VALUES: {self.TREATMENT_CUSTOM_VALUES}\n\nCONTROL:\n{self.CONTROL}\n\nTREATMENT:\n{self.TREATMENT}\n\nREMARKS:\n{self.REMARKS}\n\n------'
 
     def __repr__(self) -> str:
         return self.__str__()

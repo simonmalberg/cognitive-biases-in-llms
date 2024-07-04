@@ -1,11 +1,10 @@
-from abc import ABC, abstractmethod
-from tests import Template, TestCase
+from tests import Template, TestCase, DecisionResult
+from base import LLM
 import re
 import random
 from openai import OpenAI
 import json
-import yaml
-
+import warnings
 
 def options_to_list(options: str) -> list:
     """
@@ -16,7 +15,6 @@ def options_to_list(options: str) -> list:
     except ValueError:
         raise DecisionError("The decision could not be extracted.")
 
-
 class PopulationError(Exception):
     """A class for exceptions raised during the population of test cases."""
     pass
@@ -25,94 +23,6 @@ class PopulationError(Exception):
 class DecisionError(Exception):
     """A class for exceptions raised during the decision of test cases."""
     pass
-
-
-class DecisionResult:
-    """
-    A class representing the result of a decision made by an LLM for a specific test case.
-    """
-
-    def __init__(
-        self,
-        control_options: dict,
-        control_decision: int,
-        treatment_options: dict,
-        treatment_decision: int,
-        confidences: list,
-        explanation: str,
-    ):
-        # TODO chosen option, confidence in each option, (explanation)
-        self.CONTROL_OPTIONS = control_options
-        self.CONTROL_DECISION = control_decision
-        self.TREATMENT_OPTIONS = treatment_options
-        self.TREATMENT_DECISION = treatment_decision
-        self.CONFIDENCES = None
-        self.EXPLANATION = None
-
-    def __str__(self) -> str:
-        return f"---DecisionResult---\n\nCONTROL OPTIONS: {self.CONTROL_OPTIONS}\nCONTROL DECISION: {self.CONTROL_DECISION}\nTREATMENT OPTIONS: {self.TREATMENT_OPTIONS}\nTREATMENT DECISION: {self.TREATMENT_DECISION}\n\n------"
-
-    def __repr__(self) -> str:
-        return self.__str__()
-
-
-class LLM(ABC):
-    """
-    Abstract base class representing a Large Language Model (LLM) capable of generating and performing cognitive bias test cases.
-
-    Attributes:
-        NAME (str): The name of the model.
-        PROMPTS (dict): A dictionary containing the prompts used to interact with the model.
-    """
-
-    def __init__(self):
-        self.NAME = "llm-abstract-base-class"
-        with open("prompts.yml") as prompts:
-            self.PROMPTS = yaml.safe_load(prompts)
-
-    # TODO: take a single template and shuffle the order of the options
-    def shuffle_options(
-        self, control: Template, treatment: Template, seed: int
-    ) -> tuple[Template, Template]:
-        """
-        Function to shuffle the order of the options in the control and treatment templates.
-        """
-        random.seed(seed)
-        control_options, treatment_options = None, None
-        for template in [control, treatment]: # TODO: remove loop
-            if template:
-                # extracting the options from the template
-                option_idx, option_elements = list(
-                    zip(
-                        *[
-                            (idx, element)
-                            for idx, element in enumerate(template.elements)
-                            if element[1] == "option"
-                        ]
-                    )
-                )
-                # TODO: shuffle not the options themselves, but their order
-                option_texts = [element[0] for element in option_elements]
-                random.shuffle(option_texts)
-                # saving the order of the options for the DesicionResult instance
-                if template == control:
-                    # k+1 since the options are enumerated from 0 (and in the Template class from 1)
-                    control_options = {k + 1: v for k, v in enumerate(option_texts)}
-                else:
-                    treatment_options = {k + 1: v for k, v in enumerate(option_texts)}
-                # replacing the options in the template with the shuffled ones
-                for idx, shuffled in zip(option_idx, option_texts):
-                    template.elements[idx] = (shuffled, "option")
-
-        return control, control_options, treatment, treatment_options
-
-    @abstractmethod
-    def populate(self, control: Template, treatment: Template, scenario: str) -> tuple[Template, Template, dict]:
-        pass
-
-    @abstractmethod
-    def decide(self, test_case: TestCase) -> DecisionResult:
-        pass
 
 
 class RandomModel(LLM):
@@ -136,18 +46,17 @@ class RandomModel(LLM):
         def replace_with_sample(match):
             sampled_words = ' '.join(random.sample(scenario.split(), random.randint(1, 4)))
             return f"[[{sampled_words}]]"
-
+    
         control_str = re.sub(r'\[\[(.*?)\]\]', replace_with_sample, control_str)
         treatment_str = re.sub(r'\[\[(.*?)\]\]', replace_with_sample, treatment_str)
 
         # Deserialize the populated strings back into templates
         control, treatment = Template(control_str), Template(treatment_str)
-
+        
         return control, treatment
 
-    def decide(self):
+    def decide(self, test_case: TestCase) -> DecisionResult:
         pass
-
 
 class GptThreePointFiveTurbo(LLM):
     """

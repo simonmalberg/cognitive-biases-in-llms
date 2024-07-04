@@ -55,4 +55,3 @@ extraction_prompt: >-
     Extract the selected options from the following answer (explicitly write "Option N" or "Option A, Option B" if multiple options are selected):
 
     {{answer}}
-    
