@@ -1,9 +1,7 @@
-import generation as gen
+from utils import get_generator
 from models import RandomModel, GptThreePointFiveTurbo
 import random
-from dotenv import load_dotenv
 
-load_dotenv()  # take environment variables from .env.
 
 # currently supported biases
 BIASES = ['AnchoringBias', 'HaloEffect', 'LossAversion', 'ConfirmationBias']
@@ -29,6 +27,6 @@ if __name__ == "__main__":
     # model = RandomModel()
     model = GptThreePointFiveTurbo()
     # Load the respective test generator for bias
-    generator = gen.get_generator(bias)
+    generator = get_generator(bias)
     test_case = generator.generate(model, scenario)
     print(test_case)
