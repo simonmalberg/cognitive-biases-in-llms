@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod
 from tests import TestCase, Template, TestConfig, DecisionResult
 import yaml
+import random
 
 
 class LLM(ABC):
@@ -16,6 +17,41 @@ class LLM(ABC):
         self.NAME = "llm-abstract-base-class"
         with open("prompts.yml") as prompts:
             self.PROMPTS = yaml.safe_load(prompts)
+         
+    def shuffle_options(
+        self, control: Template, treatment: Template, seed: int
+    ) -> tuple[Template, Template]:
+        """
+        Function to shuffle the order of the options in the control and treatment templates.
+        """
+        random.seed(seed)
+        control_options, treatment_options = None, None
+        for template in [control, treatment]:
+            if template:
+                # extracting the options from the template
+                option_idx, option_elements = list(
+                    zip(
+                        *[
+                            (idx, element)
+                            for idx, element in enumerate(template.elements)
+                            if element[1] == "option"
+                        ]
+                    )
+                )
+                # TODO: shuffle not the options themselves, but their order
+                option_texts = [element[0] for element in option_elements]
+                random.shuffle(option_texts)
+                # saving the order of the options for the DesicionResult instance
+                if template == control:
+                    # k+1 since the options are enumerated from 0 (and in the Template class from 1)
+                    control_options = {k + 1: v for k, v in enumerate(option_texts)}
+                else:
+                    treatment_options = {k + 1: v for k, v in enumerate(option_texts)}
+                # replacing the options in the template with the shuffled ones
+                for idx, shuffled in zip(option_idx, option_texts):
+                    template.elements[idx] = (shuffled, "option")
+
+        return control, control_options, treatment, treatment_options
 
     @abstractmethod
     def populate(self, control: Template, treatment: Template, scenario: str) -> tuple[Template, Template]:

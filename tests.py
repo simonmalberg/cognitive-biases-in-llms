@@ -306,20 +306,21 @@ class TestCase:
     """
 
     def __init__(self, bias: str, control: Template, treatment: Template, generator: str, 
-                 scenario: str, control_custom_values: dict = None, treatment_custom_values: dict = None,
+                 scenario: str, replacements: dict = None, control_custom_values: dict = None, treatment_custom_values: dict = None,
                  variant: str = None, remarks: str = None):
         self.BIAS: str = bias
         self.CONTROL: Template = control
         self.TREATMENT: Template = treatment
         self.GENERATOR: str = generator
         self.SCENARIO: str = scenario
+        self.REPLACEMENTS: dict = replacements
         self.CONTROL_CUSTOM_VALUES: dict = control_custom_values
         self.TREATMENT_CUSTOM_VALUES: dict = treatment_custom_values
         self.VARIANT: str = variant
         self.REMARKS: str = remarks
 
     def __str__(self) -> str:
-        return f'---TestCase---\n\nBIAS: {self.BIAS}\nVARIANT: {self.VARIANT}\nSCENARIO: {self.SCENARIO}\nGENERATOR: {self.GENERATOR}\nCONTROL_CUSTOM_VALUES: {self.CONTROL_CUSTOM_VALUES}\nTREATMENT_CUSTOM_VALUES: {self.TREATMENT_CUSTOM_VALUES}\n\nCONTROL:\n{self.CONTROL}\n\nTREATMENT:\n{self.TREATMENT}\n\nREMARKS:\n{self.REMARKS}\n\n------'
+        return f'---TestCase---\n\nBIAS: {self.BIAS}\nVARIANT: {self.VARIANT}\nSCENARIO: {self.SCENARIO}\nGENERATOR: {self.GENERATOR}\nREPLACEMENTS: {self.REPLACEMENTS}\nCONTROL_CUSTOM_VALUES: {self.CONTROL_CUSTOM_VALUES}\nTREATMENT_CUSTOM_VALUES: {self.TREATMENT_CUSTOM_VALUES}\n\nCONTROL:\n{self.CONTROL}\n\nTREATMENT:\n{self.TREATMENT}\n\nREMARKS:\n{self.REMARKS}\n\n------'
 
     def __repr__(self) -> str:
         return self.__str__()
