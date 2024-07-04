@@ -19,39 +19,43 @@ class LLM(ABC):
             self.PROMPTS = yaml.safe_load(prompts)
          
     def shuffle_options(
-        self, control: Template, treatment: Template, seed: int
+        self, template: Template, seed: int
     ) -> tuple[Template, Template]:
         """
-        Function to shuffle the order of the options in the control and treatment templates.
+        Function to shuffle the order of the options in the given template.
+        
+        Args:
+            template (Template): The template to shuffle the options in.
+            seed (int): A seed for deterministic randomness.
+        
+        Returns:
+            A tuple containing the shuffled template and the dict with the shuffled options.
         """
-        random.seed(seed)
-        control_options, treatment_options = None, None
-        for template in [control, treatment]:
-            if template:
-                # extracting the options from the template
-                option_idx, option_elements = list(
-                    zip(
-                        *[
-                            (idx, element)
-                            for idx, element in enumerate(template.elements)
-                            if element[1] == "option"
-                        ]
-                    )
+        if template:
+            options = {}
+            random.seed(seed)
+            # extracting the options from the template
+            template_idx, option_elements = list(
+                zip(
+                    *[
+                        (idx, element)
+                        for idx, element in enumerate(template.elements)
+                        if element[1] == "option"
+                    ]
                 )
-                # TODO: shuffle not the options themselves, but their order
-                option_texts = [element[0] for element in option_elements]
-                random.shuffle(option_texts)
-                # saving the order of the options for the DesicionResult instance
-                if template == control:
-                    # k+1 since the options are enumerated from 0 (and in the Template class from 1)
-                    control_options = {k + 1: v for k, v in enumerate(option_texts)}
-                else:
-                    treatment_options = {k + 1: v for k, v in enumerate(option_texts)}
-                # replacing the options in the template with the shuffled ones
-                for idx, shuffled in zip(option_idx, option_texts):
-                    template.elements[idx] = (shuffled, "option")
-
-        return control, control_options, treatment, treatment_options
+            )
+            option_texts = [element[0] for element in option_elements]
+            # option_idx contains the indices of the options in the template, we want indices of actual options (from 1 to n)
+            option_idx = list(range(len(template_idx)))
+            random.shuffle(option_idx)
+            # replacing the options in the template with the shuffled ones
+            # and saving the order of the options for the DesicionResult instance (key+1 since the options are enumerated from 1)
+            for i, (i_template, i_option) in enumerate(zip(template_idx, option_idx)):
+                options[i+1] = option_texts[i_option]
+                template.elements[i_template] = (option_texts[i_option], "option")
+        else:
+            return None, None
+        return template, options
 
     @abstractmethod
     def populate(self, control: Template, treatment: Template, scenario: str) -> tuple[Template, Template]:
@@ -117,7 +121,7 @@ class TestGenerator(ABC):
         """
         return TestConfig(f"./biases/{bias.replace(' ', '')}/config.xml")
 
-    def populate(self, model: LLM, control: Template, treatment: Template, scenario: str) -> tuple[Template, Template, dict]:
+    def populate(self, model: LLM, control: Template, treatment: Template, scenario: str) -> tuple[Template, Template]:
         """
         Populates the control and treatment templates using the provided LLM model and scenario.
 
@@ -128,13 +132,13 @@ class TestGenerator(ABC):
             scenario (str): The scenario for which to populate the templates.
 
         Returns:
-            A tuple containing the populated control and treatment templates + replacements dict.
+            A tuple containing the populated control and treatment templates.
         """
 
         # Populate the templates using the model and scenario
-        control, treatment, replacements = model.populate(control, treatment, scenario)
+        control, treatment = model.populate(control, treatment, scenario)
 
-        return control, treatment, replacements
+        return control, treatment
 
 
 class Metric(ABC):

@@ -32,12 +32,10 @@ class AnchoringBiasTestGenerator(TestGenerator):
         # generate the anchor sentence
         anchor_sentence = model.generate_misc(anchor_sentence) # TODO This line causes an error when used with RandomModel as it doesn't have a generate_misc function
         # Inserting the anchor into the template
-        completed_template.insert_custom_values(['anchor_sentence'], [anchor_sentence])
+        completed_template.insert_values(list(zip(['anchor_sentence'], [anchor_sentence])), kind='manual')
         # Explicitly extract the numerical value from the generated anchor sentence
         anchor = re.findall(r'\d+', anchor_sentence)
         assert len(anchor) == 1, "The anchor sentence should contain exactly one numerical value"
-        # technically, we don't insert anything (just remember the value in template)
-        completed_template.insert_custom_values(['anchor'], anchor)
 
     def generate_all(self, model: LLM, scenarios: list[str], config_values: dict = {}, seed: int = 42) -> list[TestCase]:
         # TODO Implement functionality to generate multiple test cases at once (potentially following the ranges or distributions outlined in the config values)
@@ -51,9 +49,9 @@ class AnchoringBiasTestGenerator(TestGenerator):
 
         # Insert custom anchor sentence and remember the anchor value
         self._custom_population(model, treatment)
-        treatment_inserted_values = treatment.inserted_values
+        treatment_values = treatment.inserted_values
 
-        control, treatment, replacements = super().populate(model, control, treatment, scenario)
+        control, treatment = super().populate(model, control, treatment, scenario)
 
         # Create a test case object
         test_case = TestCase(
@@ -61,9 +59,8 @@ class AnchoringBiasTestGenerator(TestGenerator):
             control=control,
             treatment=treatment,
             generator=model.NAME,
-            control_custom_values=None,
-            treatment_custom_values=treatment_inserted_values,
-            replacements=replacements,
+            control_values=None,
+            treatment_values=treatment_values,
             scenario=scenario
         )
 

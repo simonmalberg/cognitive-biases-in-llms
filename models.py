@@ -36,7 +36,6 @@ class RandomModel(LLM):
     def __init__(self):
         self.NAME = "random-model"
 
-    # TODO: discuss how we track that control and treatment options are populated identically
     def populate(self, control: Template, treatment: Template, scenario: str) -> tuple[Template, Template]:
         # Serialize the templates into strings
         control_str = control.serialize()
@@ -88,12 +87,12 @@ class GptThreePointFiveTurbo(LLM):
         )
         return response.choices[0].message.content
 
-    def validate_population(self, template: Template, replacements: dict):
+    def _validate_populate(self, template: Template, replacements: dict):
         # test 1: check that number of replacements is equal to the number of placeholders in the template
         template_entries = re.findall(r"\[\[(.*?)\]\]", template.serialize())
         if len(replacements) < len(template_entries):
             raise PopulationError("Not enough replacements generated.")
-        # check that all placeholders are filled, and the replacements are not empty / same as the initial placeholders
+        # test 2: check that all placeholders are filled, and the replacements are not empty / same as the initial placeholders
         for (placeholder, replacement), entry in zip(
             replacements.items(), template_entries
         ):
@@ -106,19 +105,23 @@ class GptThreePointFiveTurbo(LLM):
                     "Generated passage is the same as the placeholder."
                 )
                 
-    # TODO: make one function only (e.g., _populate) and keep track of inserted values in the Template class
-
-    def populate_control(
-        self, control: Template, treatment: Template, scenario: str
-    ) -> tuple[Template, Template, dict]:
+    def _populate(self, template: Template, scenario: str, kind: str) -> Template:
+        """
+        Function to populate a given template according to the scenario.
+        
+        Args:
+            template (Template): The template to populate.
+            scenario (str): The respective scenario.
+            kind (str): The type of the template (control or treatment).
+        """
         # Load the prompt to the LLM
-        prompt = self.PROMPTS['first_prompt']
+        prompt = self.PROMPTS[f'{kind}_prompt']
         system_content = self.PROMPTS['system_prompt']
         # Insert the scenario and control template into the prompt
         prompt = prompt.replace("{{scenario}}", scenario)
-        prompt = prompt.replace("{{control_template}}", control.format(insert_headings=True,
-                                                                       show_type=False, 
-                                                                       show_generated=True))
+        prompt = prompt.replace("{{" + f"{kind}_template" + "}}", template.format(insert_headings=True,
+                                                                                  show_type=False, 
+                                                                                  show_generated=True))
         # Obtain a response from the LLM
         response = self.client.chat.completions.create(
             model=self.NAME,
@@ -127,62 +130,33 @@ class GptThreePointFiveTurbo(LLM):
                 {"role": "system", "content": system_content},
                 {"role": "user", "content": prompt}
             ]
-            )
+        )
         # Parse the replacements proposed by the LLM
         replacements = json.loads(response.choices[0].message.content)
-        self.validate_population(control, replacements)
-        # Insert the proposed replacements into the template gaps
-        control.insert_generated_values(replacements)
-        treatment.insert_generated_values(replacements)
+        self._validate_populate(template, replacements)
+        template.insert_values(list(replacements.items()), kind='LLM')
+        return template
 
-        return control, treatment, replacements
-
-    def populate_treatment(self, treatment: Template) -> tuple[Template, dict]:
-        # Load the prompt to the LLM
-        prompt = self.PROMPTS['second_prompt']
-        system_content = self.PROMPTS['system_prompt']
-        # Insert the treatment template into the prompt
-        prompt = prompt.replace("{{treatment_template}}", treatment.format(insert_headings=True,
-                                                                           show_type=False, 
-                                                                           show_generated=True))
-        # Obtain a response from the LLM
-        response = self.client.chat.completions.create(
-            model=self.NAME,
-            response_format={ "type": "json_object" },
-            messages=[
-                {"role": "system", "content": system_content},
-                {"role": "user", "content": prompt}
-            ]
-            )
-        # Parse the replacements proposed by the LLM
-        replacements = json.loads(response.choices[0].message.content)
-        self.validate_population(treatment, replacements) 
-        treatment.insert_generated_values(replacements)
-
-        return treatment, replacements
-
-    def populate(self, control: Template, treatment: Template, scenario: str) -> tuple[Template, Template, dict]:
+    def populate(self, control: Template, treatment: Template, scenario: str) -> tuple[Template, Template]:
         try:
             if not control:
-                control = treatment
-                treatment, control, replacements = self.populate_control(control, treatment, scenario)
                 control = None
             else:
-                # TODO: make "control = self.populate_control(control, scenario)" and store all the replacements inside the Template class
-                control, treatment, replacements = self.populate_control(control, treatment, scenario)
-                # Check if there are any placeholders left in the treatment template
-                if re.findall(r'\[\[(.*?)\]\]', treatment.serialize()):
-                    treatment, augm_dict = self.populate_treatment(treatment)
-                    replacements.update(augm_dict)
+                control = self._populate(control, scenario, 'control')
+                # Fill the treatment template with the values that are shared with the control template
+                control_values = {pattern: value[0] for pattern, value in control.inserted_values.items()}
+                treatment.insert_values(list(control_values.items()), kind='LLM')
+            # Check if there are any placeholders left unfilled in the treatment template
+            if re.findall(r'\[\[(.*?)\]\]', treatment.serialize()):
+                treatment = self._populate(treatment, scenario, 'treatment')
         except Exception as e:
             raise PopulationError(e)
 
-        return control, treatment, replacements
+        return control, treatment
 
     def decide(self, test_case: TestCase, seed: int = 42) -> DecisionResult:
-        test_case.CONTROL, control_options, test_case.TREATMENT, treatment_options = (
-            self.shuffle_options(test_case.CONTROL, test_case.TREATMENT, seed)
-        )
+        test_case.CONTROL, control_options = self.shuffle_options(test_case.CONTROL, seed)
+        test_case.TREATMENT, treatment_options = self.shuffle_options(test_case.TREATMENT, seed)
         try:
             # load the test prompt + extraction prompt
             prompt, extraction_prompt = (
