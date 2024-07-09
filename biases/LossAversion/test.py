@@ -42,11 +42,11 @@ class LossAversionTestGenerator(TestGenerator):
         # Inserting the outcomes and amounts into the template
         patterns = ['first_outcome', 'second_outcome', 'first_amount', 'second_amount']
         values = [first_outcome, second_outcome, first_amount, second_amount]
-        completed_template.insert_custom_values(patterns, values)
+        completed_template.insert_values(list(zip(patterns, values)), kind='manual')
 
         # Sampling the value of lambda - TODO: might be better to sample a vector for several tests, discuss it
         lambda_coef = round(random.uniform(1, 2), 1) # TODO: select the distribution
-        completed_template.insert_custom_values(['lambda_coef'], [str(lambda_coef)])
+        completed_template.insert_values(list(zip(['lambda_coef'], [str(lambda_coef)])), kind='manual')
 
     def generate_all(self, model: LLM, scenarios: list[str], config_values: dict = {}, seed: int = 42) -> list[TestCase]:
         # TODO Implement functionality to generate multiple test cases at once (potentially following the ranges or distributions outlined in the config values)
@@ -57,7 +57,7 @@ class LossAversionTestGenerator(TestGenerator):
 
         treatment: Template = self.config.get_treatment_template()
         self._custom_population(treatment)
-        treatment_custom_values = treatment.inserted_values
+        treatment_values = treatment.inserted_values
 
         _, treatment = super().populate(model, None, treatment, scenario)
 
@@ -67,8 +67,8 @@ class LossAversionTestGenerator(TestGenerator):
             control=None,
             treatment=treatment,
             generator=model.NAME,
-            control_custom_values=None,
-            treatment_custom_values=treatment_custom_values,
+            control_values=None,
+            treatment_values=treatment_values,
             scenario=scenario
         )
 

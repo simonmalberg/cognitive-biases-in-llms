@@ -32,7 +32,7 @@ class HaloEffectTestGenerator(TestGenerator):
         experience_sentiments = custom_values['experience_sentiment']
         # Sampling one of the outcomes
         experience_sentiment = random.choice(experience_sentiments)
-        completed_template.insert_custom_values(['experience_sentiment'], [experience_sentiment])
+        completed_template.insert_values(list(zip(['experience_sentiment'], [experience_sentiment])), kind='manual')
 
         return experience_sentiment
 
@@ -48,10 +48,10 @@ class HaloEffectTestGenerator(TestGenerator):
 
         # sample a sentiment for control version, insert it in the treatment
         experience_sentiment = self._custom_population(control)
-        treatment.insert_custom_values(['experience_sentiment'], [experience_sentiment])
+        treatment.insert_values(list(zip(['experience_sentiment'], [experience_sentiment])), kind='manual')
         # get dictionary of inserted values
-        control_inserted_values = control.inserted_values
-        treatment_inserted_values = treatment.inserted_values
+        control_values = control.inserted_values
+        treatment_values = treatment.inserted_values
 
         control, treatment = super().populate(model, control, treatment, scenario)
 
@@ -60,8 +60,8 @@ class HaloEffectTestGenerator(TestGenerator):
             control=control,
             treatment=treatment,
             generator=model.NAME,
-            control_custom_values=control_inserted_values,
-            treatment_custom_values=treatment_inserted_values,
+            control_values=control_values,
+            treatment_values=treatment_values,
             scenario=scenario
         )
 

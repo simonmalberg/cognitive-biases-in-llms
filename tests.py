@@ -7,9 +7,27 @@ class DecisionResult:
     A class representing the result of a decision made by an LLM for a specific test case.
     """
 
-    def __init__(self, model):
-        # TODO chosen option, confidence in each option, (explanation)
-        pass
+    def __init__(
+        self,
+        control_options: dict,
+        control_decision: int,
+        treatment_options: dict,
+        treatment_decision: int,
+        confidences: list = None,
+        explanation: str = None,
+    ):
+        self.CONTROL_OPTIONS = control_options
+        self.CONTROL_DECISION = control_decision
+        self.TREATMENT_OPTIONS = treatment_options
+        self.TREATMENT_DECISION = treatment_decision
+        self.CONFIDENCES = confidences
+        self.EXPLANATION = explanation
+
+    def __str__(self) -> str:
+        return f"---DecisionResult---\n\nCONTROL OPTIONS: {self.CONTROL_OPTIONS}\nCONTROL DECISION: {self.CONTROL_DECISION}\nTREATMENT OPTIONS: {self.TREATMENT_OPTIONS}\nTREATMENT DECISION: {self.TREATMENT_DECISION}\n\n------"
+
+    def __repr__(self) -> str:
+        return self.__str__()
 
 
 class Template:  
@@ -23,6 +41,7 @@ class Template:
             self.elements = self.parse(from_string)
         else:
             self.elements = []
+        # attribute for saving values generated manually/by LLM with a respective flag, e.g., key: [val, source]
         self.inserted_values = {}
 
     def add_situation(self, situation: str) -> None:
@@ -120,24 +139,25 @@ class Template:
                     raise ValueError('Option elements must not be separated by other elements.')
 
         return True
-
-    def insert_custom_values(self, patterns: list[str], values: list[str]) -> None:
-        # assumes that pattern is always enclosed in double curly brackets: {{pattern}}
-        for pattern, value in zip(patterns, values):
-            # remember the inserted value
-            self.inserted_values[pattern] = value
+    
+    def insert_values(self, pairs: list[tuple[str, str]], kind: str) -> None:
+        """
+        Inserts custom or generated values into the template.
+        
+        Args:
+            pairs (list[tuple[str, str]]): A list of tuples, where each tuple contains a pattern and a value.
+            kind (str): The kind of generation for the values being inserted: "manual" or "LLM".   
+        """
+        for pattern, value in pairs:
             for idx, _ in enumerate(self.elements):
                 current = self.elements[idx][0]
-                self.elements[idx] = (current.replace('{{' + pattern + '}}', (value or '')),) + self.elements[idx][1:]
-
-    def insert_generated_values(self, generated_dict: dict) -> None:
-        # assumes that pattern is always enclosed in double square brackets: [[pattern]],
-        # and that the generated_dict contains: 
-        # {pattern: value}, where pattern EXACTLY matches the pattern in the template.
-        for pattern, value in generated_dict.items():
-            for idx, _ in enumerate(self.elements):
-                current = self.elements[idx][0]
-                self.elements[idx] = (current.replace(f'{pattern}', value),) + self.elements[idx][1:]
+                if pattern in current:
+                    self.inserted_values[pattern] = (value, kind)
+                    if kind == 'manual':
+                        pattern = '{{' + pattern + '}}'
+                        # for manual values, if value is None, replace with empty string (reason: Loss Aversion test)
+                        value = '' if not value else value 
+                    self.elements[idx] = (current.replace(pattern, value),) + self.elements[idx][1:]
 
     def __str__(self) -> str:
         return self.format(insert_headings=True, show_type=False, show_generated=False)
@@ -279,27 +299,27 @@ class TestCase:
         TREATMENT (Template): The treatment template for the test case.
         GENERATOR (str): The name of the LLM generator used to generate the treatment template.
         SCENARIO (str): The scenario in which the test case is being conducted.
-        CONTROL_CUSTOM_VALUES (dict, optional): Custom values used in the control template of the test case.
-        TREATMENT_CUSTOM_VALUES (dict, optional): Custom values used in the treatment template of the test case.
+        CONTROL_CUSTOM_VALUES (dict, optional): Values inserted in the control template of the test case.
+        TREATMENT_CUSTOM_VALUES (dict, optional): Values inserted in the treatment template of the test case.
         VARIANT (str, optional): The variant of the test case.
         REMARKS (str, optional): Any additional remarks about the test case.
     """
 
     def __init__(self, bias: str, control: Template, treatment: Template, generator: str, 
-                 scenario: str, control_custom_values: dict = None, treatment_custom_values: dict = None,
+                 scenario: str, control_values: dict = None, treatment_values: dict = None,
                  variant: str = None, remarks: str = None):
         self.BIAS: str = bias
         self.CONTROL: Template = control
         self.TREATMENT: Template = treatment
         self.GENERATOR: str = generator
         self.SCENARIO: str = scenario
-        self.CONTROL_CUSTOM_VALUES: dict = control_custom_values
-        self.TREATMENT_CUSTOM_VALUES: dict = treatment_custom_values
+        self.CONTROL_VALUES: dict = control_values
+        self.TREATMENT_VALUES: dict = treatment_values
         self.VARIANT: str = variant
         self.REMARKS: str = remarks
 
     def __str__(self) -> str:
-        return f'---TestCase---\n\nBIAS: {self.BIAS}\nVARIANT: {self.VARIANT}\nSCENARIO: {self.SCENARIO}\nGENERATOR: {self.GENERATOR}\nCONTROL_CUSTOM_VALUES: {self.CONTROL_CUSTOM_VALUES}\nTREATMENT_CUSTOM_VALUES: {self.TREATMENT_CUSTOM_VALUES}\n\nCONTROL:\n{self.CONTROL}\n\nTREATMENT:\n{self.TREATMENT}\n\nREMARKS:\n{self.REMARKS}\n\n------'
+        return f'---TestCase---\n\nBIAS: {self.BIAS}\nVARIANT: {self.VARIANT}\nSCENARIO: {self.SCENARIO}\nGENERATOR: {self.GENERATOR}\nCONTROL_VALUES: {self.CONTROL_VALUES}\nTREATMENT_VALUES: {self.TREATMENT_VALUES}\n\nCONTROL:\n{self.CONTROL}\n\nTREATMENT:\n{self.TREATMENT}\n\nREMARKS:\n{self.REMARKS}\n\n------'
 
     def __repr__(self) -> str:
         return self.__str__()

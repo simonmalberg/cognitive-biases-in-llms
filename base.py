@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod
 from tests import TestCase, Template, TestConfig, DecisionResult
 import yaml
+import random
 
 
 class LLM(ABC):
@@ -16,6 +17,46 @@ class LLM(ABC):
         self.NAME = "llm-abstract-base-class"
         with open("prompts.yml") as prompts:
             self.PROMPTS = yaml.safe_load(prompts)
+         
+    def shuffle_options(self, template: Template, seed: int = 42) -> tuple[Template, Template]:
+        """
+        Function to shuffle the order of the answer options in the given template.
+        
+        Args:
+            template (Template): The template in which to shuffle the options.
+            seed (int): A seed for deterministic randomness.
+        
+        Returns:
+            A tuple containing the shuffled template and the dict with the shuffled options.
+        """
+        if not template:
+            return None, None
+
+        options = {}
+        random.seed(seed)
+
+        # Extract the options from the template
+        template_idx, option_elements = list(
+            zip(
+                *[
+                    (idx, element)
+                    for idx, element in enumerate(template.elements)
+                    if element[1] == "option"
+                ]
+            )
+        )
+        option_texts = [element[0] for element in option_elements]
+
+        # option_idx contains the indices of the options in the template, we want indices of actual options (from 1 to n)
+        option_idx = list(range(len(template_idx)))
+        random.shuffle(option_idx)
+
+        # Replace the options in the template with the shuffled ones and save the order of the options in the DesicionResult instance (key+1 since the options are enumerated from 1)
+        for i, (i_template, i_option) in enumerate(zip(template_idx, option_idx)):
+            options[i+1] = option_texts[i_option]
+            template.elements[i_template] = (option_texts[i_option], "option")
+        
+        return template, options
 
     @abstractmethod
     def populate(self, control: Template, treatment: Template, scenario: str) -> tuple[Template, Template]:

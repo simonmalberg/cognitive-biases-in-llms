@@ -1,6 +1,6 @@
 system_prompt: >-
     You are a helpful assistant designed to output JSON.
-first_prompt: >-
+control_prompt: >-
     You will be given a scenario and a template.
     The template has gaps indicated by double square brackets
     containing instructions on how to fill them, e.g., [[Fill in the blanks]].
@@ -25,7 +25,7 @@ first_prompt: >-
     }
 
     Fill in the gaps according to the instructions and scenario.
-second_prompt: >-
+treatment_prompt: >-
     You will be given a template.
     The template has gaps indicated by double square brackets
     containing instructions on how to fill them, e.g., [[Fill in the blanks]].
@@ -45,3 +45,13 @@ second_prompt: >-
     }
 
     Fill in the gaps according to the instructions and scenario.
+decision_prompt: >-
+    You will be given a decision-making task, question, and answer options. Please select a single option only and return it (e.g., "Option N"). 
+    If the task supports multiple correct answers, please list all selected options (e.g., "Option A, Option B"):
+
+
+    {{test_case}}
+extraction_prompt: >-
+    Extract the selected options from the following answer (explicitly write "Option N" or "Option A, Option B" if multiple options are selected):
+
+    {{answer}}

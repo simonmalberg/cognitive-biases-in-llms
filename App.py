@@ -1,10 +1,10 @@
 from utils import get_generator
-from models import RandomModel, GptThreePointFiveTurbo
+from models import RandomModel, GptThreePointFiveTurbo, PopulationError, DecisionError
 import random
 
 
 # currently supported biases
-BIASES = ['AnchoringBias', 'HaloEffect', 'LossAversion', 'ConfirmationBias']
+BIASES = ['AnchoringBias', 'LossAversion', 'ConfirmationBias']  # TODO: Halo Effect test needs to be fixed
 
 
 if __name__ == "__main__":
@@ -22,11 +22,18 @@ if __name__ == "__main__":
     # Randomly pick a cognitive bias
     bias = random.choice(BIASES) # TODO: come up with an approach to store all biases' names
                                  # TODO: load bias from command line arguments
-
-    # Generate a dummy test case and print it 
-    # model = RandomModel()
-    model = GptThreePointFiveTurbo()
+    # declare the population model
+    population_model = GptThreePointFiveTurbo()
+    # declare the decision model (might differ from the population model)
+    decision_model = GptThreePointFiveTurbo()
     # Load the respective test generator for bias
     generator = get_generator(bias)
-    test_case = generator.generate(model, scenario)
-    print(test_case)
+    try:
+        test_case = generator.generate(population_model, scenario)
+        print(test_case)
+        decision_result = decision_model.decide(test_case)
+        print(decision_result)
+    except (PopulationError, DecisionError, AssertionError) as e:
+        print(e)
+        print("Test case is failed. Exiting...")
+        exit(1)

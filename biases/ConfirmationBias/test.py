@@ -33,7 +33,7 @@ class ConfirmationBiasTestGenerator(TestGenerator):
         random.shuffle(outcomes)
         # insertion of the arguments into the respective answer places of the template
         to_be_filled = [f'argument_{i}' for i in range(1, 2 * num_arguments + 1)]
-        completed_template.insert_custom_values(to_be_filled, outcomes)
+        completed_template.insert_values(list(zip(to_be_filled, outcomes)), kind='manual')
 
     def generate_all(self, model: LLM, scenarios: list[str], config_values: dict = {}, seed: int = 42) -> list[TestCase]:
         # TODO Implement functionality to generate multiple test cases at once (potentially following the ranges or distributions outlined in the config values)
@@ -47,7 +47,7 @@ class ConfirmationBiasTestGenerator(TestGenerator):
 
         self._custom_population(treatment)
 
-        treatment_inserted_values = treatment.inserted_values
+        treatment_values = treatment.inserted_values
         control, treatment = super().populate(model, control, treatment, scenario)
 
         test_case = TestCase(
@@ -55,8 +55,8 @@ class ConfirmationBiasTestGenerator(TestGenerator):
             control=control,
             treatment=treatment,
             generator=model.NAME,
-            control_custom_values=None,
-            treatment_custom_values=treatment_inserted_values,
+            control_values=None,
+            treatment_values=treatment_values,
             scenario=scenario
         )
 

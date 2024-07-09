@@ -11,7 +11,7 @@
     </custom_values>
     <variant name="default">
         <template type="control">
-            <situation>Suppose you are a [[type]] manager at [[organization]]</situation>
+            <situation>Suppose you are a [[type]] manager at [[organization]].</situation>
             <situation>[[Some follow-up information about your position, company, and task]]</situation>
             <situation>[[A description of the concrete non-obvious statement/opinion/proposal made by someone in the company/field associated with this task]]</situation>
             <prompt>Do you agree with this?</prompt>
@@ -19,7 +19,7 @@
             <option>No</option>
         </template>
         <template type="treatment">
-            <situation>Suppose you are a [[type]] manager at [[organization]]</situation>
+            <situation>Suppose you are a [[type]] manager at [[organization]].</situation>
             <situation>[[Some follow-up information about your position, company, and task]]</situation>
             <situation>[[A description of the concrete non-obvious statement/opinion/proposal made by someone in the company/field associated with this task]]</situation>
             <prompt>Which of the following pros and cons arguments would you consider while deciding about this matter?</prompt>

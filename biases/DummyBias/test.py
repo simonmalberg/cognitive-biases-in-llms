@@ -29,14 +29,19 @@ class DummyBiasTestGenerator(TestGenerator):
         # Populate the templates using the model and scenario
         control, treatment = super().populate(model, control, treatment, scenario)
 
+        # Manually insert a value into the template
+        treatment.insert_values([
+            ('years_of_experience', '20')
+        ], kind='manual')
+
         # Create a test case object
         test_case = TestCase(
             bias=self.BIAS,
             control=control,
             treatment=treatment,
             generator=model.NAME,
-            control_custom_values=None,
-            treatment_custom_values=None,
+            control_values=None,
+            treatment_values=None,
             scenario=scenario
         )
 
