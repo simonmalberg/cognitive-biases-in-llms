@@ -18,43 +18,44 @@ class LLM(ABC):
         with open("prompts.yml") as prompts:
             self.PROMPTS = yaml.safe_load(prompts)
          
-    def shuffle_options(
-        self, template: Template, seed: int
-    ) -> tuple[Template, Template]:
+    def shuffle_options(self, template: Template, seed: int = 42) -> tuple[Template, Template]:
         """
-        Function to shuffle the order of the options in the given template.
+        Function to shuffle the order of the answer options in the given template.
         
         Args:
-            template (Template): The template to shuffle the options in.
+            template (Template): The template in which to shuffle the options.
             seed (int): A seed for deterministic randomness.
         
         Returns:
             A tuple containing the shuffled template and the dict with the shuffled options.
         """
-        if template:
-            options = {}
-            random.seed(seed)
-            # extracting the options from the template
-            template_idx, option_elements = list(
-                zip(
-                    *[
-                        (idx, element)
-                        for idx, element in enumerate(template.elements)
-                        if element[1] == "option"
-                    ]
-                )
-            )
-            option_texts = [element[0] for element in option_elements]
-            # option_idx contains the indices of the options in the template, we want indices of actual options (from 1 to n)
-            option_idx = list(range(len(template_idx)))
-            random.shuffle(option_idx)
-            # replacing the options in the template with the shuffled ones
-            # and saving the order of the options for the DesicionResult instance (key+1 since the options are enumerated from 1)
-            for i, (i_template, i_option) in enumerate(zip(template_idx, option_idx)):
-                options[i+1] = option_texts[i_option]
-                template.elements[i_template] = (option_texts[i_option], "option")
-        else:
+        if not template:
             return None, None
+
+        options = {}
+        random.seed(seed)
+
+        # Extract the options from the template
+        template_idx, option_elements = list(
+            zip(
+                *[
+                    (idx, element)
+                    for idx, element in enumerate(template.elements)
+                    if element[1] == "option"
+                ]
+            )
+        )
+        option_texts = [element[0] for element in option_elements]
+
+        # option_idx contains the indices of the options in the template, we want indices of actual options (from 1 to n)
+        option_idx = list(range(len(template_idx)))
+        random.shuffle(option_idx)
+
+        # Replace the options in the template with the shuffled ones and save the order of the options in the DesicionResult instance (key+1 since the options are enumerated from 1)
+        for i, (i_template, i_option) in enumerate(zip(template_idx, option_idx)):
+            options[i+1] = option_texts[i_option]
+            template.elements[i_template] = (option_texts[i_option], "option")
+        
         return template, options
 
     @abstractmethod

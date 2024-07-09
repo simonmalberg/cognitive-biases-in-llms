@@ -82,28 +82,26 @@ class GptThreePointFiveTurbo(LLM):
         """
         response = self.client.chat.completions.create(
             model=self.NAME,
-            messages=[{"role": "user", "content": prompt}
-            ]
+            messages=[{"role": "user", "content": prompt}]
         )
         return response.choices[0].message.content
 
     def _validate_populate(self, template: Template, replacements: dict):
-        # test 1: check that number of replacements is equal to the number of placeholders in the template
+        # TODO Add function documentation
+
+        # 1. Verify that number of replacements is equal to the number of placeholders in the template
         template_entries = re.findall(r"\[\[(.*?)\]\]", template.serialize())
         if len(replacements) < len(template_entries):
             raise PopulationError("Not enough replacements generated.")
-        # test 2: check that all placeholders are filled, and the replacements are not empty / same as the initial placeholders
-        for (placeholder, replacement), entry in zip(
-            replacements.items(), template_entries
-        ):
+
+        # 2. Verify that all placeholders are filled, and the replacements are not empty / same as the initial placeholders
+        for (placeholder, replacement), entry in zip(replacements.items(), template_entries):
             if not placeholder == "[[" + entry + "]]":
                 raise PopulationError("A placeholder was skipped/altered.")
             if not replacement:
                 raise PopulationError("A placeholder was not filled.")
             if replacement == entry:
-                raise PopulationError(
-                    "Generated passage is the same as the placeholder."
-                )
+                raise PopulationError("Generated passage is the same as the placeholder.")
                 
     def _populate(self, template: Template, scenario: str, kind: str) -> Template:
         """
@@ -142,11 +140,14 @@ class GptThreePointFiveTurbo(LLM):
             if not control:
                 control = None
             else:
+                # 1. Populate the gaps in the control template based on the scenario
                 control = self._populate(control, scenario, 'control')
-                # Fill the treatment template with the values that are shared with the control template
+
+                # 2. Fill the treatment template with the values that are shared with the control template
                 control_values = {pattern: value[0] for pattern, value in control.inserted_values.items()}
                 treatment.insert_values(list(control_values.items()), kind='LLM')
-            # Check if there are any placeholders left unfilled in the treatment template
+
+            # 3. Populate the gaps in the treatment template based on the scenario, if there are any placeholders left unfilled
             if re.findall(r'\[\[(.*?)\]\]', treatment.serialize()):
                 treatment = self._populate(treatment, scenario, 'treatment')
         except Exception as e:
@@ -166,7 +167,7 @@ class GptThreePointFiveTurbo(LLM):
             test_prompt = prompt.replace(
                 "{{test_case}}",
                 test_case.TREATMENT.format(
-                    insert_headings=True, show_type=False, show_generated=True
+                    insert_headings=True, show_type=False, show_generated=True   # TODO show_generated should be False here as the LLM is not supposed to see which parts are generated and which aren't
                 ),
             )
             # get answer for treatment part
@@ -192,7 +193,7 @@ class GptThreePointFiveTurbo(LLM):
                 test_prompt = prompt.replace(
                     "{{test_case}}",
                     test_case.CONTROL.format(
-                        insert_headings=True, show_type=False, show_generated=True
+                        insert_headings=True, show_type=False, show_generated=True   # TODO show_generated should be False here as the LLM is not supposed to see which parts are generated and which aren't
                     ),
                 )
                 # get answer for control part

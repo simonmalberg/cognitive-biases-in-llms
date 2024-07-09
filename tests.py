@@ -13,16 +13,15 @@ class DecisionResult:
         control_decision: int,
         treatment_options: dict,
         treatment_decision: int,
-        confidences: list,
-        explanation: str,
+        confidences: list = None,
+        explanation: str = None,
     ):
-
         self.CONTROL_OPTIONS = control_options
         self.CONTROL_DECISION = control_decision
         self.TREATMENT_OPTIONS = treatment_options
         self.TREATMENT_DECISION = treatment_decision
-        self.CONFIDENCES = None
-        self.EXPLANATION = None
+        self.CONFIDENCES = confidences
+        self.EXPLANATION = explanation
 
     def __str__(self) -> str:
         return f"---DecisionResult---\n\nCONTROL OPTIONS: {self.CONTROL_OPTIONS}\nCONTROL DECISION: {self.CONTROL_DECISION}\nTREATMENT OPTIONS: {self.TREATMENT_OPTIONS}\nTREATMENT DECISION: {self.TREATMENT_DECISION}\n\n------"
@@ -300,7 +299,7 @@ class TestCase:
         TREATMENT (Template): The treatment template for the test case.
         GENERATOR (str): The name of the LLM generator used to generate the treatment template.
         SCENARIO (str): The scenario in which the test case is being conducted.
-        CONTROL_CUSTOM_VALUES (dict, optional): Values inserted used in the control template of the test case.
+        CONTROL_CUSTOM_VALUES (dict, optional): Values inserted in the control template of the test case.
         TREATMENT_CUSTOM_VALUES (dict, optional): Values inserted in the treatment template of the test case.
         VARIANT (str, optional): The variant of the test case.
         REMARKS (str, optional): Any additional remarks about the test case.
