@@ -1,0 +1,31 @@
+<config bias="Optimism Bias">
+    <custom_values name="event_kind">
+        <value>positive</value>
+        <value>negative</value>
+    </custom_values>
+    <variant name="default">
+        <template type="control">
+            <situation>Suppose you are a [[type]] manager at [[organization]].</situation>
+            <situation>[[Some follow-up information about your position, company, and tasks]]</situation>
+            <situation>One possible event that could happen to a company in your industry is [[description of a {{event_kind}} unforeseen event connected to your job position that could happen]].</situation>
+            <prompt>For an average company from your industry, how do you estimate the chance of facing such event?</prompt>
+            <option>[[Percentage for statistically unbiased probability of facing the event]]</option>
+            <option>[[Percentage for slightly positive estimation of this probability]]</option>
+            <option>[[Percentage for slightly negative estimation of this probability]]</option>
+            <option>[[Percentage for highly positive estimation of this probability]]</option>
+            <option>[[Percentage for highly negative estimation of this probability]]</option>
+        </template>
+        <template type="treatment">
+            <situation>Suppose you are a [[type]] manager at [[organization]].</situation>
+            <situation>[[Some follow-up information about your position, company, and tasks]]</situation>
+            <situation>[[Sentence in second person point of view describing how good you are at mitigating negative unforeseen events and making use of positive ones]]</situation>
+            <situation>One possible event that could happen in your company is [[description of a {{event_kind}} unforeseen event connected to your job position that could happen]].</situation>
+            <prompt>How do you estimate the chances of personally facing such event at your company?</prompt>
+            <option>[[Percentage for statistically unbiased probability of facing the event]]</option>
+            <option>[[Percentage for slightly positive estimation of this probability]]</option>
+            <option>[[Percentage for slightly negative estimation of this probability]]</option>
+            <option>[[Percentage for highly positive estimation of this probability]]</option>
+            <option>[[Percentage for highly negative estimation of this probability]]</option>
+        </template>
+    </variant>
+</config>

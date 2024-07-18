@@ -57,22 +57,16 @@ class RandomModel(LLM):
     def decide(self, test_case: TestCase) -> DecisionResult:
         pass
 
-class GptThreePointFiveTurbo(LLM):
+class GPT(LLM):
     """
-    A class representing a GPT-3.5-Turbo LLM that populates test cases according to the scenario 
+    An abstract class representing a GPT-based LLM from OpenAI API that populates test cases according to the scenario
     starting from the brackets that are either identical for both control and treatment or unique for control, 
     and then adding those unique for treatment.
-
-    Attributes:
-        NAME (str): The name of the model.
-        DECODER (str): The decoding method used to generate completions from the model.
-        CLIENT (OpenAI): The OpenAI client used to interact with the GPT-3.5-Turbo model.
-        PROMPTS (dict): A dictionary containing the prompts used to interact with the model.
     """
 
     def __init__(self):
         super().__init__()
-        self.NAME = "gpt-3.5-turbo"
+        self.NAME = None
         self.DECODER = "argmax"
         self.client = OpenAI()
 
@@ -184,7 +178,9 @@ class GptThreePointFiveTurbo(LLM):
                 return DecisionResult(
                     control_options,
                     None,
+                    None,
                     treatment_options,
+                    treatment_answer,
                     treatment_decision,
                     None,
                     None,
@@ -208,11 +204,43 @@ class GptThreePointFiveTurbo(LLM):
                 )
                 return DecisionResult(
                     control_options,
+                    control_answer,
                     control_decision,
                     treatment_options,
+                    treatment_answer,
                     treatment_decision,
                     None,
                     None,
                 )
         except Exception as e:
             raise DecisionError(e)
+
+
+class GptThreePointFiveTurbo(GPT):
+    """
+    A class representing a GPT-3.5-Turbo LLM that populates test cases according to the scenario 
+    starting from the brackets that are either identical for both control and treatment or unique for control, 
+    and then adding those unique for treatment.
+
+    Attributes:
+        NAME (str): The name of the model.
+    """
+
+    def __init__(self):
+        super().__init__()
+        self.NAME = "gpt-3.5-turbo"
+
+
+class GptFourO(GPT):
+    """
+    A class representing a GPT-4o LLM that populates test cases according to the scenario 
+    starting from the brackets that are either identical for both control and treatment or unique for control, 
+    and then adding those unique for treatment.
+
+    Attributes:
+        NAME (str): The name of the model.
+    """
+
+    def __init__(self):
+        super().__init__()
+        self.NAME = "gpt-4o"
