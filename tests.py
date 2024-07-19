@@ -222,6 +222,20 @@ class TestConfig:
         
         return custom_values_dict
 
+    def get_variants(self) -> list[str]:
+        """
+        Returns a list of variant names defined in the configuration file.
+
+        Returns:
+            A list of variant names defined in the configuration file.
+        """
+
+        # Find all variant elements in the configuration file
+        variants = self.config.getroot().findall('variant')
+
+        # Return the names of all variants
+        return [variant.get('name') for variant in variants]
+
     def get_template(self, template_type: str = "control", variant: str = None) -> Template:
         """
         Returns a template from the test configuration.
@@ -274,7 +288,7 @@ class TestConfig:
         Returns the control template for the specified variant or the Default variant if none is specified.
 
         Args:
-            variant (str): The name of the variant. Defaults to "Default".
+            variant (str): The name of the variant.
 
         Returns:
             A Template object representing the control template.
@@ -286,7 +300,7 @@ class TestConfig:
         Returns the treatment template for the specified variant or the Default variant if none is specified.
 
         Args:
-            variant (str): The name of the variant. Defaults to "Default".
+            variant (str): The name of the variant.
 
         Returns:
             A Template object representing the treatment template.
@@ -324,41 +338,7 @@ class TestCase:
         self.REMARKS: str = remarks
 
     def __str__(self) -> str:
-        return f'---TestCase---\n\nBIAS: {self.BIAS}\nVARIANT: {self.VARIANT}\nSCENARIO: {self.SCENARIO}\nGENERATOR: {self.GENERATOR}\nCONTROL_VALUES: {self.CONTROL_VALUES}\nTREATMENT_VALUES: {self.TREATMENT_VALUES}\n\nCONTROL:\n{self.compare_templates(self.CONTROL, self.TREATMENT)}\n\nTREATMENT:\n{self.compare_templates(self.TREATMENT, self.CONTROL)}\n\nREMARKS:\n{self.REMARKS}\n\n------'
+        return f'---TestCase---\n\nBIAS: {self.BIAS}\nVARIANT: {self.VARIANT}\nSCENARIO: {self.SCENARIO}\nGENERATOR: {self.GENERATOR}\nCONTROL_VALUES: {self.CONTROL_VALUES}\nTREATMENT_VALUES: {self.TREATMENT_VALUES}\n\nCONTROL:\n{self.CONTROL}\n\nTREATMENT:\n{self.TREATMENT}\n\nREMARKS:\n{self.REMARKS}\n\n------'
 
     def __repr__(self) -> str:
         return self.__str__()
-
-    def compare_templates(self, template1: Template, template2: Template) -> str:
-        """
-        Compare two templates and highlight the differences in bold.
-
-        Args:
-            template1 (Template): The first template to compare.
-            template2 (Template): The second template to compare.
-
-        Returns:
-            str: The formatted string with differences highlighted in bold.
-        """
-        bold_start = "\033[1m"
-        bold_end = "\033[0m"
-        
-        elements1 = template1.format(insert_headings=True, show_type=False, show_generated=False).split('\n')
-        elements2 = template2.format(insert_headings=True, show_type=False, show_generated=False).split('\n')
-        
-        diff1 = []
-        for line1, line2 in zip(elements1, elements2):
-            if line1 != line2:
-                # Use difflib to find differences within the lines
-                seq = difflib.SequenceMatcher(None, line1, line2)
-                highlighted_line = ''
-                for tag, i1, i2, j1, j2 in seq.get_opcodes():
-                    if tag == 'equal':
-                        highlighted_line += line1[i1:i2]
-                    elif tag == 'replace' or tag == 'insert' or tag == 'delete':
-                        highlighted_line += f'{bold_start}{line1[i1:i2]}{bold_end}'
-                diff1.append(highlighted_line)
-            else:
-                diff1.append(line1)
-        
-        return '\n'.join(diff1)
