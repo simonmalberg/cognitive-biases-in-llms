@@ -11,21 +11,25 @@ class DecisionResult:
     def __init__(
         self,
         control_options: dict,
+        raw_control_decision: str,
         control_decision: int,
         treatment_options: dict,
+        raw_treatment_decision: str,
         treatment_decision: int,
         confidences: list = None,
         explanation: str = None,
     ):
         self.CONTROL_OPTIONS = control_options
+        self.RAW_CONTROL_DECISION = raw_control_decision
         self.CONTROL_DECISION = control_decision
         self.TREATMENT_OPTIONS = treatment_options
+        self.RAW_TREATMENT_DECISION = raw_treatment_decision
         self.TREATMENT_DECISION = treatment_decision
         self.CONFIDENCES = confidences
         self.EXPLANATION = explanation
 
     def __str__(self) -> str:
-        return f"---DecisionResult---\n\nCONTROL OPTIONS: {self.CONTROL_OPTIONS}\nCONTROL DECISION: {self.CONTROL_DECISION}\nTREATMENT OPTIONS: {self.TREATMENT_OPTIONS}\nTREATMENT DECISION: {self.TREATMENT_DECISION}\n\n------"
+        return f"---DecisionResult---\n\nCONTROL OPTIONS: {self.CONTROL_OPTIONS}\nRAW CONTROL DECISION: {self.RAW_CONTROL_DECISION}\nCONTROL DECISION: {self.CONTROL_DECISION}\nTREATMENT OPTIONS: {self.TREATMENT_OPTIONS}\nRAW TREATMENT DECISION: {self.RAW_TREATMENT_DECISION}\nTREATMENT DECISION: {self.TREATMENT_DECISION}\n\n------"
 
     def __repr__(self) -> str:
         return self.__str__()
