@@ -89,7 +89,7 @@ class TestGenerator(ABC):
 
         Args:
             model (LLM): The LLM model to use for generating the test case.
-            scenario (list[str]): The list of scenarios for which to generate the test case.
+            scenarios (list[str]): The list of scenarios for which to generate the test case.
             seed (int): A seed for deterministic randomness.
 
         Returns:
