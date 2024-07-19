@@ -124,7 +124,7 @@ class TestGenerator(ABC):
         Returns:
             A TestConfig object representing the loaded test configuration.
         """
-        return TestConfig(f"./biases/{bias.replace(' ', '')}/config.xml")
+        return TestConfig(f"./biases/{bias.title().replace(' ', '')}/config.xml")
 
     def populate(self, model: LLM, control: Template, treatment: Template, scenario: str) -> tuple[Template, Template]:
         """
