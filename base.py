@@ -83,14 +83,13 @@ class TestGenerator(ABC):
         self.BIAS = "None"
 
     @abstractmethod
-    def generate_all(self, model: LLM, scenarios: list[str], config_values: dict = {}, seed: int = 42) -> list[TestCase]:
+    def generate_all(self, model: LLM, scenarios: list[str], seed: int = 42) -> list[TestCase]:
         """
         Generates all test cases at once for the cognitive bias associated with this test generator.
 
         Args:
             model (LLM): The LLM model to use for generating the test case.
             scenario (list[str]): The list of scenarios for which to generate the test case.
-            config_values (dict): A dictionary containing the configuration data for the test case from the respective XML file.
             seed (int): A seed for deterministic randomness.
 
         Returns:
