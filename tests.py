@@ -374,33 +374,27 @@ class TestConfig:
     A class representing a configuration file for a cognitive bias test.
 
     Attributes:
-        path (str): The path to the XML configuration file.
-        config (ET): An ElementTree object representing the XML configuration file.
+        config (ET.ElementTree): An ElementTree object representing the XML configuration file.
     """
 
     def __init__(self, path: str):
-        self.path = path
-        self.config = self.load(self.path)
-    
-    def load(self, path: str) -> ET:
         """
-        Loads the XML configuration file for the specified cognitive bias.
+        Instantiates a new TestConfig object.
 
         Args:
-            bias (str): The name of the cognitive bias for which to load the configuration.
-
-        Returns:
-            An ElementTree object representing the XML configuration file.
+            path (str): The path to the XML configuration file.
         """
-        return ET.parse(path)
+
+        self.config = self._load(path)
 
     def get_bias_name(self) -> str:
         """
         Returns the name of the cognitive bias being tested.
 
         Returns:
-            The name of the cognitive bias being tested.
+            str: The name of the cognitive bias being tested.
         """
+
         return self.config.getroot().get('bias')
     
     def get_custom_values(self) -> dict:
@@ -408,15 +402,19 @@ class TestConfig:
         Returns the custom values defined in the configuration file.
 
         Returns:
-            A dictionary containing the custom values defined in the configuration file.
+            dict: A dictionary containing the custom values defined in the configuration file.
         """
+
         custom_values = self.config.getroot().findall('custom_values')
         custom_values_dict = {}
         for custom_value in custom_values:
             key = custom_value.get('name')
-            custom_values_dict[key] = []
-            for value in custom_value:
-                custom_values_dict[key].append(value.text)
+            if len(custom_value) == 0:
+                custom_values_dict[key] = None
+            elif len(custom_value) == 1:
+                custom_values_dict[key] = custom_value.find("value").text
+            else:
+                custom_values_dict[key] = [value.text for value in custom_value]
         
         return custom_values_dict
 
@@ -439,45 +437,38 @@ class TestConfig:
         Returns a template from the test configuration.
 
         Args:
-            template_type (str): The type of the template, e.g., "control" or "treatment".
-            variant (str): The name of the variant. Defaults to None. Only needed if the test configuration includes multiple variants.
+            template_type (str): The type of the template ('control' or 'treatment').
+            variant (str): The name of the variant. Only needed if the test configuration includes multiple variants.
 
         Returns:
-            A Template object representing the control template.
+            Template: A Template object representing the template.
         """
-        root = self.config.getroot()
-        variants = list(root.findall('variant'))
 
-        if not variants:
-            # No variant elements, treat the root as the variant element
-            variant_element = root
-        elif len(variants) == 1:
-            # Only one variant element present
-            variant_element = variants[0]
-        else:
-            # Multiple variant elements, find the specified one
-            variant_element = None
-            for v in variants:
-                if v.get('name') == variant:
-                    variant_element = v
-                    break
+        root = self.config.getroot()
+
+        if variant is not None:
+            # Find the variant element with the specified name
+            variant_element = root.find(f"variant[@name='{variant}']")
             if variant_element is None:
                 raise ValueError(f"Variant '{variant}' not found in the configuration.")
+        else:
+            # No variant was specified, try to find the next best variant
+            found_variants = root.findall('variant')
+            if len(found_variants) > 1:
+                raise ValueError(f"{len(found_variants)} variants found in the configuration. Please specify in which variant to find the template.")
+            elif len(found_variants) == 1:
+                variant_element = found_variants[0]
+            else:
+                # No variant elements in the configuration file, treat the root as the variant element
+                variant_element = root
 
         # Find the template with the specified type
         template_config = variant_element.find(f"template[@type='{template_type}']")
         if template_config is None:
             raise ValueError(f"No template with type '{template_type}' found in variant '{variant}'.")
 
-        # Extract the components of the template
-        template = Template()
-        for c in list(template_config):
-            if c.tag == 'situation':
-                template.add_situation(c.text)
-            elif c.tag == 'prompt':
-                template.add_prompt(c.text)
-            elif c.tag == 'option':
-                template.add_option(c.text)
+        # Parse the template
+        template = Template(from_element=template_config)
 
         return template
 
@@ -489,8 +480,9 @@ class TestConfig:
             variant (str): The name of the variant.
 
         Returns:
-            A Template object representing the control template.
+            Template: A Template object representing the control template.
         """
+
         return self.get_template("control", variant)
 
     def get_treatment_template(self, variant: str = None) -> Template:
@@ -501,9 +493,23 @@ class TestConfig:
             variant (str): The name of the variant.
 
         Returns:
-            A Template object representing the treatment template.
+            Template: A Template object representing the treatment template.
         """
+
         return self.get_template("treatment", variant)
+    
+    def _load(self, path: str) -> ET.ElementTree:
+        """
+        Loads the XML configuration file for the specified cognitive bias.
+
+        Args:
+            path (str): The path to the XML configuration file.
+
+        Returns:
+            An ElementTree object representing the XML configuration file.
+        """
+
+        return ET.parse(path)
 
 
 class TestCase:
