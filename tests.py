@@ -520,29 +520,30 @@ class TestCase:
         BIAS (str): The name of the cognitive bias being tested.
         CONTROL (Template): The control template for the test case.
         TREATMENT (Template): The treatment template for the test case.
-        GENERATOR (str): The name of the LLM generator used to generate the treatment template.
+        GENERATOR (str): The name of the LLM generator used to populate the templates.
         SCENARIO (str): The scenario in which the test case is being conducted.
-        CONTROL_CUSTOM_VALUES (dict, optional): Values inserted in the control template of the test case.
-        TREATMENT_CUSTOM_VALUES (dict, optional): Values inserted in the treatment template of the test case.
         VARIANT (str, optional): The variant of the test case.
         REMARKS (str, optional): Any additional remarks about the test case.
     """
 
-    def __init__(self, bias: str, control: Template, treatment: Template, generator: str, 
-                 scenario: str, control_values: dict = None, treatment_values: dict = None,
-                 variant: str = None, remarks: str = None):
+    def __init__(self, bias: str, control: Template, treatment: Template, generator: str, scenario: str, variant: str = None, remarks: str = None, **kwargs):
         self.BIAS: str = bias
         self.CONTROL: Template = control
         self.TREATMENT: Template = treatment
         self.GENERATOR: str = generator
         self.SCENARIO: str = scenario
-        self.CONTROL_VALUES: dict = control_values
-        self.TREATMENT_VALUES: dict = treatment_values
         self.VARIANT: str = variant
         self.REMARKS: str = remarks
 
+        # Issue a deprecation warning for fields that are no longer supported
+        for key, value in kwargs.items():
+            if key in ['control_values', 'treatment_values']:
+                warnings.warn("'control_values' and 'treatment_values' are deprecated and should not be used anymore. All inserted values are automatically stored inside the Template objects, which in turn are stored in TestCase.CONTROL and TestCase.Treatment. If these values are important for understanding which test was run, consider using the TestCase.VARIANT attribute to keep track of these values.", DeprecationWarning)
+
+            setattr(self, key.upper(), value)
+
     def __str__(self) -> str:
-        return f'---TestCase---\n\nBIAS: {self.BIAS}\nVARIANT: {self.VARIANT}\nSCENARIO: {self.SCENARIO}\nGENERATOR: {self.GENERATOR}\nCONTROL_VALUES: {self.CONTROL_VALUES}\nTREATMENT_VALUES: {self.TREATMENT_VALUES}\n\nCONTROL:\n{self.CONTROL}\n\nTREATMENT:\n{self.TREATMENT}\n\nREMARKS:\n{self.REMARKS}\n\n------'
+        return f'---TestCase---\n\nBIAS: {self.BIAS}\nVARIANT: {self.VARIANT}\nSCENARIO: {self.SCENARIO}\nGENERATOR: {self.GENERATOR}\n\nCONTROL:\n{self.CONTROL}\n\nTREATMENT:\n{self.TREATMENT}\n\nREMARKS:\n{self.REMARKS}\n\n------'
 
     def __repr__(self) -> str:
         return self.__str__()
