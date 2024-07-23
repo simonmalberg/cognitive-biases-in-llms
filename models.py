@@ -176,6 +176,7 @@ class GPT(LLM):
             )
             if not test_case.CONTROL:
                 return DecisionResult(
+                    self.NAME,
                     control_options,
                     None,
                     None,
@@ -203,6 +204,7 @@ class GPT(LLM):
                     self.generate_misc(extraction_prompt_control)
                 )
                 return DecisionResult(
+                    self.NAME,
                     control_options,
                     control_answer,
                     control_decision,
