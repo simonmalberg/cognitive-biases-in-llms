@@ -363,10 +363,10 @@ class Template:
         return insertions_list
 
     def __str__(self) -> str:
-        return self.format(insert_headings=True, show_type=False, show_generated=False)
+        return self.format(insert_headings=True, show_type=False, show_blanks=False)
 
     def __repr__(self) -> str:
-        return self.format(insert_headings=False, show_type=True, show_generated=True)
+        return self.format(insert_headings=False, show_type=True, show_blanks=True)
 
 
 class TestConfig:
