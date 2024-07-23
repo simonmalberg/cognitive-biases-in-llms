@@ -1,34 +1,41 @@
 import xml.etree.ElementTree as ET
 import warnings
+import datetime
 
 
 class DecisionResult:
     """
     A class representing the result of a decision made by an LLM for a specific test case.
+
+    Attributes:
+        MODEL (str): The name of the LLM used to make the decision.
+        TEMPERATURE (float): The LLM temperature parameter used to generate the decisions.
+        SEED (int): The LLM seed used to generate the decisions.
+        TIMESTAMP (str): The timestamp when the decision was made.
+        CONTROL_OPTIONS (dict): A dictionary containing the options available for the control template.
+        CONTROL_ANSWER (str): The raw decision output from the deciding LLM for the control template.
+        CONTROL_DECISION (int): The decision made by the LLM for the control template.
+        TREATMENT_OPTIONS (dict): A dictionary containing the options available for the treatment template.
+        TREATMENT_ANSWER (str): The raw decision output from the deciding LLM for the treatment template.
+        TREATMENT_DECISION (int): The decision made by the LLM for the treatment template.
     """
 
-    def __init__(
-        self,
-        control_options: dict,
-        raw_control_decision: str,
-        control_decision: int,
-        treatment_options: dict,
-        raw_treatment_decision: str,
-        treatment_decision: int,
-        confidences: list = None,
-        explanation: str = None,
-    ):
-        self.CONTROL_OPTIONS = control_options
-        self.RAW_CONTROL_DECISION = raw_control_decision
-        self.CONTROL_DECISION = control_decision
-        self.TREATMENT_OPTIONS = treatment_options
-        self.RAW_TREATMENT_DECISION = raw_treatment_decision
-        self.TREATMENT_DECISION = treatment_decision
-        self.CONFIDENCES = confidences
-        self.EXPLANATION = explanation
+    def __init__(self, model: str, control_options: dict, control_answer: str, control_decision: int, treatment_options: dict, treatment_answer: str, treatment_decision: int, temperature: float = None, seed: int = None):
+        self.MODEL: str = model
+        self.TEMPERATURE: float = temperature
+        self.SEED: int = seed
+        self.TIMESTAMP: str = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+        self.CONTROL_OPTIONS: dict = control_options
+        self.CONTROL_ANSWER: str = control_answer
+        self.CONTROL_DECISION: int = control_decision
+
+        self.TREATMENT_OPTIONS: dict = treatment_options
+        self.TREATMENT_ANSWER: str = treatment_answer
+        self.TREATMENT_DECISION: int = treatment_decision
 
     def __str__(self) -> str:
-        return f"---DecisionResult---\n\nCONTROL OPTIONS: {self.CONTROL_OPTIONS}\nRAW CONTROL DECISION: {self.RAW_CONTROL_DECISION}\nCONTROL DECISION: {self.CONTROL_DECISION}\nTREATMENT OPTIONS: {self.TREATMENT_OPTIONS}\nRAW TREATMENT DECISION: {self.RAW_TREATMENT_DECISION}\nTREATMENT DECISION: {self.TREATMENT_DECISION}\n\n------"
+        return f"---DecisionResult---\n\n\TIMESTAMP: {self.TIMESTAMP}\nMODEL: {self.MODEL}\nTEMPERATURE: {self.TEMPERATURE}\nSEED: {self.SEED}\n\nCONTROL OPTIONS: {self.CONTROL_OPTIONS}\nRAW CONTROL DECISION: {self.RAW_CONTROL_DECISION}\nCONTROL DECISION: {self.CONTROL_DECISION}\n\nTREATMENT OPTIONS: {self.TREATMENT_OPTIONS}\nRAW TREATMENT DECISION: {self.RAW_TREATMENT_DECISION}\nTREATMENT DECISION: {self.TREATMENT_DECISION}\n\n------"
 
     def __repr__(self) -> str:
         return self.__str__()
