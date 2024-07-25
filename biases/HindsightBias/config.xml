@@ -1,0 +1,43 @@
+<config bias="Hindsight Bias">
+    <custom_values name="percentage">
+        <value name='distribution'>uniform</value>
+        <value name='min'>-50</value>
+        <value name='max'>50</value>
+    </custom_values>
+    <variant name="default">
+        <template type="control">
+            <situation>Suppose you are a [[type]] manager at [[organization]].</situation>
+            <situation>A colleague from a company in your industry is preparing to publicly disclose their recent [[one of possible performance metrics suitable for your mutual industry]].</situation>
+            <prompt>In your assessment, what is your estimate of this soon-to-be announced change relative to the last's year result?</prompt>
+            <option>-50%</option>
+            <option>-40%</option>
+            <option>-30%</option>
+            <option>-20%</option>
+            <option>-10%</option>
+            <option>0%</option>
+            <option>10%</option>
+            <option>20%</option>
+            <option>30%</option>
+            <option>40%</option>
+            <option>50%</option>
+        </template>
+        <template type="treatment">
+            <situation>Suppose you are a [[type]] manager at [[organization]].</situation>
+            <situation>A colleague from a company in your industry is preparing to publicly disclose their recent [[one of possible performance metrics suitable for your mutual industry]].</situation>
+            <situation>You have been informed that this value has a change of {{percentage}}% compared to the last's year result.</situation>
+            <situation>An independent group of specialists have been tasked with predicting this performance change; they are not aware of its true value.</situation>
+            <prompt>In your assessment, what is the group's estimate of this soon-to-be announced change relative to the last's year result?</prompt>
+            <option>-50%</option>
+            <option>-40%</option>
+            <option>-30%</option>
+            <option>-20%</option>
+            <option>-10%</option>
+            <option>0%</option>
+            <option>10%</option>
+            <option>20%</option>
+            <option>30%</option>
+            <option>40%</option>
+            <option>50%</option>
+        </template>
+    </variant>
+</config>
