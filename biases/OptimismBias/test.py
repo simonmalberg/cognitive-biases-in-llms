@@ -1,5 +1,6 @@
-from base import TestGenerator, LLM, Metric, MetricCalculationError
+from base import TestGenerator, LLM, Metric
 from tests import TestCase, Template, TestConfig, DecisionResult
+from utils import MetricCalculationError
 import random
 import re
 import numpy as np

@@ -1,10 +1,12 @@
 from tests import Template, TestCase, DecisionResult
+from utils import PopulationError, DecisionError
 from base import LLM
 import re
 import random
 from openai import OpenAI
 import json
 import warnings
+
 
 def options_to_list(options: str) -> list:
     """
@@ -14,15 +16,6 @@ def options_to_list(options: str) -> list:
         return [int(x) for x in re.findall(r"Option (\d*)", options)]
     except ValueError:
         raise DecisionError("The decision could not be extracted.")
-
-class PopulationError(Exception):
-    """A class for exceptions raised during the population of test cases."""
-    pass
-
-
-class DecisionError(Exception):
-    """A class for exceptions raised during the decision of test cases."""
-    pass
 
 
 class RandomModel(LLM):

@@ -1,6 +1,5 @@
-from utils import get_generator, get_metric
-from models import RandomModel, GptThreePointFiveTurbo, PopulationError, DecisionError, GptFourO
-from base import MetricCalculationError
+from utils import get_generator, get_metric, PopulationError, DecisionError, MetricCalculationError
+from models import RandomModel, GptThreePointFiveTurbo, GptFourO
 import random
 
 

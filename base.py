@@ -3,10 +3,6 @@ from tests import TestCase, Template, TestConfig, DecisionResult
 import yaml
 import random
 
-class MetricCalculationError(Exception):
-    """A class for exceptions raised during the calculation of metric for a given bias."""
-    pass
-
 
 class LLM(ABC):
     """
