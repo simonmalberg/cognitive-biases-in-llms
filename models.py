@@ -5,6 +5,7 @@ import re
 import random
 from openai import OpenAI
 import json
+import yaml
 import warnings
 
 
@@ -50,11 +51,16 @@ class RandomModel(LLM):
     def decide(self, test_case: TestCase) -> DecisionResult:
         pass
 
+
 class GPT(LLM):
     """
     An abstract class representing a GPT-based LLM from OpenAI API that populates test cases according to the scenario
     starting from the brackets that are either identical for both control and treatment or unique for control, 
     and then adding those unique for treatment.
+
+    Attributes:
+        NAME (str): The name of the model.
+        PROMPTS (dict): A dictionary containing the prompts used to interact with the model.
     """
 
     def __init__(self):
@@ -62,6 +68,9 @@ class GPT(LLM):
         self.NAME = None
         self.DECODER = "argmax"
         self.client = OpenAI()
+        
+        with open("prompts.yml") as prompts:
+            self.PROMPTS = yaml.safe_load(prompts)
 
     def generate_misc(self, prompt: str) -> str:
         """

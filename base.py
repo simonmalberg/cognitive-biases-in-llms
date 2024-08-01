@@ -1,6 +1,5 @@
 from abc import ABC, abstractmethod
 from tests import TestCase, Template, TestConfig, DecisionResult
-import yaml
 import random
 
 
@@ -10,13 +9,51 @@ class LLM(ABC):
     
     Attributes:
         NAME (str): The name of the model.
-        PROMPTS (dict): A dictionary containing the prompts used to interact with the model.
     """
 
     def __init__(self):
         self.NAME = "llm-abstract-base-class"
-        with open("prompts.yml") as prompts:
-            self.PROMPTS = yaml.safe_load(prompts)
+
+    @abstractmethod
+    def prompt(self, prompt: str) -> str:
+        """
+        Prompts the LLM with a text input and returns the LLM's answer.
+
+        Args:
+            prompt (str): The input prompt text.
+
+        Returns:
+            str: The LLM's answer to the input prompt.
+        """
+        pass
+
+    @abstractmethod
+    def populate(self, control: Template, treatment: Template, scenario: str) -> tuple[Template, Template]:
+        """
+        Populates given control and treatment templates based on the provided scenario.
+
+        Args:
+            control (Template): The control template that shall be populated.
+            treatment (Template): The treatment template that shall be populated.
+            scenario (str): A string describing the scenario/context for the population.
+
+        Returns:
+            tuple[Template, Template]: The populated control and treatment templates.
+        """
+        pass
+
+    @abstractmethod
+    def decide(self, test_case: TestCase) -> DecisionResult:
+        """
+        Makes the decisions defined in the provided test case (i.e., typically chooses one option from the control template and one option from the treatment template).
+
+        Args:
+            test_case (TestCase): The TestCase object defining the tests/decisions to be made.
+
+        Returns:
+            DecisionResult: A DecisionResult representing the decisions made by the LLM.
+        """
+        pass
          
     def shuffle_options(self, template: Template, seed: int = 42) -> tuple[Template, Template]:
         """
@@ -57,14 +94,6 @@ class LLM(ABC):
             template.elements[i_template] = (option_texts[i_option], "option")
         
         return template, options
-
-    @abstractmethod
-    def populate(self, control: Template, treatment: Template, scenario: str) -> tuple[Template, Template]:
-        pass
-
-    @abstractmethod
-    def decide(self, test_case: TestCase) -> DecisionResult:
-        pass
 
 
 class TestGenerator(ABC):
