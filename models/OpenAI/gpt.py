@@ -19,39 +19,6 @@ def options_to_list(options: str) -> list:
         raise DecisionError("The decision could not be extracted.")
 
 
-class RandomModel(LLM):
-    """
-    A class representing a random model that populates test cases with random samples of words from the scenario. This class is implemented for testing purposes only.
-
-    Attributes:
-        NAME (str): The name of the model.
-    """
-
-    def __init__(self):
-        self.NAME = "random-model"
-
-    def populate(self, control: Template, treatment: Template, scenario: str) -> tuple[Template, Template]:
-        # Serialize the templates into strings
-        control_str = control.serialize()
-        treatment_str = treatment.serialize()
-
-        # Replace any text between brackets with a random sample of 1-4 words from the scenario
-        def replace_with_sample(match):
-            sampled_words = ' '.join(random.sample(scenario.split(), random.randint(1, 4)))
-            return f"[[{sampled_words}]]"
-    
-        control_str = re.sub(r'\[\[(.*?)\]\]', replace_with_sample, control_str)
-        treatment_str = re.sub(r'\[\[(.*?)\]\]', replace_with_sample, treatment_str)
-
-        # Deserialize the populated strings back into templates
-        control, treatment = Template(control_str), Template(treatment_str)
-        
-        return control, treatment
-
-    def decide(self, test_case: TestCase) -> DecisionResult:
-        pass
-
-
 class GPT(LLM):
     """
     An abstract class representing a GPT-based LLM from OpenAI API that populates test cases according to the scenario
@@ -72,15 +39,15 @@ class GPT(LLM):
         with open("prompts.yml") as prompts:
             self.PROMPTS = yaml.safe_load(prompts)
 
-    def generate_misc(self, prompt: str) -> str:
-        """
-        Utility function to generate a miscellaneous prompt to the LLM.
-        """
+    def prompt(self, prompt: str) -> str:
         response = self.client.chat.completions.create(
             model=self.NAME,
             messages=[{"role": "user", "content": prompt}]
         )
         return response.choices[0].message.content
+
+    def generate_misc(self, prompt: str) -> str:
+        return self.prompt(prompt)
 
     def _validate_populate(self, template: Template, replacements: dict):
         # TODO Add function documentation
@@ -88,6 +55,8 @@ class GPT(LLM):
         # 1. Verify that number of replacements is equal to the number of placeholders in the template
         template_entries = re.findall(r"\[\[(.*?)\]\]", template.serialize())
         if len(replacements) < len(template_entries):
+            print("replacements:", replacements, "\n")
+            print("template_entries:", template_entries, "\n")
             raise PopulationError("Not enough replacements generated.")
 
         # 2. Verify that all placeholders are filled, and the replacements are not empty / same as the initial placeholders

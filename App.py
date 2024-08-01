@@ -1,10 +1,7 @@
 from utils import get_generator, get_metric, PopulationError, DecisionError, MetricCalculationError
-from models import RandomModel, GptThreePointFiveTurbo, GptFourO
+from models.OpenAI.gpt import GptThreePointFiveTurbo, GptFourO
+from models.Random.random import RandomModel
 import random
-
-
-# currently supported biases
-BIASES = ['AnchoringBias', 'LossAversion', 'ConfirmationBias']  # TODO: Halo Effect test needs to be fixed
 
 
 if __name__ == "__main__":
