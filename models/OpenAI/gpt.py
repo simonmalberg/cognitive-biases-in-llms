@@ -1,6 +1,5 @@
 from tests import Template, TestCase, DecisionResult
-from utils import PopulationError, DecisionError
-from base import LLM
+from base import LLM, PopulationError, DecisionError
 import re
 import random
 from openai import OpenAI
@@ -9,184 +8,210 @@ import yaml
 import warnings
 
 
-def options_to_list(options: str) -> list:
-    """
-    Function to convert the string with selected options into a list of options.
-    """
-    try:
-        return [int(x) for x in re.findall(r"Option (\d*)", options)]
-    except ValueError:
-        raise DecisionError("The decision could not be extracted.")
-
-
 class GPT(LLM):
     """
-    An abstract class representing a GPT-based LLM from OpenAI API that populates test cases according to the scenario
-    starting from the brackets that are either identical for both control and treatment or unique for control, 
-    and then adding those unique for treatment.
+    An abstract class representing a GPT-based LLM from OpenAI.
 
     Attributes:
         NAME (str): The name of the model.
-        PROMPTS (dict): A dictionary containing the prompts used to interact with the model.
     """
 
-    def __init__(self):
-        super().__init__()
-        self.NAME = None
-        self.DECODER = "argmax"
-        self.client = OpenAI()
-        
-        with open("prompts.yml") as prompts:
-            self.PROMPTS = yaml.safe_load(prompts)
+    def __init__(self, shuffle_answer_options: bool = False):
+        super().__init__(shuffle_answer_options=shuffle_answer_options)
+        self._CLIENT = OpenAI()
+        with open("./models/OpenAI/prompts.yml") as f:
+            self._PROMPTS = yaml.safe_load(f)
 
-    def prompt(self, prompt: str) -> str:
-        response = self.client.chat.completions.create(
+    def prompt(self, prompt: str, temperature: float = 0.7, seed: int = 42) -> str:
+        # Call the chat completions API endpoint
+        response = self._CLIENT.chat.completions.create(
             model=self.NAME,
+            temperature=temperature,
+            seed=seed,
             messages=[{"role": "user", "content": prompt}]
         )
+
+        # Extract and return the answer
         return response.choices[0].message.content
 
-    def generate_misc(self, prompt: str) -> str:
-        return self.prompt(prompt)
+    def populate(self, control: Template, treatment: Template, scenario: str, temperature: float = 0.7, seed: int = 42) -> tuple[Template, Template]:
+        # 1. Populate the gaps in the control template based on the scenario
+        if control is not None and len(control.get_gaps()) > 0:
+            control = self._populate(control, scenario, temperature=temperature, seed=seed)
 
-    def _validate_populate(self, template: Template, replacements: dict):
-        # TODO Add function documentation
+        # 2. Fill the gaps in the treatment template that are shared with the control template
+        if control is not None and treatment is not None:
+            insertions = control.get_insertions()
+            insertions = [insertion for insertion in insertions if insertion['origin'] == 'model']
+            for insertion in insertions:
+                treatment.insert_text(insertion['instruction'], insertion['text'], insertion['origin']) # TODO Simplify usage and copying of insertions
 
-        # 1. Verify that number of replacements is equal to the number of placeholders in the template
-        template_entries = re.findall(r"\[\[(.*?)\]\]", template.serialize())
-        if len(replacements) < len(template_entries):
-            print("replacements:", replacements, "\n")
-            print("template_entries:", template_entries, "\n")
-            raise PopulationError("Not enough replacements generated.")
-
-        # 2. Verify that all placeholders are filled, and the replacements are not empty / same as the initial placeholders
-        for (placeholder, replacement), entry in zip(replacements.items(), template_entries):
-            if not placeholder == "[[" + entry + "]]":
-                raise PopulationError("A placeholder was skipped/altered.")
-            if not replacement:
-                raise PopulationError("A placeholder was not filled.")
-            if replacement == entry:
-                raise PopulationError("Generated passage is the same as the placeholder.")
-                
-    def _populate(self, template: Template, scenario: str, kind: str) -> Template:
-        """
-        Function to populate a given template according to the scenario.
-        
-        Args:
-            template (Template): The template to populate.
-            scenario (str): The respective scenario.
-            kind (str): The type of the template (control or treatment).
-        """
-        # Load the prompt to the LLM
-        prompt = self.PROMPTS[f'{kind}_prompt']
-        system_content = self.PROMPTS['system_prompt']
-        # Insert the scenario and control template into the prompt
-        prompt = prompt.replace("{{scenario}}", scenario)
-        prompt = prompt.replace("{{" + f"{kind}_template" + "}}", template.format(insert_headings=True,
-                                                                                  show_type=False, 
-                                                                                  show_generated=True))
-        # Obtain a response from the LLM
-        response = self.client.chat.completions.create(
-            model=self.NAME,
-            response_format={"type": "json_object"},
-            messages=[
-                {"role": "system", "content": system_content},
-                {"role": "user", "content": prompt}
-            ]
-        )
-        # Parse the replacements proposed by the LLM
-        replacements = json.loads(response.choices[0].message.content)
-        self._validate_populate(template, replacements)
-        template.insert_values(list(replacements.items()), kind='LLM')
-        return template
-
-    def populate(self, control: Template, treatment: Template, scenario: str) -> tuple[Template, Template]:
-        try:
-            if not control:
-                control = None
-            else:
-                # 1. Populate the gaps in the control template based on the scenario
-                control = self._populate(control, scenario, 'control')
-
-                # 2. Fill the treatment template with the values that are shared with the control template
-                control_values = {pattern: value[0] for pattern, value in control.inserted_values.items()}
-                treatment.insert_values(list(control_values.items()), kind='LLM')
-
-            # 3. Populate the gaps in the treatment template based on the scenario, if there are any placeholders left unfilled
-            if re.findall(r'\[\[(.*?)\]\]', treatment.serialize()):
-                treatment = self._populate(treatment, scenario, 'treatment')
-        except Exception as e:
-            raise PopulationError(e)
+        # 3. Populate the remaining gaps in the treatment template based on the scenario
+        if treatment is not None and len(treatment.get_gaps()) > 0:
+            treatment = self._populate(treatment, scenario, temperature=temperature, seed=seed)
 
         return control, treatment
 
-    def decide(self, test_case: TestCase, seed: int = 42) -> DecisionResult:
-        test_case.CONTROL, control_options = self.shuffle_options(test_case.CONTROL, seed)
-        test_case.TREATMENT, treatment_options = self.shuffle_options(test_case.TREATMENT, seed)
+    def decide(self, test_case: TestCase, temperature: float = 0.7, seed: int = 42) -> DecisionResult:
+        # Declare the results variables
+        control_answer, control_extraction, control_option, control_option_texts, control_option_order = None, None, None, [], []
+        treatment_answer, treatment_extraction, treatment_option, treatment_option_texts, treatment_option_order = None, None, None, [], []
+
+        # Obtain decisions for the control and treatment decision-making tasks
+        if test_case.CONTROL is not None:
+            control_answer, control_extraction, control_option, control_option_texts, control_option_order = self._decide(test_case.CONTROL, temperature=temperature, seed=seed)
+        if test_case.TREATMENT is not None:
+            treatment_answer, treatment_extraction, treatment_option, treatment_option_texts, treatment_option_order = self._decide(test_case.TREATMENT, temperature=temperature, seed=seed)
+
+        # Save the order in which answer options appeared
+        control_options = {}
+        for index, option in zip(control_option_order, control_option_texts):
+            control_options[index] = option            
+        treatment_options = {}
+        for index, option in zip(treatment_option_order, treatment_option_texts):
+            treatment_options[index] = option
+        
+        # Create a DecisionResult object containing the final decisions
+        decision_result = DecisionResult(
+            model=self.NAME,
+            control_options=control_options,
+            control_answer=control_answer,
+            control_decision=control_option,
+            treatment_options=treatment_options,
+            treatment_answer=treatment_answer,
+            treatment_decision=treatment_option,
+            temperature=temperature,
+            seed=seed
+        )
+
+        return decision_result
+
+    def _decide(self, template: Template, temperature: float = 0.7, seed: int = 42) -> tuple[str, str, int, list[str], list[int]]:
+        """
+        Prompts the model to choose one answer option from a decision-making task defined in the provided template.
+
+        The decision is obtained through a two-step prompt: First, the model is presented with the decision-making test and can respond freely. Second, the model is instructed to extract the final answer from its previous response.
+
+        Args:
+            template (Template): The template defining the decision-making task.
+            temperature (float): The temperature value of the LLM.
+            seed (int): The seed for controlling the LLM's output.
+
+        Returns:
+            tuple[str, str, int, list[str], list[int]]: The raw model response, the model's extraction response, the number of the selected option (None if no selected option could be extracted), the answer option texts, and the order of answer options.
+        """
+
+        # 1. Load the decision and extraction prompts
+        decision_prompt = self._PROMPTS['decision_prompt']
+        extraction_prompt = self._PROMPTS['extraction_prompt']
+
+        # 2A. Format the template and insert it into the decision prompt
+        decision_prompt = decision_prompt.replace("{{test_case}}", template.format(shuffle_options=self.shuffle_answer_options, seed=seed))
+        options, option_order = template.get_options(shuffle_options=self.shuffle_answer_options, seed=seed)
+
+        # 2B. Obtain a response from the LLM
         try:
-            # load the test prompt + extraction prompt
-            prompt, extraction_prompt = (
-                self.PROMPTS["decision_prompt"],
-                self.PROMPTS["extraction_prompt"],
-            )
-            test_prompt = prompt.replace(
-                "{{test_case}}",
-                test_case.TREATMENT.format(
-                    insert_headings=True, show_type=False, show_generated=True   # TODO show_generated should be False here as the LLM is not supposed to see which parts are generated and which aren't
-                ),
-            )
-            # get answer for treatment part
-            treatment_answer = self.generate_misc(test_prompt)
-            # put the answer into the extraction prompt
-            extraction_prompt_treatment = extraction_prompt.replace(
-                "{{answer}}", treatment_answer
-            )
-            # extract the selected decision(s) from the treatment part into a list
-            treatment_decision = options_to_list(
-                self.generate_misc(extraction_prompt_treatment)
-            )
-            if not test_case.CONTROL:
-                return DecisionResult(
-                    self.NAME,
-                    control_options,
-                    None,
-                    None,
-                    treatment_options,
-                    treatment_answer,
-                    treatment_decision,
-                    None,
-                    None,
-                )
-            else:
-                test_prompt = prompt.replace(
-                    "{{test_case}}",
-                    test_case.CONTROL.format(
-                        insert_headings=True, show_type=False, show_generated=True   # TODO show_generated should be False here as the LLM is not supposed to see which parts are generated and which aren't
-                    ),
-                )
-                # get answer for control part
-                control_answer = self.generate_misc(test_prompt)
-                # put the answer into the extraction prompt
-                extraction_prompt_control = extraction_prompt.replace(
-                    "{{answer}}", control_answer
-                )
-                # extract the selected option(s) from the control part into a list
-                control_decision = options_to_list(
-                    self.generate_misc(extraction_prompt_control)
-                )
-                return DecisionResult(
-                    self.NAME,
-                    control_options,
-                    control_answer,
-                    control_decision,
-                    treatment_options,
-                    treatment_answer,
-                    treatment_decision,
-                    None,
-                    None,
-                )
-        except Exception as e:
-            raise DecisionError(e)
+            decision_response = self.prompt(decision_prompt, temperature=temperature, seed=seed)
+        except e:
+            raise DecisionError(f"Could not obtain a decision from the model to the following prompt:\n\n{decision_prompt}\n\n{e}")
+
+        # 3A. Insert the decision options and the decision response into the extraction prompt
+        extraction_prompt = extraction_prompt.replace("{{options}}", "\n".join(f"Option {index}: {option}" for index, option in enumerate(options, start=1)))
+        extraction_prompt = extraction_prompt.replace("{{answer}}", decision_response)
+
+        # 3B. Let the LLM extract the final chosen option from its previous answer
+        try:
+            extraction_response = self.prompt(extraction_prompt, temperature=temperature, seed=seed)
+        except e:
+            raise DecisionError(f"An error occurred while trying to extract the chosen option with the following prompt:\n\n{extraction_prompt}\n\n{e}")
+
+        # 3C. Extract the option number from the extraction response
+        pattern = r'\b(?:[oO]ption) (\d+)\b'
+        match = re.search(pattern, extraction_response)
+        chosen_option = int(match.group(1)) if match else None
+
+        if chosen_option is None:
+            raise DecisionError(f"Could not extract the chosen option from the model's response:\n\n{decision_response}\n\n{extraction_response}\n\nNo option number detected in response.")
+
+        return decision_response, extraction_response, chosen_option, options, option_order
+
+    def _populate(self, template: Template, scenario: str, temperature: float = 0.7, seed: int = 42) -> Template:
+        """
+        Populates the blanks in the provided template according to the scenario.
+        
+        Args:
+            template (Template): The template to populate.
+            scenario (str): A string describing the scenario/context for the population.
+            temperature (float): The temperature value of the LLM.
+            seed (int): The seed for controlling the LLM's output.
+
+        Returns:
+            Template: The populated Template object.
+        """
+
+        # Load the system and user prompts
+        system_prompt = self._PROMPTS['system_prompt']
+        user_prompt = self._PROMPTS['population_prompt']
+
+        # Compile the format instructions (JSON format) based on the remaining gaps in the template
+        gaps = template.get_gaps()
+        gaps = [f"    \"{gap}\": \"...\"" for gap in gaps]
+        expected_format = "{\n" + ',\n'.join(gaps) + "\n}"
+
+        # Insert the scenario, template, and format instructions into the prompt
+        user_prompt = user_prompt.replace("{{scenario}}", scenario)
+        user_prompt = user_prompt.replace("{{template}}", template.format())
+        user_prompt = user_prompt.replace("{{format}}", expected_format)
+
+        # Obtain a response from the LLM
+        response = self._CLIENT.chat.completions.create(
+            model=self.NAME,
+            temperature=temperature,
+            seed=seed,
+            response_format={"type": "json_object"},
+            messages=[
+                {"role": "system", "content": system_prompt},
+                {"role": "user", "content": user_prompt}
+            ]
+        )
+
+        # Parse the insertions generated by the LLM and fix them, if needed (adding missing double square brackets, which the LLM sometimes forgets)
+        insertions = json.loads(response.choices[0].message.content)
+        insertions = self._fix_insertions(insertions)
+
+        # Validate the insertions
+        self._validate_population(template, insertions, response.choices[0].message.content)
+
+        # Make the insertions in the template
+        for pattern in insertions.keys():
+            template.insert_text(pattern.strip("[[").strip("]]"), insertions[pattern], 'model')
+
+        return template
+
+    def _fix_insertions(self, insertions: dict) -> dict:
+        """
+        Ensures all keys in the dictionary start with [[ and end with ]].
+        
+        Args:
+            insertions (dict): The dictionary to format keys for.
+
+        Returns:
+            dict: A new dictionary with formatted keys.
+        """
+
+        fixed_insertions = {}
+
+        for key, value in insertions.items():
+            # Check if the key already starts with [[ and ends with ]]
+            if not key.startswith('[['):
+                key = '[[' + key
+            if not key.endswith(']]'):
+                key = key + ']]'
+            
+            # Add the formatted key to the new dictionary
+            fixed_insertions[key] = value
+        
+        return fixed_insertions
 
 
 class GptThreePointFiveTurbo(GPT):
@@ -199,8 +224,8 @@ class GptThreePointFiveTurbo(GPT):
         NAME (str): The name of the model.
     """
 
-    def __init__(self):
-        super().__init__()
+    def __init__(self, shuffle_answer_options: bool = False):
+        super().__init__(shuffle_answer_options=shuffle_answer_options)
         self.NAME = "gpt-3.5-turbo"
 
 
@@ -214,6 +239,6 @@ class GptFourO(GPT):
         NAME (str): The name of the model.
     """
 
-    def __init__(self):
-        super().__init__()
+    def __init__(self, shuffle_answer_options: bool = False):
+        super().__init__(shuffle_answer_options=shuffle_answer_options)
         self.NAME = "gpt-4o"

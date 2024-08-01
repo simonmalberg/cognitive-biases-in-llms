@@ -212,21 +212,6 @@ def get_metric(bias: str) -> Metric:
         raise ImportError(f"Could not find the metric for bias '{bias}': {e}")
 
 
-class PopulationError(Exception):
-    """A class for exceptions raised during the population of test cases."""
-    pass
-
-
-class DecisionError(Exception):
-    """A class for exceptions raised during the decision of test cases."""
-    pass
-
-
-class MetricCalculationError(Exception):
-    """A class for exceptions raised during the calculation of metric for a given bias."""
-    pass
-
-
 if __name__ == "__main__":
     print("You are running the script to add a new cognitive bias.")
 

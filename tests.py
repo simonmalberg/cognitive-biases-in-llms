@@ -1,6 +1,8 @@
 import xml.etree.ElementTree as ET
 import warnings
 import datetime
+import random
+import re
 
 
 class DecisionResult:
@@ -35,7 +37,7 @@ class DecisionResult:
         self.TREATMENT_DECISION: int = treatment_decision
 
     def __str__(self) -> str:
-        return f"---DecisionResult---\n\n\TIMESTAMP: {self.TIMESTAMP}\nMODEL: {self.MODEL}\nTEMPERATURE: {self.TEMPERATURE}\nSEED: {self.SEED}\n\nCONTROL OPTIONS: {self.CONTROL_OPTIONS}\nRAW CONTROL DECISION: {self.RAW_CONTROL_DECISION}\nCONTROL DECISION: {self.CONTROL_DECISION}\n\nTREATMENT OPTIONS: {self.TREATMENT_OPTIONS}\nRAW TREATMENT DECISION: {self.RAW_TREATMENT_DECISION}\nTREATMENT DECISION: {self.TREATMENT_DECISION}\n\n------"
+        return f"---DecisionResult---\n\nTIMESTAMP: {self.TIMESTAMP}\nMODEL: {self.MODEL}\nTEMPERATURE: {self.TEMPERATURE}\nSEED: {self.SEED}\n\nCONTROL OPTIONS: {self.CONTROL_OPTIONS}\nRAW CONTROL ANSWER: {self.CONTROL_ANSWER}\nCONTROL DECISION: {self.CONTROL_DECISION}\n\nTREATMENT OPTIONS: {self.TREATMENT_OPTIONS}\nRAW TREATMENT ANSWER: {self.TREATMENT_ANSWER}\nTREATMENT DECISION: {self.TREATMENT_DECISION}\n\n------"
 
     def __repr__(self) -> str:
         return self.__str__()
@@ -152,33 +154,21 @@ class Template:
         pattern_full = '{{' + pattern + '}}' if origin == 'user' else '[[' + pattern + ']]'
         text_full = '{{' + text + '}}' if origin == 'user' else '[[' + text + ']]'
 
-        # Iterate over all 'situation', 'prompt', and 'option' elements in this template
-        pattern_found = False        
+        # Iterate over all elements in this template
         for elem in self._data:
             # Skip over all elements that are not of type 'situation', 'prompt', or 'option' (especially 'insertion' elements)
             if elem.tag not in ['situation', 'prompt', 'option']:
                 continue
 
-            # Replace the pattern with the text
-            new_text = elem.text.replace(pattern_full, text_full)
-            if new_text != elem.text:
-                elem.text = new_text
-                pattern_found = True
+            # Apply all previous insertions to the element's text
+            current_text = self._apply_insertions(elem.text, drop_user_brackets=True, drop_model_brackets=True)
 
-        # If insertions were made, log them in the insertions list
-        if pattern_found:
-            insertion = ET.Element("insertion", attrib={"origin": origin, "instruction": pattern})
-            insertion.text = text
-            if self._data.find("insertions") is None:
-                self._data.append(ET.Element("insertions"))
-            self._data.find("insertions").append(insertion)
-            return self._insertions_to_dict([insertion])
+            # If the element's text still contains unfilled gaps matching the pattern, accept and return the insertion
+            if pattern_full in current_text:
+                return self._accept_insertion(pattern, text, origin)
 
-        # Validate that the insertion did not corrupt the template
-        self._validate(allow_incomplete=True)
-
-        # If this point of the code is reached, no texts were inserted into the template, because the pattern was not found
-        return []
+        # If the pattern cannot be found, raise a ValueError
+        raise ValueError(f"Could not insert text into template. Pattern {pattern_full} was not found.")
 
     def insert_values(self, pairs: list[tuple[str, str]], kind: str) -> None:
         """
@@ -203,6 +193,49 @@ class Template:
         for pattern, value in pairs:
             self.insert_text(pattern, value, kind)
 
+    def get_gaps(self, include_filled: bool = False, include_duplicates: bool = False) -> list[str]:
+        """
+        Returns a list of all gaps in this template. Gaps are indicated by either {{...}}, to be filled by the user, or [[...]], to be filled by a model.
+
+        Args:
+            include_filled (bool): If True, gaps that are already filled (i.e., values were inserted), are also returned.
+
+        Returns:
+            list[str]: A list of all gaps in this template.
+        """
+
+        def find_gaps(text: str) -> list[str]:
+            # Define the regex pattern to match [[...]] or {{...}}
+            pattern = r'(\[\[.*?\]\])|(\{\{.*?\}\})'
+            
+            # Find all matches of the pattern in the string
+            matches = re.findall(pattern, text)
+            
+            # Flatten the list of tuples to get all matched strings. Each element in matches is a tuple, where one of the elements is an empty string
+            result = [match[0] if match[0] else match[1] for match in matches]
+            
+            return result
+        
+        # Iterate over all elements in this template and find the gaps        
+        gaps = []
+        for elem in self._data:
+            # Skip over all elements that are not of type 'situation', 'prompt', or 'option'
+            if elem.tag not in ['situation', 'prompt', 'option']:
+                continue
+
+            # Find gaps in the element's text. If include_filled=False, insertions are applied to the text first so that gaps with insertions are not detected
+            text = elem.text
+            if not include_filled:
+                text = self._apply_insertions(text)
+
+            gaps.extend(find_gaps(text))
+
+        # Remove duplicates if requested
+        if not include_duplicates:
+            gaps = list(dict.fromkeys(gaps))
+
+        return gaps
+
     def get_insertions(self) -> list[dict]:
         """
         Returns a list of insertions made into the template. Each insertion has three attributes 'origin' (either 'user' or 'model'), 'instruction', and the inserted 'text'.
@@ -211,10 +244,12 @@ class Template:
             list[dict]: A list of dictionaries, where each dictionary represents an insertion.
         """
 
-        if self._data.find("insertions") is None:
+        insertions = self._data.find("insertions")
+
+        if insertions is None:
             return []
 
-        return self._insertions_to_dict(list(self._data.find("insertions")))
+        return self._insertions_to_dict(list(insertions))
 
     @property
     def inserted_values(self):
@@ -229,14 +264,17 @@ class Template:
 
         return inserted_values
     
-    def format(self, insert_headings: bool = True, show_type: bool = False, show_blanks: bool = False) -> str:
+    def format(self, insert_headings: bool = True, show_type: bool = False, drop_user_brackets: bool = True, drop_model_brackets: bool = True, shuffle_options: bool = False, seed: int = 42) -> str:
         """
         Formats the template into a string.
 
         Args:
             insert_headings (bool): Whether to insert headings (Situation, Prompt, Answer Options).
             show_type (bool): Whether to show the type of each element using XML-like tags.
-            show_blanks (bool): Whether to show if blanks/insertions indicated by {{ }} or [[ ]]. If False, brackets will be removed.
+            drop_user_brackets (bool): If True, {{ }} indicating user-made insertions will be removed for every gap with an inserted text.
+            drop_model_brackets (bool): If True, [[ ]] indicating model-made insertions will be removed for every gap with an inserted text.
+            shuffle_options (bool): If True, answer options will be shuffled randomly using the provided seed. If False, answer options will have the order defined in the template.
+            seed (int): The seed used for randomly shuffling answer options. Ignored, if shuffle_options = False.
 
         Returns:
             str: The formatted string of the template.
@@ -250,6 +288,9 @@ class Template:
 
         # Define a function to format an individual element
         def format_element(text: str, type: str) -> str:
+            # Fill in the gaps in the element's text according to the insertions made into this template
+            text = self._apply_insertions(text, drop_user_brackets=drop_user_brackets, drop_model_brackets=drop_model_brackets)
+
             if show_type:
                 return f'<{type}>{text}</{type}>\n'
             return f'{text}\n'
@@ -270,15 +311,60 @@ class Template:
         if insert_headings:
             formatted += '\nAnswer Options:\n'
         option_counter = 1
-        for elem in self._data.findall('option'):
-            formatted += format_element(f'Option {option_counter}: {elem.text}', elem.tag)
+        for option in self.get_options(shuffle_options=shuffle_options, seed=seed)[0]:
+            formatted += format_element(f'Option {option_counter}: {option}', 'option')
             option_counter += 1
 
-        # Remove indicators for LLM-generated text (if show_generated=False)
-        if not show_blanks:
-            formatted = formatted.replace('[[', '').replace(']]', '').replace('{{', '').replace('}}', '')
-
         return formatted
+
+    def get_options(self, shuffle_options: bool = False, seed: int = 42) -> tuple[list[str], list[int]]:
+        """
+        Gets the answer options defined in this template and offers functionality to randomly shuffle them.
+
+        Args:
+            shuffle_options (bool): If True, the answer options will be randomly shuffled using the provided seed.
+            seed (int): The seed to used for shuffling the answer options.
+
+        Returns:
+            tuple[list[str], list[int]]: Returns two lists, one with the answer option texts and one with the original zero-based position of the answer option.
+        """
+
+        # Get all options defined in this template
+        options = self._data.findall('option')
+        options = [elem.text for elem in options]
+
+        # Create a list of indices for the options with their original position, i.e., [0, 1, 2, ...]
+        indices = list(range(len(options)))
+
+        # If requested, randomly shuffle the options
+        if shuffle_options:
+            random.Random(seed).shuffle(indices)
+        options = [options[i] for i in indices]
+
+        return options, indices
+
+    def _accept_insertion(self, pattern: str, text: str, origin: str) -> list[dict]:
+        """
+        Stores an insertion into this template.
+
+        Args:
+            pattern (str): The pattern replaced by the insertion.
+            text (str): The text inserted.
+            origin (str): The insertion's origin ('user' or 'model').
+
+        Returns:
+            list[dict]: The insertion that was stored.
+        """
+
+        # If no insertions have been made so far, create a new insertions element in this template
+        if self._data.find("insertions") is None:
+            self._data.append(ET.Element("insertions"))
+
+        # Append this insertion to the insertions element
+        insertion = ET.Element("insertion", attrib={"origin": origin, "instruction": pattern})
+        insertion.text = text
+        self._data.find("insertions").append(insertion)
+        return self._insertions_to_dict([insertion])
 
     def _validate(self, allow_incomplete: bool = False) -> bool:
         """
@@ -349,6 +435,43 @@ class Template:
 
         return True
 
+    def _apply_insertions(self, text: str, drop_user_brackets: bool = True, drop_model_brackets: bool = True) -> str:
+        """
+        Applies all insertions that were made into this template to the provided text.
+
+        Args:
+            text (str): The text to which to apply the insertions.
+            drop_user_brackets (bool): If True, {{ }} indicating user-made insertions will be removed for every gap with an inserted text.
+            drop_model_brackets (bool): If True, [[ ]] indicating model-made insertions will be removed for every gap with an inserted text.
+
+        Returns:
+            str: The adjusted text where insertions are made into the indicated gaps.
+        """
+
+        # Get the insertions that were made into this template
+        insertions = self.get_insertions()
+
+        # Iterate over all insertions and apply them to the text
+        for insertion in insertions:
+            pattern = insertion['instruction']
+            insertion_text = insertion['text']
+            origin = insertion['origin']
+
+            # Expand the search pattern and inserted text with the respective brackets where needed
+            if origin == 'user':
+                pattern = '{{' + pattern + '}}'
+                if not drop_user_brackets:
+                    insertion_text = '{{' + insertion_text + '}}'
+            elif origin == 'model':
+                pattern = '[[' + pattern + ']]'
+                if not drop_model_brackets:
+                    insertion_text = '[[' + insertion_text + ']]'
+
+            # Apply the insertion to the text
+            text = text.replace(pattern, insertion_text)
+
+        return text
+
     def _insertions_to_dict(self, insertions: list[ET.Element]) -> list[dict]:
         """
         Converts a list of xml.etree.ElementTree.Element objects representing insertions into a list of dictionaries.
@@ -371,10 +494,10 @@ class Template:
         return insertions_list
 
     def __str__(self) -> str:
-        return self.format(insert_headings=True, show_type=False, show_blanks=False)
+        return self.format(insert_headings=True, show_type=False)
 
     def __repr__(self) -> str:
-        return self.format(insert_headings=False, show_type=True, show_blanks=True)
+        return self.format(insert_headings=False, show_type=True)
 
 
 class TestConfig:
