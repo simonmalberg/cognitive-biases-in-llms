@@ -245,28 +245,36 @@ class Template:
         for pattern, value in pairs:
             self.insert(pattern, value, kind)
 
-    def get_gaps(self, include_filled: bool = False, include_duplicates: bool = False) -> list[str]:
+    def get_gaps(self, include_filled: bool = False, include_duplicates: bool = False, origin: str = None) -> list[str]:
         """
         Returns a list of all gaps in this template. Gaps are indicated by either {{...}}, to be filled by the user, or [[...]], to be filled by a model.
 
         Args:
             include_filled (bool): If True, gaps that are already filled (i.e., values were inserted), are also returned.
+            origin (str): One of None, 'user', or 'model'. If an origin is provided, only gaps supposed to be filled from that origin will be returned.
 
         Returns:
             list[str]: A list of all gaps in this template.
         """
 
         def find_gaps(text: str) -> list[str]:
-            # Define the regex pattern to match [[...]] or {{...}}
+            # Define the regex pattern to match [[...]] ('model') or {{...}} ('user')
             pattern = r'(\[\[.*?\]\])|(\{\{.*?\}\})'
             
             # Find all matches of the pattern in the string
             matches = re.findall(pattern, text)
             
             # Flatten the list of tuples to get all matched strings. Each element in matches is a tuple, where one of the elements is an empty string
-            result = [match[0] if match[0] else match[1] for match in matches]
-            
-            return result
+            results = [match[0] if match[0] else match[1] for match in matches]
+
+            if origin is None:
+                return results
+            elif origin == 'user':
+                return [match for match in results if match.startswith('{{')]
+            elif origin == 'model':
+                return [match for match in results if match.startswith('[[')]
+            else:
+                raise ValueError(f"Unknown origin '{origin}'. Must be one of None, 'user', or 'model'.")
         
         # Iterate over all elements in this template and find the gaps        
         gaps = []

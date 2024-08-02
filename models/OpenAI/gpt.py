@@ -99,7 +99,7 @@ class GPT(LLM):
         user_prompt = self._PROMPTS['population_prompt']
 
         # Compile the format instructions (JSON format) based on the remaining gaps in the template
-        gaps = template.get_gaps()
+        gaps = template.get_gaps(origin='model')
         gaps = [f"    \"{gap}\": \"...\"" for gap in gaps]
         expected_format = "{\n" + ',\n'.join(gaps) + "\n}"
 
