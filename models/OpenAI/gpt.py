@@ -44,7 +44,7 @@ class GPT(LLM):
             insertions = control.get_insertions()
             insertions = [insertion for insertion in insertions if insertion['origin'] == 'model']
             for insertion in insertions:
-                treatment.insert_text(insertion['instruction'], insertion['text'], insertion['origin']) # TODO Simplify usage and copying of insertions
+                treatment.insert(insertion['instruction'], insertion['text'], insertion['origin']) # TODO Simplify usage and copying of insertions
 
         # 3. Populate the remaining gaps in the treatment template based on the scenario
         if treatment is not None and len(treatment.get_gaps()) > 0:
@@ -184,7 +184,7 @@ class GPT(LLM):
 
         # Make the insertions in the template
         for pattern in insertions.keys():
-            template.insert_text(pattern.strip("[[").strip("]]"), insertions[pattern], 'model')
+            template.insert(pattern.strip("[[").strip("]]"), insertions[pattern], 'model')
 
         return template
 
