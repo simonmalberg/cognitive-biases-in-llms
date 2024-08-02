@@ -139,6 +139,22 @@ class Template:
             list[dict]: A list of insertions made into the template.
         """
 
+        # Clean the pattern of any [[...]] and {{...}} and validate that the pattern is consistent with the provided origin
+        if pattern.startswith("[[") and pattern.endswith("]]"):
+            pattern = pattern.strip("[[").strip("]]")
+            if origin is None:
+                print("Template.insert: A pattern was provided that is wrapped in [[...]] but no origin was given. Setting origin to 'model'.")
+                origin = 'model'
+            elif origin == 'user':
+                print("Template.insert: A pattern was provided that is wrapped in [[...]] but origin is 'user'. Did you mean 'model' instead?")
+        elif pattern.startswith("{{") and pattern.endswith("}}"):
+            pattern = pattern.strip("{{").strip("}}")
+            if origin is None:
+                print("Template.insert: A pattern was provided that is wrapped in {{{{...}}}} but no origin was given. Setting origin to 'user'.")
+                origin = 'user'
+            elif origin == 'model':
+                print("Template.insert: A pattern was provided that is wrapped in {{{{...}}}} but origin is 'model'. Did you mean 'user' instead?")
+
         # Check that a valid origin is provided
         if origin not in ['user', 'model', None]:
             raise ValueError("Origin must be one of 'user', 'model', or None.")

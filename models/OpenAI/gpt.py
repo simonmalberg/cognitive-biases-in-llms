@@ -184,7 +184,7 @@ class GPT(LLM):
 
         # Make the insertions in the template
         for pattern in insertions.keys():
-            template.insert(pattern.strip("[[").strip("]]"), insertions[pattern], 'model')
+            template.insert(pattern, insertions[pattern], 'model')
 
         return template
 
