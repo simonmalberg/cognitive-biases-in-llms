@@ -41,10 +41,8 @@ class GPT(LLM):
 
         # 2. Fill the gaps in the treatment template that are shared with the control template
         if control is not None and treatment is not None:
-            insertions = control.get_insertions()
-            insertions = [insertion for insertion in insertions if insertion['origin'] == 'model']
-            for insertion in insertions:
-                treatment.insert(insertion['instruction'], insertion['text'], insertion['origin']) # TODO Simplify usage and copying of insertions
+            insertions = control.get_insertions(origin='model')
+            treatment.insert(insertions=insertions)
 
         # 3. Populate the remaining gaps in the treatment template based on the scenario
         if treatment is not None and len(treatment.get_gaps()) > 0:
