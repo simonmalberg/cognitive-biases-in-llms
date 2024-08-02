@@ -84,55 +84,6 @@ class GPT(LLM):
 
         return decision_result
 
-    def _decide(self, template: Template, temperature: float = 0.7, seed: int = 42) -> tuple[str, str, int, list[str], list[int]]:
-        """
-        Prompts the model to choose one answer option from a decision-making task defined in the provided template.
-
-        The decision is obtained through a two-step prompt: First, the model is presented with the decision-making test and can respond freely. Second, the model is instructed to extract the final answer from its previous response.
-
-        Args:
-            template (Template): The template defining the decision-making task.
-            temperature (float): The temperature value of the LLM.
-            seed (int): The seed for controlling the LLM's output.
-
-        Returns:
-            tuple[str, str, int, list[str], list[int]]: The raw model response, the model's extraction response, the number of the selected option (None if no selected option could be extracted), the answer option texts, and the order of answer options.
-        """
-
-        # 1. Load the decision and extraction prompts
-        decision_prompt = self._PROMPTS['decision_prompt']
-        extraction_prompt = self._PROMPTS['extraction_prompt']
-
-        # 2A. Format the template and insert it into the decision prompt
-        decision_prompt = decision_prompt.replace("{{test_case}}", template.format(shuffle_options=self.shuffle_answer_options, seed=seed))
-        options, option_order = template.get_options(shuffle_options=self.shuffle_answer_options, seed=seed)
-
-        # 2B. Obtain a response from the LLM
-        try:
-            decision_response = self.prompt(decision_prompt, temperature=temperature, seed=seed)
-        except e:
-            raise DecisionError(f"Could not obtain a decision from the model to the following prompt:\n\n{decision_prompt}\n\n{e}")
-
-        # 3A. Insert the decision options and the decision response into the extraction prompt
-        extraction_prompt = extraction_prompt.replace("{{options}}", "\n".join(f"Option {index}: {option}" for index, option in enumerate(options, start=1)))
-        extraction_prompt = extraction_prompt.replace("{{answer}}", decision_response)
-
-        # 3B. Let the LLM extract the final chosen option from its previous answer
-        try:
-            extraction_response = self.prompt(extraction_prompt, temperature=temperature, seed=seed)
-        except e:
-            raise DecisionError(f"An error occurred while trying to extract the chosen option with the following prompt:\n\n{extraction_prompt}\n\n{e}")
-
-        # 3C. Extract the option number from the extraction response
-        pattern = r'\b(?:[oO]ption) (\d+)\b'
-        match = re.search(pattern, extraction_response)
-        chosen_option = int(match.group(1)) if match else None
-
-        if chosen_option is None:
-            raise DecisionError(f"Could not extract the chosen option from the model's response:\n\n{decision_response}\n\n{extraction_response}\n\nNo option number detected in response.")
-
-        return decision_response, extraction_response, chosen_option, options, option_order
-
     def _populate(self, template: Template, scenario: str, temperature: float = 0.7, seed: int = 42) -> Template:
         """
         Populates the blanks in the provided template according to the scenario.
@@ -185,6 +136,55 @@ class GPT(LLM):
             template.insert(pattern, insertions[pattern], 'model')
 
         return template
+
+    def _decide(self, template: Template, temperature: float = 0.7, seed: int = 42) -> tuple[str, str, int, list[str], list[int]]:
+        """
+        Prompts the model to choose one answer option from a decision-making task defined in the provided template.
+
+        The decision is obtained through a two-step prompt: First, the model is presented with the decision-making test and can respond freely. Second, the model is instructed to extract the final answer from its previous response.
+
+        Args:
+            template (Template): The template defining the decision-making task.
+            temperature (float): The temperature value of the LLM.
+            seed (int): The seed for controlling the LLM's output.
+
+        Returns:
+            tuple[str, str, int, list[str], list[int]]: The raw model response, the model's extraction response, the number of the selected option (None if no selected option could be extracted), the answer option texts, and the order of answer options.
+        """
+
+        # 1. Load the decision and extraction prompts
+        decision_prompt = self._PROMPTS['decision_prompt']
+        extraction_prompt = self._PROMPTS['extraction_prompt']
+
+        # 2A. Format the template and insert it into the decision prompt
+        decision_prompt = decision_prompt.replace("{{test_case}}", template.format(shuffle_options=self.shuffle_answer_options, seed=seed))
+        options, option_order = template.get_options(shuffle_options=self.shuffle_answer_options, seed=seed)
+
+        # 2B. Obtain a response from the LLM
+        try:
+            decision_response = self.prompt(decision_prompt, temperature=temperature, seed=seed)
+        except e:
+            raise DecisionError(f"Could not obtain a decision from the model to the following prompt:\n\n{decision_prompt}\n\n{e}")
+
+        # 3A. Insert the decision options and the decision response into the extraction prompt
+        extraction_prompt = extraction_prompt.replace("{{options}}", "\n".join(f"Option {index}: {option}" for index, option in enumerate(options, start=1)))
+        extraction_prompt = extraction_prompt.replace("{{answer}}", decision_response)
+
+        # 3B. Let the LLM extract the final chosen option from its previous answer
+        try:
+            extraction_response = self.prompt(extraction_prompt, temperature=temperature, seed=seed)
+        except e:
+            raise DecisionError(f"An error occurred while trying to extract the chosen option with the following prompt:\n\n{extraction_prompt}\n\n{e}")
+
+        # 3C. Extract the option number from the extraction response
+        pattern = r'\b(?:[oO]ption) (\d+)\b'
+        match = re.search(pattern, extraction_response)
+        chosen_option = int(match.group(1)) if match else None
+
+        if chosen_option is None:
+            raise DecisionError(f"Could not extract the chosen option from the model's response:\n\n{decision_response}\n\n{extraction_response}\n\nNo option number detected in response.")
+
+        return decision_response, extraction_response, chosen_option, options, option_order
 
     def _fix_insertions(self, insertions: dict) -> dict:
         """
