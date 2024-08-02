@@ -58,6 +58,12 @@ class Insertion:
         self.text = text
         self.origin = origin
 
+    def __str__(self) -> str:
+        return f"Insertion(pattern=\"{self.pattern}\", text=\"{self.text}\", origin={self.origin if self.origin is None else '\"' + self.origin + '\"'})"
+
+    def __repr__(self) -> str:
+        return self.__str__()
+
 
 class Template:
     """
