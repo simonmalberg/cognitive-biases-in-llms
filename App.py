@@ -19,7 +19,7 @@ if __name__ == "__main__":
     # Randomly pick a cognitive bias
     bias = random.choice(BIASES) # TODO: come up with an approach to store all biases' names
                                  # TODO: load bias from command line arguments
-    bias = 'HindsightBias'
+    bias = 'AvailabilityBias'
     # declare the population model
     population_model = GptFourO()
     # declare the decision model (might differ from the population model)

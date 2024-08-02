@@ -28,6 +28,7 @@ class HindsightBiasTestGenerator(TestGenerator):
             custom_values (dict): The custom values for the test case.
             seed (int): The seed for the random number generator.
         """
+        np.random.seed(seed)
         # Loading the mean and max interval for the samples of numerical value
         sample_min, sample_max = int(custom_values["percentage"][1]), int(
             custom_values["percentage"][2]
@@ -36,7 +37,7 @@ class HindsightBiasTestGenerator(TestGenerator):
         distribution = getattr(np.random, custom_values["percentage"][0])
 
         # Sampling a numerical value
-        sample = str(int(distribution(sample_min, sample_max)))
+        sample = str(int(distribution(sample_min, sample_max, )))
 
         # Inserting the sample into the template
         completed_template.insert_values(
@@ -97,7 +98,7 @@ class HindsightBiasTestGenerator(TestGenerator):
 
 class HindsightBiasMetric(Metric):
     """
-    A class that describes the quantitative evaluation of the optimism bias in a model.
+    A class that describes the quantitative evaluation of the hindsight bias in a model.
 
     Individual metric:
     𝔅 = sgn(x) * min(‖x‖₁, 1), x = (â₂ − â₁) / (a − â₁)
@@ -120,7 +121,7 @@ class HindsightBiasMetric(Metric):
         Args:
             control_answer (np.array): The answer chosen in the control version.
             treatment_answer (np.array): The answer chosen in the treatment version.
-            answer_options (np.array): The answer options for the test case.
+            ground_truth (np.array): The ground truth percentage value for the test case.
 
         Returns:
             np.array: The metric value for the test case.
