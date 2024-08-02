@@ -1,174 +1,560 @@
-import re
 import xml.etree.ElementTree as ET
-import difflib
+import warnings
+import datetime
+import random
+import re
 
 
 class DecisionResult:
     """
     A class representing the result of a decision made by an LLM for a specific test case.
+
+    Attributes:
+        MODEL (str): The name of the LLM used to make the decision.
+        TEMPERATURE (float): The LLM temperature parameter used to generate the decisions.
+        SEED (int): The LLM seed used to generate the decisions.
+        TIMESTAMP (str): The timestamp when the decision was made.
+        CONTROL_OPTIONS (dict): A dictionary containing the options available for the control template.
+        CONTROL_ANSWER (str): The raw decision output from the deciding LLM for the control template.
+        CONTROL_DECISION (int): The decision made by the LLM for the control template.
+        TREATMENT_OPTIONS (dict): A dictionary containing the options available for the treatment template.
+        TREATMENT_ANSWER (str): The raw decision output from the deciding LLM for the treatment template.
+        TREATMENT_DECISION (int): The decision made by the LLM for the treatment template.
     """
 
-    def __init__(
-        self,
-        control_options: dict,
-        raw_control_decision: str,
-        control_decision: int,
-        treatment_options: dict,
-        raw_treatment_decision: str,
-        treatment_decision: int,
-        confidences: list = None,
-        explanation: str = None,
-    ):
-        self.CONTROL_OPTIONS = control_options
-        self.RAW_CONTROL_DECISION = raw_control_decision
-        self.CONTROL_DECISION = control_decision
-        self.TREATMENT_OPTIONS = treatment_options
-        self.RAW_TREATMENT_DECISION = raw_treatment_decision
-        self.TREATMENT_DECISION = treatment_decision
-        self.CONFIDENCES = confidences
-        self.EXPLANATION = explanation
+    def __init__(self, model: str, control_options: dict, control_answer: str, control_decision: int, treatment_options: dict, treatment_answer: str, treatment_decision: int, temperature: float = None, seed: int = None):
+        self.MODEL: str = model
+        self.TEMPERATURE: float = temperature
+        self.SEED: int = seed
+        self.TIMESTAMP: str = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+        self.CONTROL_OPTIONS: dict = control_options
+        self.CONTROL_ANSWER: str = control_answer
+        self.CONTROL_DECISION: int = control_decision
+
+        self.TREATMENT_OPTIONS: dict = treatment_options
+        self.TREATMENT_ANSWER: str = treatment_answer
+        self.TREATMENT_DECISION: int = treatment_decision
 
     def __str__(self) -> str:
-        return f"---DecisionResult---\n\nCONTROL OPTIONS: {self.CONTROL_OPTIONS}\nRAW CONTROL DECISION: {self.RAW_CONTROL_DECISION}\nCONTROL DECISION: {self.CONTROL_DECISION}\nTREATMENT OPTIONS: {self.TREATMENT_OPTIONS}\nRAW TREATMENT DECISION: {self.RAW_TREATMENT_DECISION}\nTREATMENT DECISION: {self.TREATMENT_DECISION}\n\n------"
+        return f"---DecisionResult---\n\nTIMESTAMP: {self.TIMESTAMP}\nMODEL: {self.MODEL}\nTEMPERATURE: {self.TEMPERATURE}\nSEED: {self.SEED}\n\nCONTROL OPTIONS: {self.CONTROL_OPTIONS}\nRAW CONTROL ANSWER: {self.CONTROL_ANSWER}\nCONTROL DECISION: {self.CONTROL_DECISION}\n\nTREATMENT OPTIONS: {self.TREATMENT_OPTIONS}\nRAW TREATMENT ANSWER: {self.TREATMENT_ANSWER}\nTREATMENT DECISION: {self.TREATMENT_DECISION}\n\n------"
 
     def __repr__(self) -> str:
         return self.__str__()
 
 
-class Template:  
+class Insertion:
     """
-    A class representing a single template (e.g., the control or treatment variant) for a cognitive bias test case.
+    A class representing a text that has been inserted into a blank/gap in a Template object.
+
+    Attributes:
+        pattern (str): The pattern that was replaced by the insertion text.
+        text (str): The text that was inserted into the blank/gap.
+        origin (str): The origin of the text, either 'user' or 'model'.
     """
-    # TODO: Refactor to use ElementTree internally for easier handling, serialization, and parsing
+
+    def __init__(self, pattern: str, text: str, origin: str):
+        self.pattern = pattern
+        self.text = text
+        self.origin = origin
+
+    def __str__(self) -> str:
+        return f"Insertion(pattern=\"{self.pattern}\", text=\"{self.text}\", origin={self.origin if self.origin is None else '\"' + self.origin + '\"'})"
+
+    def __repr__(self) -> str:
+        return self.__str__()
+
+
+class Template:
+    """
+    A class representing a single template (e.g., control or treatment template) for a cognitive bias test case.
+    Uses xml.etree.ElementTree internally to store and manipulate the template contents.
+
+    Attributes:
+        _data (xml.etree.ElementTree.Element): An Element object storing the contents of this template.
+    """
     
-    def __init__(self, from_string: str = None):
+    def __init__(self, from_string: str = None, from_file: str = None, from_element: ET.Element = None, type: str = None):
+        """
+        Instantiates a new Template object. Up to one source (string, file, or element) can be provided. If no source is provided, an empty template will be created.
+
+        Args:
+            from_string (str): The XML-like string from which to parse the template.
+            from_file (str): The path of the XML file from which to parse the template.
+            from_element (xml.etree.ElementTree.Element): The Element object representing the template.
+            type (str): The type of the template, either 'control' or 'treatment' (only considered when no source is provided).
+        """
+
+        # If more than one sources are given, raise an error
+        sources = [from_string, from_file, from_element]        
+        if len([source for source in sources if source is not None]) > 1:
+            raise ValueError("Only one source can be provided: from_string, from_file, or from_element.")
+        
+        # Parse the template from the given source
+        self._data: ET.Element = None
         if from_string is not None:
-            self.elements = self.parse(from_string)
+            self._data = ET.fromstring(from_string)
+            self._validate(allow_incomplete=False)
+        elif from_file is not None:
+            self._data = ET.parse(from_file).getroot()
+            self._validate(allow_incomplete=False)
+        elif from_element is not None:
+            self._data = from_element
+            self._validate(allow_incomplete=False)
         else:
-            self.elements = []
-        # attribute for saving values generated manually/by LLM with a respective flag, e.g., key: [val, source]
-        self.inserted_values = {}
+            self._data = ET.Element("template")
+
+            # If a type was given (e.g., 'control' or 'treatment'), store it as an attribute of the root template element
+            if type is not None:
+                self._data.set("type", type)
 
     def add_situation(self, situation: str) -> None:
-        self.elements.append((situation, 'situation'))
-        self.validate(allow_incomplete=True)
+        """
+        Adds a situation element to the template.
+
+        Args:
+            situation (str): The situation to be added to the template.
+        """
+
+        situation_element = ET.Element("situation")
+        situation_element.text = situation
+        self._data.append(situation_element)
+        self._validate(allow_incomplete=True)
 
     def add_prompt(self, prompt: str) -> None:
-        self.elements.append((prompt, 'prompt'))
-        self.validate(allow_incomplete=True)
+        """
+        Adds a prompt element to the template.
+
+        Args:
+            prompt (str): The prompt to be added to the template.
+        """
+
+        prompt_element = ET.Element("prompt")
+        prompt_element.text = prompt
+        self._data.append(prompt_element)
+        self._validate(allow_incomplete=True)
 
     def add_option(self, option: str) -> None:
-        self.elements.append((option, 'option'))
-        self.validate(allow_incomplete=True)
+        """
+        Adds an option element to the template.
 
-    def format(self, insert_headings=True, show_type=False, show_generated=False) -> str:
-        self.validate()
+        Args:
+            option (str): The option to be added to the template.
+        """
 
-        # Function checks whether an element is the first of its type (e.g., 'situation', 'prompt', 'option') in the list
-        def is_first_of_its_kind(element):
-            for other in self.elements:
-                if element == other:
-                    return True
-                elif element[1] == other[1]:
-                    return False
-
-        formatted = ''
-        option_counter = 1
-
-        # Iterate over all elements in this template and concatenate them to a string
-        for element in self.elements:
-            # If the element is the first of its type, insert a heading before it (if insert_headings=True)
-            if insert_headings and is_first_of_its_kind(element):
-                if formatted != '':
-                    formatted += '\n'
-                if element[1] == 'situation':
-                    formatted += 'Situation:\n'
-                elif element[1] == 'prompt':
-                    formatted += 'Prompt:\n'
-                elif element[1] == 'option':
-                    formatted += 'Answer Options:\n'
-
-            # If the element is an option, add a unique option number before it (if insert_headings=True)
-            text = element[0]
-            if insert_headings and element[1] == 'option':
-                text = f'Option {option_counter}: {text}'
-                option_counter += 1
-
-            # Add HTML-like tags to the text based on the element's type (if show_type=True)
-            if show_type:
-                formatted += f'<{element[1]}>{text}</{element[1]}>\n'
-            else:
-                formatted += f'{text}\n'
-
-        # Remove indicators for LLM-generated text (if show_generated=False)
-        if not show_generated:
-            formatted = formatted.replace('[[', '').replace(']]', '')
-
-        return formatted
-
-    def serialize(self) -> str:
-        return self.format(insert_headings=False, show_type=True, show_generated=True)
-
-    def parse(self, serialized_str: str) -> list[tuple[str, str]]:
-        element_pattern = re.compile(r'<(situation|prompt|option)>(.*?)</\1>', re.DOTALL)
-        elements = element_pattern.findall(serialized_str)
-        return [(element[1], element[0]) for element in elements]
-
-    def validate(self, allow_incomplete=False) -> bool:
-        for element in self.elements:            
-            # Validate that all elements are of type tuple[str, str]
-            if not (isinstance(element, tuple) and len(element) == 2 and isinstance(element[0], str) and isinstance(element[1], str)):
-                raise TypeError('All elements must be tuples of length 2, with a string as first and second element.')
-
-            # Validate that all elements have a valid type
-            if element[1] not in ['situation', 'prompt', 'option']:
-                raise ValueError('Element type must be one of: situation, prompt, option.')
-
-        # Validate that all element types appear in sufficient quantity
-        if not allow_incomplete:
-            if len([element for element in self.elements if element[1] == 'situation']) == 0:
-                raise ValueError('At least one situation element must be provided.')
-            if len([element for element in self.elements if element[1] == 'prompt']) == 0:
-                raise ValueError('At least one prompt element must be provided.')
-            if len([element for element in self.elements if element[1] == 'option']) < 2:
-                raise ValueError('At least two option elements must be provided.')
-
-        # Validate that option elements are never separated by other elements
-        option_section_started = False
-        for element in self.elements:
-            if element[1] == 'option':
-                if not option_section_started:
-                    option_section_started = True
-            else:
-                if option_section_started:
-                    raise ValueError('Option elements must not be separated by other elements.')
-
-        return True
+        option_element = ET.Element("option")
+        option_element.text = option
+        self._data.append(option_element)
+        self._validate(allow_incomplete=True)
     
+    def insert(self, pattern: str = None, text: str = None, origin: str = None, insertion: Insertion = None, insertions: list[Insertion] = None) -> list[Insertion]:
+        """
+        Inserts text into a blank in the template based on a pattern to be replaced.
+        Text can be user-defined (replacing patterns wrapped by '{{' and '}}') or generated by a model (replacing patterns wrapped by '[[' and ']]').
+        Users can pass a list of Insertion objects, an Insertion object, or an insertion specified by a pattern, text, and optionally an origin.
+
+        Args:
+            pattern (str): The pattern to be replaced in the template.
+            text (str): The text to replace the pattern.
+            origin (str): The origin of the text, either 'user' or 'model'. If specified, only patterns matching the specified origin will be replaced. Otherwise, all matching patterns will be replaced.
+            insertion (Insertion): The Insertion object to insert into the template.
+            insertions (list[Insertion]): A list of Insertion objects to be inserted into the template.
+
+        Returns:
+            list[Insertion]: A list of insertions made into the template.
+        """
+
+        # Handle insertions provided in different formats
+        if insertions is not None:
+            insertions_made = []
+            for insertion in insertions:
+                insertions_made.extend(self.insert(insertion=insertion))
+            return insertions_made
+        elif insertion is not None:
+            return self.insert(pattern=insertion.pattern, text=insertion.text, origin=insertion.origin)
+        elif pattern is None and text is None:
+            raise ValueError("Template.insert: An insertion must be provided. Users can pass an Insertion object, a list of Insertion objects, or an insertion specified by a pattern, text, and optionally an origin.")
+
+        # Clean the pattern of any [[...]] and {{...}} and validate that the pattern is consistent with the provided origin
+        if pattern.startswith("[[") and pattern.endswith("]]"):
+            pattern = pattern.strip("[[").strip("]]")
+            if origin is None:
+                print("Template.insert: A pattern was provided that is wrapped in [[...]] but no origin was given. Setting origin to 'model'.")
+                origin = 'model'
+            elif origin == 'user':
+                print("Template.insert: A pattern was provided that is wrapped in [[...]] but origin is 'user'. Did you mean 'model' instead?")
+        elif pattern.startswith("{{") and pattern.endswith("}}"):
+            pattern = pattern.strip("{{").strip("}}")
+            if origin is None:
+                print("Template.insert: A pattern was provided that is wrapped in {{{{...}}}} but no origin was given. Setting origin to 'user'.")
+                origin = 'user'
+            elif origin == 'model':
+                print("Template.insert: A pattern was provided that is wrapped in {{{{...}}}} but origin is 'model'. Did you mean 'user' instead?")
+
+        # Check that a valid origin is provided
+        if origin not in ['user', 'model', None]:
+            raise ValueError("Origin must be one of 'user', 'model', or None.")
+
+        # If no origin is specified, replace all matching patterns for both origins, 'user' and 'model'
+        if origin is None:
+            insertions = []
+            insertions.extend(self.insert(pattern, text, 'user'))
+            insertions.extend(self.insert(pattern, text, 'model'))
+            return insertions
+
+        # Prepare the full pattern and text based on the origin
+        pattern_full = '{{' + pattern + '}}' if origin == 'user' else '[[' + pattern + ']]'
+        text_full = '{{' + text + '}}' if origin == 'user' else '[[' + text + ']]'
+
+        # Iterate over all elements in this template
+        for elem in self._data:
+            # Skip over all elements that are not of type 'situation', 'prompt', or 'option' (especially 'insertion' elements)
+            if elem.tag not in ['situation', 'prompt', 'option']:
+                continue
+
+            # Apply all previous insertions to the element's text
+            current_text = self._apply_insertions(elem.text, drop_user_brackets=True, drop_model_brackets=True)
+
+            # If the element's text still contains unfilled gaps matching the pattern, accept and return the insertion
+            if pattern_full in current_text:
+                return self._accept_insertion(pattern, text, origin)
+
+        # If the pattern cannot be found, return an empty list
+        return []
+
     def insert_values(self, pairs: list[tuple[str, str]], kind: str) -> None:
         """
+        This function is deprecated. Use insert instead.
+        
         Inserts custom or generated values into the template.
         
         Args:
             pairs (list[tuple[str, str]]): A list of tuples, where each tuple contains a pattern and a value.
             kind (str): The kind of generation for the values being inserted: "manual" or "LLM".   
         """
+
+        warnings.warn("insert_values is deprecated. Use insert instead.", DeprecationWarning)
+
+        if kind == 'manual':
+            kind = 'user'
+        elif kind == 'LLM':
+            kind = 'model'
+        else:
+            raise ValueError(f"Invalid kind {kind}.")
+
         for pattern, value in pairs:
-            for idx, _ in enumerate(self.elements):
-                current = self.elements[idx][0]
-                if pattern in current:
-                    self.inserted_values[pattern] = (value, kind)
-                    if kind == 'manual':
-                        pattern = '{{' + pattern + '}}'
-                        # for manual values, if value is None, replace with empty string (reason: Loss Aversion test)
-                        value = '' if not value else value 
-                    self.elements[idx] = (current.replace(pattern, value),) + self.elements[idx][1:]
+            self.insert(pattern, value, kind)
+
+    def get_gaps(self, include_filled: bool = False, include_duplicates: bool = False, origin: str = None) -> list[str]:
+        """
+        Returns a list of all gaps in this template. Gaps are indicated by either {{...}}, to be filled by the user, or [[...]], to be filled by a model.
+
+        Args:
+            include_filled (bool): If True, gaps that are already filled (i.e., values were inserted), are also returned.
+            origin (str): One of None, 'user', or 'model'. If an origin is provided, only gaps supposed to be filled from that origin will be returned.
+
+        Returns:
+            list[str]: A list of all gaps in this template.
+        """
+
+        def find_gaps(text: str) -> list[str]:
+            # Define the regex pattern to match [[...]] ('model') or {{...}} ('user')
+            pattern = r'(\[\[.*?\]\])|(\{\{.*?\}\})'
+            
+            # Find all matches of the pattern in the string
+            matches = re.findall(pattern, text)
+            
+            # Flatten the list of tuples to get all matched strings. Each element in matches is a tuple, where one of the elements is an empty string
+            results = [match[0] if match[0] else match[1] for match in matches]
+
+            if origin is None:
+                return results
+            elif origin == 'user':
+                return [match for match in results if match.startswith('{{')]
+            elif origin == 'model':
+                return [match for match in results if match.startswith('[[')]
+            else:
+                raise ValueError(f"Unknown origin '{origin}'. Must be one of None, 'user', or 'model'.")
+        
+        # Iterate over all elements in this template and find the gaps        
+        gaps = []
+        for elem in self._data:
+            # Skip over all elements that are not of type 'situation', 'prompt', or 'option'
+            if elem.tag not in ['situation', 'prompt', 'option']:
+                continue
+
+            # Find gaps in the element's text. If include_filled=False, insertions are applied to the text first so that gaps with insertions are not detected
+            text = elem.text
+            if not include_filled:
+                text = self._apply_insertions(text)
+
+            gaps.extend(find_gaps(text))
+
+        # Remove duplicates if requested
+        if not include_duplicates:
+            gaps = list(dict.fromkeys(gaps))
+
+        return gaps
+
+    def get_insertions(self, origin: str = None) -> list[Insertion]:
+        """
+        Returns a list of insertions made into the template. Each insertion has three attributes 'origin' (either 'user' or 'model'), 'instruction', and the inserted 'text'.
+
+        Args:
+            origin (str): One of None, 'model', or 'user'. If an origin is provided, only insertions with that origin will be returned.
+
+        Returns:
+            list[Insertion]: A list of Insertion objects.
+        """
+
+        insertions = self._data.find("insertions")
+
+        if insertions is None:
+            return []
+
+        insertions = self._elements_to_insertions(list(insertions))
+
+        if origin is None:
+            return insertions
+        else:
+            return [insertion for insertion in insertions if insertion.origin == origin]
+
+    @property
+    def inserted_values(self):
+        warnings.warn("inserted_values is deprecated. Use the get_insertions function instead.", DeprecationWarning)
+        
+        insertions = self.get_insertions()
+        inserted_values = {}
+
+        for insertion in insertions:
+            kind = 'manual' if insertion.origin == 'user' else 'LLM'
+            inserted_values[insertion.pattern] = (insertion.text, kind)
+
+        return inserted_values
+    
+    def format(self, insert_headings: bool = True, show_type: bool = False, drop_user_brackets: bool = True, drop_model_brackets: bool = True, shuffle_options: bool = False, seed: int = 42) -> str:
+        """
+        Formats the template into a string.
+
+        Args:
+            insert_headings (bool): Whether to insert headings (Situation, Prompt, Answer Options).
+            show_type (bool): Whether to show the type of each element using XML-like tags.
+            drop_user_brackets (bool): If True, {{ }} indicating user-made insertions will be removed for every gap with an inserted text.
+            drop_model_brackets (bool): If True, [[ ]] indicating model-made insertions will be removed for every gap with an inserted text.
+            shuffle_options (bool): If True, answer options will be shuffled randomly using the provided seed. If False, answer options will have the order defined in the template.
+            seed (int): The seed used for randomly shuffling answer options. Ignored, if shuffle_options = False.
+
+        Returns:
+            str: The formatted string of the template.
+        """
+
+        # Validate that the template is complete and not corrupted
+        self._validate(allow_incomplete=False)
+
+        # Store the final formatted string in a variable
+        formatted = ''
+
+        # Define a function to format an individual element
+        def format_element(text: str, type: str) -> str:
+            # Fill in the gaps in the element's text according to the insertions made into this template
+            text = self._apply_insertions(text, drop_user_brackets=drop_user_brackets, drop_model_brackets=drop_model_brackets)
+
+            if show_type:
+                return f'<{type}>{text}</{type}>\n'
+            return f'{text}\n'
+
+        # Format all situation elements
+        if insert_headings:
+            formatted += 'Situation:\n'
+        for elem in self._data.findall('situation'):
+            formatted += format_element(elem.text, elem.tag)
+
+        # Format all prompt elements
+        if insert_headings:
+            formatted += '\nPrompt:\n'
+        for elem in self._data.findall('prompt'):
+            formatted += format_element(elem.text, elem.tag)
+
+        # Format all option elements
+        if insert_headings:
+            formatted += '\nAnswer Options:\n'
+        option_counter = 1
+        for option in self.get_options(shuffle_options=shuffle_options, seed=seed)[0]:
+            formatted += format_element(f'Option {option_counter}: {option}', 'option')
+            option_counter += 1
+
+        return formatted
+
+    def get_options(self, shuffle_options: bool = False, seed: int = 42) -> tuple[list[str], list[int]]:
+        """
+        Gets the answer options defined in this template and offers functionality to randomly shuffle them.
+
+        Args:
+            shuffle_options (bool): If True, the answer options will be randomly shuffled using the provided seed.
+            seed (int): The seed to used for shuffling the answer options.
+
+        Returns:
+            tuple[list[str], list[int]]: Returns two lists, one with the answer option texts and one with the original zero-based position of the answer option.
+        """
+
+        # Get all options defined in this template
+        options = self._data.findall('option')
+        options = [elem.text for elem in options]
+
+        # Create a list of indices for the options with their original position, i.e., [0, 1, 2, ...]
+        indices = list(range(len(options)))
+
+        # If requested, randomly shuffle the options
+        if shuffle_options:
+            random.Random(seed).shuffle(indices)
+        options = [options[i] for i in indices]
+
+        return options, indices
+
+    def _accept_insertion(self, pattern: str, text: str, origin: str) -> list[Insertion]:
+        """
+        Stores an insertion into this template.
+
+        Args:
+            pattern (str): The pattern replaced by the insertion.
+            text (str): The text inserted.
+            origin (str): The insertion's origin ('user' or 'model').
+
+        Returns:
+            list[Insertion]: The insertion that was stored.
+        """
+
+        # If no insertions have been made so far, create a new insertions element in this template
+        if self._data.find("insertions") is None:
+            self._data.append(ET.Element("insertions"))
+
+        # Append this insertion to the insertions element
+        insertion = ET.Element("insertion", attrib={"origin": origin, "instruction": pattern})
+        insertion.text = text
+        self._data.find("insertions").append(insertion)
+        return self._elements_to_insertions([insertion])
+
+    def _validate(self, allow_incomplete: bool = False) -> bool:
+        """
+        Validates that this template is complete and not corrupted. Raises a ValueError if corruptions have been found. Otherwise, returns True.
+
+        Args:
+            allow_incomplete (bool): Whether to allow the template to be incomplete (i.e., still missing situation, prompt, or option elements).
+
+        Returns:
+            bool: True if the template is complete and not corrupted.
+        """
+
+        for elem in self._data:
+            # Validate that all elements have a valid tag
+            if elem.tag not in ['situation', 'prompt', 'option', 'insertions']:
+                raise ValueError(f'Templates can only contain elements of type situation, prompt, option, or insertions. Found illegal element of type {elem.tag}.')
+
+            # Validate that situation, prompt, and option elements have no further children
+            if elem.tag in ['situation', 'prompt', 'option'] and len(elem) > 0:
+                raise ValueError(f'Situation, prompt, and option elements cannot have children. Found a {elem.tag} element with {len(elem)} children.')
+
+            # Validate that all situation, prompt, and option elements have text
+            if elem.tag in ['situation', 'prompt', 'option'] and (elem.text is None or elem.text.strip() == ''):
+                raise ValueError(f'Situation, prompt, and option elements must not be empty. Found a {elem.tag} element with text "{elem.text}"')
+
+        # Validate that all element types appear in sufficient quantity
+        if not allow_incomplete:
+            if len(self._data.findall('situation')) == 0:
+                raise ValueError('The template must contain at least one situation element.')
+            if len(self._data.findall('prompt')) != 1:
+                raise ValueError(f'The template must contain exactly one prompt element. Found {len(self._data.findall('prompt'))}.')
+            if len(self._data.findall('option')) < 2:
+                raise ValueError(f'The template must contain at least two option elements. Found {len(self._data.findall('option'))}.')
+
+        # Validate that situation, prompt, and option elements appear strictly in that order
+        last = None
+        for elem in self._data:
+            if elem.tag == 'insertions':
+                # Ignore insertion elements as they are invisible to the user
+                continue
+            if elem.tag == 'situation':
+                if last not in [None, 'situation']:
+                    raise ValueError(f"Situation elements cannot follow {last} elements. Situation elements must be first in a template.")
+            elif elem.tag == 'prompt':
+                if last not in [None, 'situation']:
+                    raise ValueError(f"Prompt elements must directly follow situation elements. Found a prompt element following a {last} element.")
+            elif elem.tag == 'option':
+                if last not in [None, 'prompt', 'option']:
+                    raise ValueError(f"Option elements must directly follow prompt or other option elements. Found an option element following a {last} element.")
+            last = elem.tag
+
+        # Validate that insertions have the correct format
+        insertions = self._data.findall('insertions')
+        if len(insertions) > 1:
+            raise ValueError(f"There can only be one insertions element in a template. Found {len(insertions)}.")
+        if len(insertions) == 1:
+            for elem in insertions[0]:
+                if elem.tag != 'insertion':
+                    raise ValueError(f"The insertions element must contain only insertion elements. Found a {elem.tag} element inside the insertions element.")
+                if 'origin' not in elem.attrib:
+                    raise ValueError(f"Insertion elements must have an origin attribute. Found an insertion element without origin.")
+                if elem.attrib['origin'] not in ['user', 'model']:
+                    raise ValueError(f"The origin of an insertion element must be either 'user' or 'model'. Found origin {elem.attrib['origin']}.")
+                if 'instruction' not in elem.attrib:
+                    raise ValueError(f"Insertion elements must have an instruction attribute. Found an insertion element without instruction.")
+                if elem.attrib['instruction'].strip() in [None, '']:
+                    raise ValueError(f"The instruction of an insertion element must not be empty. Found empty instruction '{elem.attrib['instruction']}'.")
+
+        return True
+
+    def _apply_insertions(self, text: str, drop_user_brackets: bool = True, drop_model_brackets: bool = True) -> str:
+        """
+        Applies all insertions that were made into this template to the provided text.
+
+        Args:
+            text (str): The text to which to apply the insertions.
+            drop_user_brackets (bool): If True, {{ }} indicating user-made insertions will be removed for every gap with an inserted text.
+            drop_model_brackets (bool): If True, [[ ]] indicating model-made insertions will be removed for every gap with an inserted text.
+
+        Returns:
+            str: The adjusted text where insertions are made into the indicated gaps.
+        """
+
+        # Get the insertions that were made into this template
+        insertions = self.get_insertions()
+
+        # Iterate over all insertions and apply them to the text
+        for insertion in insertions:
+
+            # Expand the search pattern and inserted text with the respective brackets where needed
+            if insertion.origin == 'user':
+                pattern = '{{' + insertion.pattern + '}}'
+                if not drop_user_brackets:
+                    insertion.text = '{{' + insertion.text + '}}'
+            elif insertion.origin == 'model':
+                pattern = '[[' + insertion.pattern + ']]'
+                if not drop_model_brackets:
+                    insertion.text = '[[' + insertion.text + ']]'
+
+            # Apply the insertion to the text
+            text = text.replace(pattern, insertion.text)
+
+        return text
+
+    def _elements_to_insertions(self, insertions: list[ET.Element]) -> list[Insertion]:
+        """
+        Converts a list of xml.etree.ElementTree.Element objects representing insertions into a list of Insertion objects.
+
+        Args:
+            insertions (list[xml.etree.ElementTree.Element]): A list of Element objects representing insertions.
+
+        Returns:
+            list[Insertion]: A list of Insertion objects.
+        """
+
+        return [Insertion(pattern=insertion.attrib["instruction"], text=insertion.text, origin=insertion.attrib["origin"]) for insertion in insertions]
 
     def __str__(self) -> str:
-        return self.format(insert_headings=True, show_type=False, show_generated=False)
+        return self.format(insert_headings=True, show_type=False)
 
     def __repr__(self) -> str:
-        return self.format(insert_headings=False, show_type=True, show_generated=True)
+        return self.format(insert_headings=False, show_type=True)
 
 
 class TestConfig:
@@ -176,33 +562,27 @@ class TestConfig:
     A class representing a configuration file for a cognitive bias test.
 
     Attributes:
-        path (str): The path to the XML configuration file.
-        config (ET): An ElementTree object representing the XML configuration file.
+        config (xml.etree.ElementTree.ElementTree): An ElementTree object representing the XML configuration file.
     """
 
     def __init__(self, path: str):
-        self.path = path
-        self.config = self.load(self.path)
-    
-    def load(self, path: str) -> ET:
         """
-        Loads the XML configuration file for the specified cognitive bias.
+        Instantiates a new TestConfig object.
 
         Args:
-            bias (str): The name of the cognitive bias for which to load the configuration.
-
-        Returns:
-            An ElementTree object representing the XML configuration file.
+            path (str): The path to the XML configuration file.
         """
-        return ET.parse(path)
+
+        self.config = self._load(path)
 
     def get_bias_name(self) -> str:
         """
         Returns the name of the cognitive bias being tested.
 
         Returns:
-            The name of the cognitive bias being tested.
+            str: The name of the cognitive bias being tested.
         """
+
         return self.config.getroot().get('bias')
     
     def get_custom_values(self) -> dict:
@@ -210,15 +590,19 @@ class TestConfig:
         Returns the custom values defined in the configuration file.
 
         Returns:
-            A dictionary containing the custom values defined in the configuration file.
+            dict: A dictionary containing the custom values defined in the configuration file.
         """
+
         custom_values = self.config.getroot().findall('custom_values')
         custom_values_dict = {}
         for custom_value in custom_values:
             key = custom_value.get('name')
-            custom_values_dict[key] = []
-            for value in custom_value:
-                custom_values_dict[key].append(value.text)
+            if len(custom_value) == 0:
+                custom_values_dict[key] = None
+            elif len(custom_value) == 1:
+                custom_values_dict[key] = custom_value.find("value").text
+            else:
+                custom_values_dict[key] = [value.text for value in custom_value]
         
         return custom_values_dict
 
@@ -241,45 +625,38 @@ class TestConfig:
         Returns a template from the test configuration.
 
         Args:
-            template_type (str): The type of the template, e.g., "control" or "treatment".
-            variant (str): The name of the variant. Defaults to None. Only needed if the test configuration includes multiple variants.
+            template_type (str): The type of the template ('control' or 'treatment').
+            variant (str): The name of the variant. Only needed if the test configuration includes multiple variants.
 
         Returns:
-            A Template object representing the control template.
+            Template: A Template object representing the template.
         """
-        root = self.config.getroot()
-        variants = list(root.findall('variant'))
 
-        if not variants:
-            # No variant elements, treat the root as the variant element
-            variant_element = root
-        elif len(variants) == 1:
-            # Only one variant element present
-            variant_element = variants[0]
-        else:
-            # Multiple variant elements, find the specified one
-            variant_element = None
-            for v in variants:
-                if v.get('name') == variant:
-                    variant_element = v
-                    break
+        root = self.config.getroot()
+
+        if variant is not None:
+            # Find the variant element with the specified name
+            variant_element = root.find(f"variant[@name='{variant}']")
             if variant_element is None:
                 raise ValueError(f"Variant '{variant}' not found in the configuration.")
+        else:
+            # No variant was specified, try to find the next best variant
+            found_variants = root.findall('variant')
+            if len(found_variants) > 1:
+                raise ValueError(f"{len(found_variants)} variants found in the configuration. Please specify in which variant to find the template.")
+            elif len(found_variants) == 1:
+                variant_element = found_variants[0]
+            else:
+                # No variant elements in the configuration file, treat the root as the variant element
+                variant_element = root
 
         # Find the template with the specified type
         template_config = variant_element.find(f"template[@type='{template_type}']")
         if template_config is None:
             raise ValueError(f"No template with type '{template_type}' found in variant '{variant}'.")
 
-        # Extract the components of the template
-        template = Template()
-        for c in list(template_config):
-            if c.tag == 'situation':
-                template.add_situation(c.text)
-            elif c.tag == 'prompt':
-                template.add_prompt(c.text)
-            elif c.tag == 'option':
-                template.add_option(c.text)
+        # Parse the template
+        template = Template(from_element=template_config)
 
         return template
 
@@ -291,8 +668,9 @@ class TestConfig:
             variant (str): The name of the variant.
 
         Returns:
-            A Template object representing the control template.
+            Template: A Template object representing the control template.
         """
+
         return self.get_template("control", variant)
 
     def get_treatment_template(self, variant: str = None) -> Template:
@@ -303,9 +681,23 @@ class TestConfig:
             variant (str): The name of the variant.
 
         Returns:
-            A Template object representing the treatment template.
+            Template: A Template object representing the treatment template.
         """
+
         return self.get_template("treatment", variant)
+    
+    def _load(self, path: str) -> ET.ElementTree:
+        """
+        Loads the XML configuration file for the specified cognitive bias.
+
+        Args:
+            path (str): The path to the XML configuration file.
+
+        Returns:
+            An xml.etree.ElementTree.ElementTree object representing the XML configuration file.
+        """
+
+        return ET.parse(path)
 
 
 class TestCase:
@@ -316,29 +708,30 @@ class TestCase:
         BIAS (str): The name of the cognitive bias being tested.
         CONTROL (Template): The control template for the test case.
         TREATMENT (Template): The treatment template for the test case.
-        GENERATOR (str): The name of the LLM generator used to generate the treatment template.
+        GENERATOR (str): The name of the LLM generator used to populate the templates.
         SCENARIO (str): The scenario in which the test case is being conducted.
-        CONTROL_CUSTOM_VALUES (dict, optional): Values inserted in the control template of the test case.
-        TREATMENT_CUSTOM_VALUES (dict, optional): Values inserted in the treatment template of the test case.
         VARIANT (str, optional): The variant of the test case.
         REMARKS (str, optional): Any additional remarks about the test case.
     """
 
-    def __init__(self, bias: str, control: Template, treatment: Template, generator: str, 
-                 scenario: str, control_values: dict = None, treatment_values: dict = None,
-                 variant: str = None, remarks: str = None):
+    def __init__(self, bias: str, control: Template, treatment: Template, generator: str, scenario: str, variant: str = None, remarks: str = None, **kwargs):
         self.BIAS: str = bias
         self.CONTROL: Template = control
         self.TREATMENT: Template = treatment
         self.GENERATOR: str = generator
         self.SCENARIO: str = scenario
-        self.CONTROL_VALUES: dict = control_values
-        self.TREATMENT_VALUES: dict = treatment_values
         self.VARIANT: str = variant
         self.REMARKS: str = remarks
 
+        # Issue a deprecation warning for fields that are no longer supported
+        for key, value in kwargs.items():
+            if key in ['control_values', 'treatment_values']:
+                warnings.warn("'control_values' and 'treatment_values' are deprecated and should not be used anymore. All inserted values are automatically stored inside the Template objects, which in turn are stored in TestCase.CONTROL and TestCase.Treatment. If these values are important for understanding which test was run, consider using the TestCase.VARIANT attribute to keep track of these values.", DeprecationWarning)
+
+            setattr(self, key.upper(), value)
+
     def __str__(self) -> str:
-        return f'---TestCase---\n\nBIAS: {self.BIAS}\nVARIANT: {self.VARIANT}\nSCENARIO: {self.SCENARIO}\nGENERATOR: {self.GENERATOR}\nCONTROL_VALUES: {self.CONTROL_VALUES}\nTREATMENT_VALUES: {self.TREATMENT_VALUES}\n\nCONTROL:\n{self.CONTROL}\n\nTREATMENT:\n{self.TREATMENT}\n\nREMARKS:\n{self.REMARKS}\n\n------'
+        return f'---TestCase---\n\nBIAS: {self.BIAS}\nVARIANT: {self.VARIANT}\nSCENARIO: {self.SCENARIO}\nGENERATOR: {self.GENERATOR}\n\nCONTROL:\n{self.CONTROL}\n\nTREATMENT:\n{self.TREATMENT}\n\nREMARKS:\n{self.REMARKS}\n\n------'
 
     def __repr__(self) -> str:
         return self.__str__()

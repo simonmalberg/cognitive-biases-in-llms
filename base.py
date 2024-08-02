@@ -1,7 +1,30 @@
 from abc import ABC, abstractmethod
 from tests import TestCase, Template, TestConfig, DecisionResult
-import yaml
 import random
+
+
+class PopulationError(Exception):
+    """A class for exceptions raised during the population of test cases."""
+    def __init__(self, message: str, template: Template = None, model_output: str = None):
+        extended_message = message
+        if template is not None:
+            try:
+                extended_message += f"\n\n--- TEMPLATE ---\n{template}"
+            except:
+                pass
+        if model_output is not None:
+            extended_message += f"\n\n--- MODEL OUTPUT ---\n{model_output}"
+
+        super().__init__(extended_message)   
+        self.message = message
+        self.template = template
+        self.model_output = model_output
+
+
+class DecisionError(Exception):
+    """A class for exceptions raised during the decision of test cases."""
+    pass
+
 
 class MetricCalculationError(Exception):
     """A class for exceptions raised during the calculation of metric for a given bias."""
@@ -14,61 +37,97 @@ class LLM(ABC):
     
     Attributes:
         NAME (str): The name of the model.
-        PROMPTS (dict): A dictionary containing the prompts used to interact with the model.
+        shuffle_answer_options (bool): Whether or not answer options shall be randomly shuffled when making a decision.
     """
 
-    def __init__(self):
+    def __init__(self, shuffle_answer_options: bool = False):
         self.NAME = "llm-abstract-base-class"
-        with open("prompts.yml") as prompts:
-            self.PROMPTS = yaml.safe_load(prompts)
-         
-    def shuffle_options(self, template: Template, seed: int = 42) -> tuple[Template, Template]:
+        self.shuffle_answer_options = shuffle_answer_options
+
+    @abstractmethod
+    def prompt(self, prompt: str, temperature: float = 0.0, seed: int = 42) -> str:
         """
-        Function to shuffle the order of the answer options in the given template.
-        
+        Prompts the LLM with a text input and returns the LLM's answer.
+
         Args:
-            template (Template): The template in which to shuffle the options.
-            seed (int): A seed for deterministic randomness.
-        
+            prompt (str): The input prompt text.
+            temperature (float): The temperature value of the LLM.
+            seed (int): The seed for controlling the LLM's output.
+
         Returns:
-            A tuple containing the shuffled template and the dict with the shuffled options.
+            str: The LLM's answer to the input prompt.
         """
-        if not template:
-            return None, None
-
-        options = {}
-        random.seed(seed)
-
-        # Extract the options from the template
-        template_idx, option_elements = list(
-            zip(
-                *[
-                    (idx, element)
-                    for idx, element in enumerate(template.elements)
-                    if element[1] == "option"
-                ]
-            )
-        )
-        option_texts = [element[0] for element in option_elements]
-
-        # option_idx contains the indices of the options in the template, we want indices of actual options (from 1 to n)
-        option_idx = list(range(len(template_idx)))
-        random.shuffle(option_idx)
-
-        # Replace the options in the template with the shuffled ones and save the order of the options in the DesicionResult instance (key+1 since the options are enumerated from 1)
-        for i, (i_template, i_option) in enumerate(zip(template_idx, option_idx)):
-            options[i+1] = option_texts[i_option]
-            template.elements[i_template] = (option_texts[i_option], "option")
-        
-        return template, options
-
-    @abstractmethod
-    def populate(self, control: Template, treatment: Template, scenario: str) -> tuple[Template, Template]:
         pass
 
     @abstractmethod
-    def decide(self, test_case: TestCase) -> DecisionResult:
+    def populate(self, control: Template, treatment: Template, scenario: str, temperature: float = 0.0, seed: int = 42) -> tuple[Template, Template]:
+        """
+        Populates given control and treatment templates based on the provided scenario.
+
+        Args:
+            control (Template): The control template that shall be populated.
+            treatment (Template): The treatment template that shall be populated.
+            scenario (str): A string describing the scenario/context for the population.
+            temperature (float): The temperature value of the LLM.
+            seed (int): The seed for controlling the LLM's output.
+
+        Returns:
+            tuple[Template, Template]: The populated control and treatment templates.
+        """
         pass
+
+    @abstractmethod
+    def decide(self, test_case: TestCase, temperature: float = 0.0, seed: int = 42) -> DecisionResult:
+        """
+        Makes the decisions defined in the provided test case (i.e., typically chooses one option from the control template and one option from the treatment template).
+
+        Args:
+            test_case (TestCase): The TestCase object defining the tests/decisions to be made.
+            temperature (float): The temperature value of the LLM.
+            seed (int): The seed for controlling the LLM's output.
+
+        Returns:
+            DecisionResult: A DecisionResult representing the decisions made by the LLM.
+        """
+        pass
+
+    def _validate_population(self, template: Template, insertions: dict, raw_model_output: str = None) -> bool:
+        """
+        Validates if a model's generated insertions are valid for the provided template.
+
+        Args:
+            template (Template): The Template object for which insertions were generated.
+            insertions (dict): A dictionary with all insertions that were generated by the model. Keys should be the patterns/gap instructions and values should be the generated insertions.
+            raw_model_output (str): The raw model output. This is used for failure diagnostics in case the validation is unsuccessful.
+
+        Returns:
+            bool: True if the validation was successful. Otherwise, a PopulationError is raised.
+        """
+
+        # Get the remaining gaps from the template
+        gaps = template.get_gaps()
+
+        # Verify that insertions were generated for all remaining gaps
+        for gap in gaps:
+            if gap not in insertions:
+                raise PopulationError(f"The gap '{gap}' has not been filled.", template, raw_model_output)
+
+        # Verify that all generated insertions refer to gaps that exist
+        for pattern in insertions.keys():
+            if pattern not in gaps:
+                raise PopulationError(f"An insertion was generated for a non-existing gap '{pattern}'.", template, raw_model_output)
+
+        # Verify that all generated insertions are valid (i.e., not empty and not identical with the original gap instruction)
+        for pattern in insertions.keys():
+            if insertions[pattern] == None or insertions[pattern].strip() == "":
+                raise PopulationError(f"Invalid insertion '{insertions[pattern]}' attempted into gap '{pattern}'. Insertion is empty.", template, raw_model_output)
+            
+            stripped_pattern = pattern.strip("[[").strip("]]").strip("{{").strip("}}")
+            stripped_insertion = insertions[pattern].strip("[[").strip("]]").strip("{{").strip("}}")
+            if stripped_insertion == stripped_pattern:
+                raise PopulationError(f"Invalid insertion '{insertions[pattern]}' attempted into gap '{pattern}'. Insertion is identical with the gap instruction.", template, raw_model_output)
+
+        return True
 
 
 class TestGenerator(ABC):

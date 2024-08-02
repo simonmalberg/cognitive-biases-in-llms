@@ -157,6 +157,7 @@ def add_cognitive_bias(name: str) -> None:
 
     print(f"Files for {name} successfully created under {folder_name}.")
 
+
 def get_generator(bias: str) -> TestGenerator:
     """
     Returns a test generator for the specified cognitive bias.
@@ -183,6 +184,7 @@ def get_generator(bias: str) -> TestGenerator:
     except (ModuleNotFoundError, AttributeError) as e:
         raise ImportError(f"Could not find the generator for bias '{bias}': {e}")
     
+
 def get_metric(bias: str) -> Metric:
     """
     Returns a metric for the specified cognitive bias.
