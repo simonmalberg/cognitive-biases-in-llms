@@ -62,12 +62,8 @@ class GPT(LLM):
             treatment_answer, treatment_extraction, treatment_option, treatment_option_texts, treatment_option_order = self._decide(test_case.TREATMENT, temperature=temperature, seed=seed)
 
         # Save the order in which answer options appeared
-        control_options = {}
-        for index, option in zip(control_option_order, control_option_texts):
-            control_options[index] = option            
-        treatment_options = {}
-        for index, option in zip(treatment_option_order, treatment_option_texts):
-            treatment_options[index] = option
+        control_options = dict(zip(control_option_order, control_option_texts))
+        treatment_options = dict(zip(treatment_option_order, treatment_option_texts))
         
         # Create a DecisionResult object containing the final decisions
         decision_result = DecisionResult(
