@@ -1,0 +1,27 @@
+<config bias="Status Quo Bias">
+    <custom_values name="number_of_years">
+        <value>10</value>
+    </custom_values>
+    <variant name="default">
+        <template type="control">
+            <situation>Suppose you are a [[type]] manager at [[first mention of the organization]].</situation>
+            <situation>[[Second mention of the organization]] is currently doing the following and has been doing so for the past {{number_of_years}} years:</situation>
+            <situation>{{status A}}</situation>
+            <situation>Alternatively, [[third mention of the organization]] could do the following:</situation>
+            <situation>{{status B}}</situation>
+            <prompt>What would be best for [[fourth mention of the organization]], if you could only choose one?</prompt>
+            <option>{{status A}}</option>
+            <option>{{status B}}</option>
+        </template>
+        <template type="treatment">
+            <situation>Suppose you are a [[type]] manager at [[first mention of the organization]].</situation>
+            <situation>[[Second mention of the organization]] is currently doing the following and has been doing so for the past {{number_of_years}} years:</situation>
+            <situation>{{status B}}</situation>
+            <situation>Alternatively, [[third mention of the organization]] could do the following:</situation>
+            <situation>{{status A}}</situation>
+            <prompt>What would be best for [[fourth mention of the organization]], if you could only choose one?</prompt>
+            <option>{{status A}}</option>
+            <option>{{status B}}</option>
+        </template>
+    </variant>
+</config>
