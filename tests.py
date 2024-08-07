@@ -175,6 +175,12 @@ class Template:
         elif pattern is None and text is None:
             raise ValueError("Template.insert: An insertion must be provided. Users can pass an Insertion object, a list of Insertion objects, or an insertion specified by a pattern, text, and optionally an origin.")
 
+        # Validate that all input parameters have the correct type
+        if not isinstance(pattern, str):
+            raise ValueError("Template.insert: The pattern must be a string.")
+        if not isinstance(text, str):
+            raise ValueError("Template.insert: The text must be a string.")
+
         # Clean the pattern of any [[...]] and {{...}} and validate that the pattern is consistent with the provided origin
         if pattern.startswith("[[") and pattern.endswith("]]"):
             pattern = pattern.strip("[[").strip("]]")
