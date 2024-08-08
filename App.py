@@ -17,7 +17,10 @@ if __name__ == "__main__":
     scenario = random.choice(scenarios)
 
     # Define a cognitive bias to test
-    bias = "StatusQuoBias"  # TODO: optionally load bias from command line arguments
+    bias = 'AvailabilityBias'
+    # Define seed and temperature
+    seed = random.randint(0, 1000)
+    temperature = 0.7
     
     # Load the test generator and metric for the bias
     generator = get_generator(bias)
@@ -25,18 +28,15 @@ if __name__ == "__main__":
 
     # Instantiate the population and decision LLMs
     population_model = GptFourO()
-    decision_model = GptThreePointFiveTurbo()
-
-    # Generate a test case
-    test_case = generator.generate(population_model, scenario)
-    print(test_case)
-
-    # Decide multiple times and compute the metric
-    for _ in range(1):
-        try:
-            decision_result = decision_model.decide(test_case)
-            print(decision_result)
-            computed_metric = metric.compute([(test_case, decision_result)])
-            print(f'Bias metric: {computed_metric}')
-        except (DecisionError, MetricCalculationError, AssertionError) as e:
-            print(e)
+    decision_model = GptThreePointFiveTurbo(shuffle_answer_options=True)
+    
+    # Generate test cases and decide for all given scenarios and compute the metric
+    try:
+        test_cases = generator.generate_all(population_model, [scenario], seed)
+        print(test_cases)
+        decision_results = decision_model.decide_all(test_cases, temperature, seed)
+        print(decision_results)
+        computed_metric = metric.compute(list(zip(test_cases, decision_results)))
+        print(f'Bias metric: {computed_metric}')
+    except (DecisionError, MetricCalculationError, AssertionError) as e:
+        print(e)
