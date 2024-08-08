@@ -59,7 +59,8 @@ class Insertion:
         self.origin = origin
 
     def __str__(self) -> str:
-        return f"Insertion(pattern=\"{self.pattern}\", text=\"{self.text}\", origin={self.origin if self.origin is None else '\"' + self.origin + '\"'})"
+        origin_str = 'None' if self.origin is None else f'"{self.origin}"'
+        return f'Insertion(pattern="{self.pattern}", text="{self.text}", origin={origin_str})'
 
     def __repr__(self) -> str:
         return self.__str__()
@@ -467,11 +468,11 @@ class Template:
         # Validate that all element types appear in sufficient quantity
         if not allow_incomplete:
             if len(self._data.findall('situation')) == 0:
-                raise ValueError('The template must contain at least one situation element.')
+                raise ValueError("The template must contain at least one situation element.")
             if len(self._data.findall('prompt')) != 1:
-                raise ValueError(f'The template must contain exactly one prompt element. Found {len(self._data.findall('prompt'))}.')
+                raise ValueError(f"The template must contain exactly one prompt element. Found {len(self._data.findall('prompt'))}.")
             if len(self._data.findall('option')) < 2:
-                raise ValueError(f'The template must contain at least two option elements. Found {len(self._data.findall('option'))}.')
+                raise ValueError(f"The template must contain at least two option elements. Found {len(self._data.findall('option'))}.")
 
         # Validate that situation, prompt, and option elements appear strictly in that order
         last = None
