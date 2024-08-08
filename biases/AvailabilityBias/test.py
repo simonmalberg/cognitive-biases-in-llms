@@ -154,12 +154,11 @@ class AvailabilityBiasMetric(Metric):
         return answer_options
 
     def compute(self, test_results: list[tuple[TestCase, DecisionResult]]) -> float:
-
-        # make sure all pairs are not None
-        test_results = [
-            pair for pair in test_results if pair[0] is not None and pair[1] is not None
-        ]
         try:
+            # make sure all pairs are not None
+            test_results = [
+                pair for pair in test_results if pair[0] is not None and pair[1] is not None
+            ]
             # extract answer options from the test results
             answer_options = self.assemble_options(
                 [
@@ -171,7 +170,7 @@ class AvailabilityBiasMetric(Metric):
             control_answer_idx = (
                 np.array(
                     [
-                        decision_result.CONTROL_DECISION
+                        [decision_result.CONTROL_DECISION]
                         for (_, decision_result) in test_results
                     ]
                 )
@@ -180,7 +179,7 @@ class AvailabilityBiasMetric(Metric):
             treatment_answer_idx = (
                 np.array(
                     [
-                        decision_result.TREATMENT_DECISION
+                        [decision_result.TREATMENT_DECISION]
                         for (_, decision_result) in test_results
                     ]
                 )

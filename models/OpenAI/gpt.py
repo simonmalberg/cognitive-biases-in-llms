@@ -49,6 +49,24 @@ class GPT(LLM):
             treatment = self._populate(treatment, scenario, temperature=temperature, seed=seed)
 
         return control, treatment
+    
+    def decide_all(self, test_cases: list[TestCase], temperature: float = 0.7, seed: int = 42) -> list[DecisionResult]:
+        """
+        Function to decide on all test cases in the list.
+        
+        Args:
+            test_cases (list[TestCase]): A list of test cases to decide on.
+            seed (int): A seed for deterministic randomness
+        """
+        all_decisions = []
+        for test_id, test_case in enumerate(test_cases):
+            try:
+                all_decisions.append(self.decide(test_case, temperature, seed))
+            except DecisionError as e:
+                print(f"Decision failed for the test case {test_id}. Error: {e}")
+                all_decisions.append(None)
+            
+        return all_decisions
 
     def decide(self, test_case: TestCase, temperature: float = 0.7, seed: int = 42) -> DecisionResult:
         # Declare the results variables
@@ -159,7 +177,7 @@ class GPT(LLM):
         # 2B. Obtain a response from the LLM
         try:
             decision_response = self.prompt(decision_prompt, temperature=temperature, seed=seed)
-        except e:
+        except Exception as e:
             raise DecisionError(f"Could not obtain a decision from the model to the following prompt:\n\n{decision_prompt}\n\n{e}")
 
         # 3A. Insert the decision options and the decision response into the extraction prompt
@@ -169,7 +187,7 @@ class GPT(LLM):
         # 3B. Let the LLM extract the final chosen option from its previous answer
         try:
             extraction_response = self.prompt(extraction_prompt, temperature=temperature, seed=seed)
-        except e:
+        except Exception as e:
             raise DecisionError(f"An error occurred while trying to extract the chosen option with the following prompt:\n\n{extraction_prompt}\n\n{e}")
 
         # 3C. Extract the option number from the extraction response
