@@ -1,0 +1,119 @@
+<config bias="Illusion of Control">
+    <variant name="default">
+        <template type="treatment">
+            <situation>Suppose you are a [[type]] manager at [[organization]].</situation>
+            <situation>They recently hired you to supervise [[regular business activity under your supervision]].</situation>
+            <situation>[[First reference to the organization]] is regularly [[first reference to the business activity]] and has defined clear criteria for when [[second reference to the business activity]] will be classified as successful. Typically, 50% of [[third reference to the business activity]] are successful.</situation>
+
+            <prompt>What share of [[final reference to the business activity]] do you expect to be successful under your supervision?</prompt>
+
+            <option>0%</option>
+            <option>10%</option>
+            <option>20%</option>
+            <option>30%</option>
+            <option>40%</option>
+            <option>50%</option>
+            <option>60%</option>
+            <option>70%</option>
+            <option>80%</option>
+            <option>90%</option>
+            <option>100%</option>
+        </template>
+    </variant>
+
+    <variant name="competition">
+        <template type="treatment">            
+            <situation>Suppose you are a [[type]] manager at [[organization]].</situation>
+            <situation>They recently hired you to supervise [[regular business activity under your supervision]].</situation>
+            <situation>[[First reference to the organization]] is regularly [[first reference to the business activity]] and has defined clear criteria for when [[second reference to the business activity]] will be classified as successful. Typically, 50% of [[third reference to the business activity]] are successful.</situation>
+
+            <situation>You are competing against several other [[type]] managers within [[second reference to the organization]] and all [[type]] managers will be evaluated based on the share of [[fourth reference to the business activity]] that are successful.</situation>
+            
+            <prompt>What share of [[final reference to the business activity]] do you expect to be successful under your supervision?</prompt>
+
+            <option>0%</option>
+            <option>10%</option>
+            <option>20%</option>
+            <option>30%</option>
+            <option>40%</option>
+            <option>50%</option>
+            <option>60%</option>
+            <option>70%</option>
+            <option>80%</option>
+            <option>90%</option>
+            <option>100%</option>
+        </template>
+    </variant>
+
+    <variant name="choice">
+        <template type="treatment">            
+            <situation>Suppose you are a [[type]] manager at [[organization]].</situation>
+            <situation>They recently hired you to supervise [[regular business activity under your supervision]].</situation>
+            <situation>[[First reference to the organization]] is regularly [[first reference to the business activity]] and has defined clear criteria for when [[second reference to the business activity]] will be classified as successful. Typically, 50% of [[third reference to the business activity]] are successful.</situation>
+
+            <situation>You have full authority to make all the critical choices related to [[fourth reference to the business activity]].</situation>
+            
+            <prompt>What share of [[final reference to the business activity]] do you expect to be successful under your supervision?</prompt>
+
+            <option>0%</option>
+            <option>10%</option>
+            <option>20%</option>
+            <option>30%</option>
+            <option>40%</option>
+            <option>50%</option>
+            <option>60%</option>
+            <option>70%</option>
+            <option>80%</option>
+            <option>90%</option>
+            <option>100%</option>
+        </template>
+    </variant>
+
+    <variant name="familiarity">
+        <template type="treatment">            
+            <situation>Suppose you are a [[type]] manager at [[organization]].</situation>
+            <situation>They recently hired you to supervise [[regular business activity under your supervision]].</situation>
+            <situation>[[First reference to the organization]] is regularly [[first reference to the business activity]] and has defined clear criteria for when [[second reference to the business activity]] will be classified as successful. Typically, 50% of [[third reference to the business activity]] are successful.</situation>
+
+            <situation>You are very familiar with [[fourth reference to the business activity]] and have several years of experience in the field.</situation>
+            
+            <prompt>What share of [[final reference to the business activity]] do you expect to be successful under your supervision?</prompt>
+
+            <option>0%</option>
+            <option>10%</option>
+            <option>20%</option>
+            <option>30%</option>
+            <option>40%</option>
+            <option>50%</option>
+            <option>60%</option>
+            <option>70%</option>
+            <option>80%</option>
+            <option>90%</option>
+            <option>100%</option>
+        </template>
+    </variant>
+
+    <variant name="involvement">
+        <template type="treatment">            
+            <situation>Suppose you are a [[type]] manager at [[organization]].</situation>
+            <situation>They recently hired you to supervise [[regular business activity under your supervision]].</situation>
+            <situation>[[First reference to the organization]] is regularly [[first reference to the business activity]] and has defined clear criteria for when [[second reference to the business activity]] will be classified as successful. Typically, 50% of [[third reference to the business activity]] are successful.</situation>
+
+            <situation>For each [[fourth reference to the business activity]], you will be personally and deeply involved in the execution.</situation>
+            
+            <prompt>What share of [[final reference to the business activity]] do you expect to be successful under your supervision?</prompt>
+
+            <option>0%</option>
+            <option>10%</option>
+            <option>20%</option>
+            <option>30%</option>
+            <option>40%</option>
+            <option>50%</option>
+            <option>60%</option>
+            <option>70%</option>
+            <option>80%</option>
+            <option>90%</option>
+            <option>100%</option>
+        </template>
+    </variant>
+</config>
