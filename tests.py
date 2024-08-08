@@ -100,7 +100,8 @@ class Template:
             self._data = ET.parse(from_file).getroot()
             self._validate(allow_incomplete=False)
         elif from_element is not None:
-            self._data = from_element
+            # Serialize and parse the element to create a deep copy instead of operating on the original element
+            self._data = ET.fromstring(ET.tostring(from_element))
             self._validate(allow_incomplete=False)
         else:
             self._data = ET.Element("template")
