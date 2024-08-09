@@ -115,24 +115,17 @@ class GPT(LLM):
         # Compile the response format for controlled model outputs (special feature supported by OpenAI models)
         if mode == "json_schema":
             # Works with gpt-4o-2024-08-06 and gpt-4o-mini-2024-07-18, see https://openai.com/index/introducing-structured-outputs-in-the-api/
-            # properties_schema = ",".join([f'"{gap}": {{"type": "string"}}' for gap in gaps])
-            # gaps_schema = ",".join([f'"{gap}"' for gap in gaps])
-            # json_schema = f'{{"type": "object", "properties": {{{properties_schema}}}, "required": [{gaps_schema}], "additionalProperties": false}}'
-            json_schema = {
-                "type": "object",
-                "properties": {
-                },
-                "required": gaps,
-                "additionalProperties": False
-            }
-            for gap in gaps:
-                json_schema["properties"][gap] = {"type": "string"}
             response_format = {
                 "type": "json_schema",
                 "json_schema": {
                     "name": "population_response",
                     "strict": True,
-                    "schema": json_schema
+                    "schema": {
+                        "type": "object",
+                        "properties": {gap: {"type": "string"} for gap in gaps},
+                        "required": gaps,
+                        "additionalProperties": False
+                    }
                 }
             }
         elif mode == "json_object":
