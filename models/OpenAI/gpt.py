@@ -19,6 +19,7 @@ class GPT(LLM):
     def __init__(self, shuffle_answer_options: bool = False):
         super().__init__(shuffle_answer_options=shuffle_answer_options)
         self._CLIENT = OpenAI()
+        self.RESPONSE_FORMAT = "json_object"
         with open("./models/OpenAI/prompts.yml") as f:
             self._PROMPTS = yaml.safe_load(f)
 
@@ -98,6 +99,52 @@ class GPT(LLM):
 
         return decision_result
 
+    def _define_response_format(self, mode: str, gaps: list[str]) -> object:
+        """
+        Defines the response format for controlled model outputs (special feature supported by OpenAI models).
+        See https://openai.com/index/introducing-structured-outputs-in-the-api/
+
+        Args:
+            mode (str): The mode for controlling outputs, either "json_schema" (for Structured Outputs) or "json_object" (for JSON Mode).
+            gaps (list[str]): A list of gaps in the template that need to be filled.
+
+        Returns:
+            object: An object describing the response format.
+        """
+        
+        # Compile the response format for controlled model outputs (special feature supported by OpenAI models)
+        if mode == "json_schema":
+            # Works with gpt-4o-2024-08-06 and gpt-4o-mini-2024-07-18, see https://openai.com/index/introducing-structured-outputs-in-the-api/
+            # properties_schema = ",".join([f'"{gap}": {{"type": "string"}}' for gap in gaps])
+            # gaps_schema = ",".join([f'"{gap}"' for gap in gaps])
+            # json_schema = f'{{"type": "object", "properties": {{{properties_schema}}}, "required": [{gaps_schema}], "additionalProperties": false}}'
+            json_schema = {
+                "type": "object",
+                "properties": {
+                },
+                "required": gaps,
+                "additionalProperties": False
+            }
+            for gap in gaps:
+                json_schema["properties"][gap] = {"type": "string"}
+            response_format = {
+                "type": "json_schema",
+                "json_schema": {
+                    "name": "population_response",
+                    "strict": True,
+                    "schema": json_schema
+                }
+            }
+        elif mode == "json_object":
+            # Enable OpenAI's JSON model for models that do support it but don't support structured output (i.e., json_schema)
+            response_format = {
+                "type": "json_object"
+            }
+        else:
+            response_format = None
+
+        return response_format
+
     def _populate(self, template: Template, scenario: str, temperature: float = 0.7, seed: int = 42) -> Template:
         """
         Populates the blanks in the provided template according to the scenario.
@@ -118,8 +165,11 @@ class GPT(LLM):
 
         # Compile the format instructions (JSON format) based on the remaining gaps in the template
         gaps = template.get_gaps(origin='model')
-        gaps = [f"    \"{gap}\": \"...\"" for gap in gaps]
-        expected_format = "{\n" + ',\n'.join(gaps) + "\n}"
+        gaps_format = [f"    \"{gap}\": \"...\"" for gap in gaps]
+        expected_format = "{\n" + ',\n'.join(gaps_format) + "\n}"
+
+        # Compile the response format for controlled model outputs (special feature supported by OpenAI models)
+        response_format = self._define_response_format(self.RESPONSE_FORMAT, gaps)
 
         # Insert the scenario, template, and format instructions into the prompt
         user_prompt = user_prompt.replace("{{scenario}}", scenario)
@@ -131,7 +181,7 @@ class GPT(LLM):
             model=self.NAME,
             temperature=temperature,
             seed=seed,
-            response_format={"type": "json_object"},
+            response_format=response_format,
             messages=[
                 {"role": "system", "content": system_prompt},
                 {"role": "user", "content": user_prompt}
@@ -253,4 +303,5 @@ class GptFourO(GPT):
 
     def __init__(self, shuffle_answer_options: bool = False):
         super().__init__(shuffle_answer_options=shuffle_answer_options)
-        self.NAME = "gpt-4o"
+        self.NAME = "gpt-4o-2024-08-06"
+        self.RESPONSE_FORMAT = "json_schema"
