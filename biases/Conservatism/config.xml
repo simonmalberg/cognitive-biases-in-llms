@@ -1,0 +1,50 @@
+<config bias="Conservatism">
+    <variant name="default">
+        <template type="control">
+            <situation>Suppose you are a [[type]] manager at [[organization]].</situation>
+            <situation>You currently face the following decision with two alternatives:</situation>
+            <situation>Alternative A: [[decision alternative A]]</situation>
+            <situation>Alternative B: [[decision alternative B]]</situation>
+            <situation>You and your team conducted a series of reviews finding the following:</situation>
+            <situation>1. [[first evidence/fact/data suggesting that alternative A is better than alternative B]]</situation>
+            <situation>2. [[second evidence/fact/data suggesting that alternative A is better than alternative B]]</situation>
+            <situation>3. [[third evidence/fact/data suggesting that alternative A is better than alternative B]]</situation>
+            <situation>You conclude that alternative A is clearly better for [[first reference to the organization]].</situation>
+            <situation>Today you unexpectedly found out the following:</situation>
+            <situation>1. [[first evidence/fact/data suggesting that alternative B is better than alternative A]]</situation>
+            <situation>2. [[second evidence/fact/data suggesting that alternative B is better than alternative A]]</situation>
+            <situation>3. [[third evidence/fact/data suggesting that alternative B is better than alternative A]]</situation>
+            <prompt>Which alternative do you think is best for [[second reference to the organization]]?</prompt>
+            <option>Alternative A is much better than alternative B</option>
+            <option>Alternative A is somewhat better than alternative B</option>
+            <option>Alternative A is slightly better than alternative B</option>
+            <option>Alternative A and alternative B are equally good</option>
+            <option>Alternative B is slightly better than alternative A</option>
+            <option>Alternative B is somewhat better than alternative A</option>
+            <option>Alternative B is much better than alternative A</option>
+        </template>
+        <template type="treatment">
+            <situation>Suppose you are a [[type]] manager at [[organization]].</situation>
+            <situation>You currently face the following decision with two alternatives:</situation>
+            <situation>Alternative A: [[decision alternative B]]</situation>
+            <situation>Alternative B: [[decision alternative A]]</situation>
+            <situation>You and your team conducted a series of reviews finding the following:</situation>
+            <situation>1. [[first evidence/fact/data suggesting that alternative B is better than alternative A]]</situation>
+            <situation>2. [[second evidence/fact/data suggesting that alternative B is better than alternative A]]</situation>
+            <situation>3. [[third evidence/fact/data suggesting that alternative B is better than alternative A]]</situation>
+            <situation>You conclude that alternative A is clearly better for [[first reference to the organization]].</situation>
+            <situation>Today you unexpectedly found out the following:</situation>
+            <situation>1. [[first evidence/fact/data suggesting that alternative A is better than alternative B]]</situation>
+            <situation>2. [[second evidence/fact/data suggesting that alternative A is better than alternative B]]</situation>
+            <situation>3. [[third evidence/fact/data suggesting that alternative A is better than alternative B]]</situation>
+            <prompt>Which alternative do you think is best for [[second reference to the organization]]?</prompt>
+            <option>Alternative A is much better than alternative B</option>
+            <option>Alternative A is somewhat better than alternative B</option>
+            <option>Alternative A is slightly better than alternative B</option>
+            <option>Alternative A and alternative B are equally good</option>
+            <option>Alternative B is slightly better than alternative A</option>
+            <option>Alternative B is somewhat better than alternative A</option>
+            <option>Alternative B is much better than alternative A</option>
+        </template>
+    </variant>
+</config>
