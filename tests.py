@@ -14,30 +14,34 @@ class DecisionResult:
         TEMPERATURE (float): The LLM temperature parameter used to generate the decisions.
         SEED (int): The LLM seed used to generate the decisions.
         TIMESTAMP (str): The timestamp when the decision was made.
-        CONTROL_OPTIONS (dict): A dictionary containing the options available for the control template.
+        CONTROL_OPTIONS (list[str]): A list containing the options available for the control template.
+        CONTROL_OPTION_ORDER (list[int]): A list containing the zero-based IDs (original positions before shuffling) of the options in the control template.
         CONTROL_ANSWER (str): The raw decision output from the deciding LLM for the control template.
         CONTROL_DECISION (int): The decision made by the LLM for the control template.
-        TREATMENT_OPTIONS (dict): A dictionary containing the options available for the treatment template.
+        TREATMENT_OPTIONS (list[str]): A list containing the options available for the treatment template.
+        TREATMENT_OPTION_ORDER (list[int]): A list containing the zero-based IDs (original positions before shuffling) of the options in the treatment template.
         TREATMENT_ANSWER (str): The raw decision output from the deciding LLM for the treatment template.
         TREATMENT_DECISION (int): The decision made by the LLM for the treatment template.
     """
 
-    def __init__(self, model: str, control_options: dict, control_answer: str, control_decision: int, treatment_options: dict, treatment_answer: str, treatment_decision: int, temperature: float = None, seed: int = None):
+    def __init__(self, model: str, control_options: list[str], control_option_order: list[int], control_answer: str, control_decision: int, treatment_options: list[str], treatment_option_order: list[int], treatment_answer: str, treatment_decision: int, temperature: float = None, seed: int = None):
         self.MODEL: str = model
         self.TEMPERATURE: float = temperature
         self.SEED: int = seed
         self.TIMESTAMP: str = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
-        self.CONTROL_OPTIONS: dict = control_options
+        self.CONTROL_OPTIONS: list[str] = control_options
+        self.CONTROL_OPTION_ORDER: list[int] = control_option_order
         self.CONTROL_ANSWER: str = control_answer
         self.CONTROL_DECISION: int = control_decision
 
-        self.TREATMENT_OPTIONS: dict = treatment_options
+        self.TREATMENT_OPTIONS: list[str] = treatment_options
+        self.TREATMENT_OPTION_ORDER: list[int] = treatment_option_order
         self.TREATMENT_ANSWER: str = treatment_answer
         self.TREATMENT_DECISION: int = treatment_decision
 
     def __str__(self) -> str:
-        return f"---DecisionResult---\n\nTIMESTAMP: {self.TIMESTAMP}\nMODEL: {self.MODEL}\nTEMPERATURE: {self.TEMPERATURE}\nSEED: {self.SEED}\n\nCONTROL OPTIONS: {self.CONTROL_OPTIONS}\nRAW CONTROL ANSWER: {self.CONTROL_ANSWER}\nCONTROL DECISION: {self.CONTROL_DECISION}\n\nTREATMENT OPTIONS: {self.TREATMENT_OPTIONS}\nRAW TREATMENT ANSWER: {self.TREATMENT_ANSWER}\nTREATMENT DECISION: {self.TREATMENT_DECISION}\n\n------"
+        return f"---DecisionResult---\n\nTIMESTAMP: {self.TIMESTAMP}\nMODEL: {self.MODEL}\nTEMPERATURE: {self.TEMPERATURE}\nSEED: {self.SEED}\n\nCONTROL OPTIONS: {self.CONTROL_OPTIONS}\nCONTROL OPTION ORDER: {self.CONTROL_OPTION_ORDER}\nRAW CONTROL ANSWER: {self.CONTROL_ANSWER}\nCONTROL DECISION: {self.CONTROL_DECISION}\n\nTREATMENT OPTIONS: {self.TREATMENT_OPTIONS}\nTREATMENT OPTION ORDER: {self.TREATMENT_OPTION_ORDER}\nRAW TREATMENT ANSWER: {self.TREATMENT_ANSWER}\nTREATMENT DECISION: {self.TREATMENT_DECISION}\n\n------"
 
     def __repr__(self) -> str:
         return self.__str__()
