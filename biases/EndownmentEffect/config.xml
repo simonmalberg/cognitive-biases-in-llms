@@ -1,0 +1,43 @@
+<config bias="Endownment Effect">
+    <variant name="default">
+        <template type="control">
+            <situation>Suppose you are a [[type]] manager at [[organization]].</situation>
+            <situation>One asset that is connected to your position is [[describe a saleable asset which is involved in the task]]</situation>
+            <situation>You purchased it for [[provide a price for this asset]].</situation>
+            <prompt>At which minimum price (in percents of its change) are you willing to sell this asset?</prompt>
+            <option>-25%</option>
+            <option>-20%</option>
+            <option>-15%</option>
+            <option>-10%</option>
+            <option>-5%</option>
+            <option>-3%</option>
+            <option>0%</option>
+            <option>3%</option>
+            <option>5%</option>
+            <option>10%</option>
+            <option>15%</option>
+            <option>20%</option>
+            <option>25%</option>
+        </template>
+        <template type="treatment">
+            <situation>Suppose you are a [[type]] manager at [[organization]].</situation>
+            <situation>One asset that is connected to your position is [[describe a saleable asset which is involved in the task]]</situation>
+            <situation>You do not possess such asset.</situation>
+            <situation>A company in your industry intends to sell it. You know that they purchased it for [[provide a price for this asset]].</situation>
+            <prompt>At which maximum price (in percents of its change) are you willing to buy this asset?</prompt>
+            <option>-25%</option>
+            <option>-20%</option>
+            <option>-15%</option>
+            <option>-10%</option>
+            <option>-5%</option>
+            <option>-3%</option>
+            <option>0%</option>
+            <option>3%</option>
+            <option>5%</option>
+            <option>10%</option>
+            <option>15%</option>
+            <option>20%</option>
+            <option>25%</option>
+        </template>
+    </variant>
+</config>
