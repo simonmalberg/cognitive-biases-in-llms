@@ -1,36 +1,44 @@
 <config bias="Confirmation Bias">
-    <custom_values name="argument">
-        <value>pro argument 1</value>
-        <value>pro argument 2</value>
-        <value>pro argument 3</value>
-        <value>pro argument 4</value>
-        <value>con argument 1</value>
-        <value>con argument 2</value>
-        <value>con argument 3</value>
-        <value>con argument 4</value>
-    </custom_values>
-    <variant name="default">
+    <variant name="interpretation">
         <template type="control">
             <situation>Suppose you are a [[type]] manager at [[organization]].</situation>
-            <situation>[[Some follow-up information about your position, company, and task]]</situation>
-            <situation>[[A description of the concrete non-obvious statement/opinion/proposal made by someone in the company/field associated with this task]]</situation>
+            <situation>[[A description of the concrete controversial proposal made by your colleague that could lead to both positive and negative consequences]]</situation>
             <prompt>Do you agree with this?</prompt>
             <option>Yes</option>
             <option>No</option>
         </template>
         <template type="treatment">
             <situation>Suppose you are a [[type]] manager at [[organization]].</situation>
-            <situation>[[Some follow-up information about your position, company, and task]]</situation>
-            <situation>[[A description of the concrete non-obvious statement/opinion/proposal made by someone in the company/field associated with this task]]</situation>
-            <prompt>Which of the following pros and cons arguments would you consider while deciding about this matter?</prompt>
-            <option>[[{{argument_1}}]]</option>
-            <option>[[{{argument_2}}]]</option>
-            <option>[[{{argument_3}}]]</option>
-            <option>[[{{argument_4}}]]</option>
-            <option>[[{{argument_5}}]]</option>
-            <option>[[{{argument_6}}]]</option>
-            <option>[[{{argument_7}}]]</option>
-            <option>[[{{argument_8}}]]</option>
+            <situation>[[A description of the concrete controversial proposal made by your colleague that could lead to both positive and negative consequences]]</situation>
+            <prompt>Which of the following pros and cons arguments would you consider while making the decision?</prompt>
+            <option>[[pro argument 1]]</option>
+            <option>[[pro argument 2]]</option>
+            <option>[[pro argument 3]]</option>
+            <option>[[pro argument 4]]</option>
+            <option>[[con argument 1]]</option>
+            <option>[[con argument 2]]</option>
+            <option>[[con argument 3]]</option>
+            <option>[[con argument 4]]</option>
+        </template>
+    </variant>
+    <variant name="search">
+        <template type="control">
+            <situation>Suppose you are a [[type]] manager at [[organization]].</situation>
+            <situation>You face two alternatives.</situation>
+            <situation>[[A description of the first alternative]]</situation>
+            <situation>[[A description of the second alternative]]</situation>
+            <prompt>Is the former alternative better?</prompt>
+            <option>Yes</option>
+            <option>No</option>
+        </template>
+        <template type="treatment">
+            <situation>Suppose you are a [[type]] manager at [[organization]].</situation>
+            <situation>You face two alternatives.</situation>
+            <situation>[[A description of the first alternative]]</situation>
+            <situation>[[A description of the second alternative]]</situation>
+            <prompt>Is the latter alternative better?</prompt>
+            <option>Yes</option>
+            <option>No</option>
         </template>
     </variant>
 </config>

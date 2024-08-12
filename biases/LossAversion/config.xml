@@ -1,21 +1,21 @@
 <config bias="Loss Aversion">
-    <custom_values name="outcome">
-        <value>gain</value>
-        <value>loss</value>
+    <custom_values name="base_amount">
+        <value name='distribution'>randint</value>
+        <value name='min'>1</value>
+        <value name='max'>100</value>
     </custom_values>
-    <custom_values name="amount">
-        <value>{{lambda_coef}} * </value>
-        <value></value>
+    <custom_values name="lambda_coef">
+        <value name='distribution'>uniform</value>
+        <value name='min'>2</value>
+        <value name='max'>100</value>
     </custom_values>
     <variant name="default">
         <template type="treatment">
             <situation>Suppose you are a [[type]] manager at [[organization]].</situation>
-            <situation>[[Some follow-up information about your position, company, and task]]</situation>
-            <situation>[[Provide a description of a risky choice connected to this task that features a potential {{first_outcome}} of some amount {{first_amount}}X and a {{second_outcome}} of some amount {{second_amount}}X]]</situation>
-            <situation>The exact probabilities of both outcomes are unknown.</situation>
-            <prompt>Would you pursue this opportunity?</prompt>
-            <option>Yes.</option>
-            <option>No.</option>
+            <situation>You are presented with two choices.</situation>
+            <prompt>Which choice would you choose?</prompt>
+            <option>[[Provide a description of a choice with a guaranteed profit of amount {{base_amount}}. Choose amount magnitude (e.g., thousands or millions) and currency accordingly.]]</option>
+            <option>[[Provide a description of another choice that is equally likely to lead to a profit of amount {{lambda_amount}} and loss of amount {{base_amount}}. Choose amount magnitude (e.g., thousands or millions) and currency accordingly.]]</option>
         </template>
     </variant>
 </config>

@@ -17,40 +17,54 @@ class HaloEffectTestGenerator(TestGenerator):
         self.BIAS = "Halo Effect"
         self.config = super().load_config(self.BIAS)
 
-    def _custom_population(self, completed_template: Template) -> str:
+    def _custom_population(
+        self, completed_template: Template, custom_values: dict, seed: int
+    ) -> None:
         """
         Custom population method for the Halo Effect test case.
 
         Args:
             completed_template (Template): The assembled template for the test case.
-
-        Returns:
-            experience_sentiment (str): The sampled custom value used in both templates.
+            custom_values (dict): The custom values for the test case.
+            seed (int): The seed for the random number generator.
         """
         # Loading the dict with custom values
-        custom_values = self.config.get_custom_values()
-        experience_sentiments = custom_values['experience_sentiment']
+        random.seed(seed)
+        sentiment_values = custom_values['perception_sentiment']
         # Sampling one of the outcomes
-        experience_sentiment = random.choice(experience_sentiments)
-        completed_template.insert_values(list(zip(['experience_sentiment'], [experience_sentiment])), kind='manual')
+        perception_sentiment = random.choice(sentiment_values)
+        completed_template.insert_values(list(zip(['experience_sentiment'], [perception_sentiment])), kind='manual')
 
-        return experience_sentiment
+    def generate_all(
+        self, model: LLM, scenarios: list[str], seed: int = 42
+    ) -> list[TestCase]:
+        # Load the custom values from the test config
+        custom_values = self.config.get_custom_values()
+        # Create test cases for all provided scenarios
+        test_cases: list[TestCase] = []
+        for scenario in scenarios:
+            try:
+                test_case = self.generate(model, scenario, custom_values, seed)
+                test_cases.append(test_case)
+            except Exception as e:
+                print(
+                    f"Generating the test case failed.\nScenario: {scenario}\nSeed: {seed}"
+                )
+                print(e)
 
-    def generate_all(self, model: LLM, scenarios: list[str], config_values: dict = {}, seed: int = 42) -> list[TestCase]:
-        # TODO Implement functionality to generate multiple test cases at once (potentially following the ranges or distributions outlined in the config values)
-        pass
+        return test_cases
 
-    def generate(self, model: LLM, scenario: str, config_values: dict = {}, seed: int = 42) -> TestCase:
+    def generate(
+        self, model: LLM, scenario: str, custom_values: dict = {}, seed: int = 42
+    ) -> TestCase:
         # TODO Refactor to use only the config values passed to this method (i.e., only the values to be applied to the generation of this very test case)
         
         control: Template = self.config.get_control_template()
         treatment: Template = self.config.get_treatment_template()
 
-        # sample a sentiment for control version, insert it in the treatment
-        experience_sentiment = self._custom_population(control)
-        treatment.insert_values(list(zip(['experience_sentiment'], [experience_sentiment])), kind='manual')
+        # sample and insert a sentiment for treatment version
+        self._custom_population(treatment, custom_values, seed)
         # get dictionary of inserted values
-        control_values = control.inserted_values
         treatment_values = treatment.inserted_values
 
         control, treatment = super().populate(model, control, treatment, scenario)
@@ -60,7 +74,7 @@ class HaloEffectTestGenerator(TestGenerator):
             control=control,
             treatment=treatment,
             generator=model.NAME,
-            control_values=control_values,
+            control_values=None,
             treatment_values=treatment_values,
             scenario=scenario
         )
@@ -87,10 +101,6 @@ class HaloEffectMetric(Metric):
         overall (bool): A flag that is used to indicate that a single result per batch of test is required.
 
     """
-
-    def __init__(self, overall: bool):
-        self.overall = overall
-
     def _compute(
         self,
         control_answer: np.array,
@@ -122,4 +132,5 @@ class HaloEffectMetric(Metric):
 
     def compute(self, test_results: list[tuple[TestCase, DecisionResult]]) -> float:
         # TODO Implement computation of this metric
+        return 0
         pass
