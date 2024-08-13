@@ -79,18 +79,16 @@ class GPT(LLM):
             control_answer, control_extraction, control_option, control_option_texts, control_option_order = self._decide(test_case.CONTROL, temperature=temperature, seed=seed)
         if test_case.TREATMENT is not None:
             treatment_answer, treatment_extraction, treatment_option, treatment_option_texts, treatment_option_order = self._decide(test_case.TREATMENT, temperature=temperature, seed=seed)
-
-        # Save the order in which answer options appeared
-        control_options = dict(zip(control_option_order, control_option_texts))
-        treatment_options = dict(zip(treatment_option_order, treatment_option_texts))
         
         # Create a DecisionResult object containing the final decisions
         decision_result = DecisionResult(
             model=self.NAME,
-            control_options=control_options,
+            control_options=control_option_texts,
+            control_option_order=control_option_order,
             control_answer=control_answer,
             control_decision=control_option,
-            treatment_options=treatment_options,
+            treatment_options=treatment_option_texts,
+            treatment_option_order=treatment_option_order,
             treatment_answer=treatment_answer,
             treatment_decision=treatment_option,
             temperature=temperature,
