@@ -28,27 +28,35 @@ class LossAversionTestGenerator(TestGenerator):
             seed (int): The seed for the random number generator.
         """
         # Loading the possible amounts and lambda values
-        amount_values = custom_values['base_amount']
-        lambda_values = custom_values['lambda_coef']
+        amount_values = custom_values["base_amount"]
+        lambda_values = custom_values["lambda_coef"]
         np.random.seed(seed)
         # Loading the mean and max interval for the lambda coefficient
-        lambda_min, lambda_max = float(lambda_values[1]), float(
-            lambda_values[2]
-        )
+        lambda_min, lambda_max = float(lambda_values[1]), float(lambda_values[2])
         # Loading the required distribution (should be a np.random method)
         lambda_distribution = getattr(np.random, lambda_values[0])
         # Sampling a numerical value
-        lambda_coef = round(lambda_distribution(lambda_min, lambda_max, ), 1)
+        lambda_coef = round(
+            lambda_distribution(
+                lambda_min,
+                lambda_max,
+            ),
+            1,
+        )
         # Sampling the base amount
         base_distribution = getattr(np.random, amount_values[0])
-        base_amount = base_distribution(float(amount_values[1]), float(amount_values[2]))
+        base_amount = base_distribution(
+            float(amount_values[1]), float(amount_values[2])
+        )
         # Taking the respective amounts: base and lambda ones
-        lambda_amount, base_amount = str(round(base_amount * lambda_coef, 1)), str(base_amount)
+        lambda_amount, base_amount = str(round(base_amount * lambda_coef, 1)), str(
+            base_amount
+        )
 
         # Inserting the values into the template
-        patterns = ['lambda_amount', 'base_amount']
+        patterns = ["lambda_amount", "base_amount"]
         values = [lambda_amount, base_amount]
-        completed_template.insert_values(list(zip(patterns, values)), kind='manual')
+        completed_template.insert_values(list(zip(patterns, values)), kind="manual")
 
     def generate_all(
         self, model: LLM, scenarios: list[str], seed: int = 42
@@ -78,7 +86,7 @@ class LossAversionTestGenerator(TestGenerator):
         self._custom_population(treatment, custom_values, seed)
         # Get dictionary of inserted values
         treatment_values = treatment.inserted_values
-        
+
         # Populate the template using the model and the scenario
         _, treatment = super().populate(model, None, treatment, scenario)
 
@@ -111,7 +119,7 @@ class LossAversionMetric(Metric):
 
     where:
     aᵢ ∈ {0,1} is the chosen answer for the i-th test;
-    λᵢ is the loss aversion hyperparameter in the i-th test, decreased by 1 (for sharpness purpose).
+    λᵢ is the loss aversion hyperparameter in the i-th test.
     """
 
     def _compute(self, answer: np.array, lambda_val: np.array) -> np.array:
@@ -133,30 +141,34 @@ class LossAversionMetric(Metric):
         try:
             # make sure all pairs are not None
             test_results = [
-                pair for pair in test_results if pair[0] is not None and pair[1] is not None
+                pair
+                for pair in test_results
+                if pair[0] is not None and pair[1] is not None
             ]
             # extract lambda parameters from the test cases
-            lambdas = (
-                np.array(
+            lambdas = np.array(
                 [
-                    float(test_case.TREATMENT_VALUES['lambda_amount'][0]) / float(test_case.TREATMENT_VALUES['base_amount'][0])
+                    float(test_case.TREATMENT_VALUES["lambda_amount"][0])
+                    / float(test_case.TREATMENT_VALUES["base_amount"][0])
                     for (test_case, _) in test_results
                 ]
-                )
             )
             # extract answers (-1 because the option indices are 1-indexed)
-            treatment_answer = (
-                np.array(
-                    [
-                        # 1 if selected risky option
-                        1 if 'another' in decision_result.TREATMENT_OPTIONS[decision_result.TREATMENT_DECISION - 1] else 0
-                        for (_, decision_result) in test_results
-                    ]
-                )
+            treatment_answer = np.array(
+                [
+                    # 1 if selected risky option
+                    (
+                        1
+                        if "another"
+                        in decision_result.TREATMENT_OPTIONS[
+                            decision_result.TREATMENT_DECISION - 1
+                        ]
+                        else 0
+                    )
+                    for (_, decision_result) in test_results
+                ]
             )
-            biasedness_scores = np.mean(
-                self._compute(treatment_answer, lambdas)
-            )
+            biasedness_scores = np.mean(self._compute(treatment_answer, lambdas))
         except Exception as e:
             raise MetricCalculationError("The metric could not be computed.")
         return np.around(biasedness_scores, 2)

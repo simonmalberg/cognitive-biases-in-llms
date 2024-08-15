@@ -8,7 +8,8 @@
         <template type="control">
             <situation>Suppose you are a [[type]] manager at [[organization]].</situation>
             <situation>A colleague from a company in your industry is preparing to publicly disclose their recent [[one of possible performance metrics suitable for your mutual industry]].</situation>
-            <prompt>In your assessment, what is your estimate of this soon-to-be announced change relative to the last's year result?</prompt>
+            <situation>An independent group of specialists have been tasked with predicting this performance change; they are not aware of its true value.</situation>
+            <prompt>In your assessment, what is the group's estimate of this soon-to-be announced change relative to the last's year result?</prompt>
             <option>-50%</option>
             <option>-40%</option>
             <option>-30%</option>

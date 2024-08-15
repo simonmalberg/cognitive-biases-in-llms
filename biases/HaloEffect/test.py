@@ -1,4 +1,4 @@
-from base import TestGenerator, LLM, Metric
+from base import TestGenerator, LLM, Metric, MetricCalculationError
 from tests import TestCase, Template, TestConfig, DecisionResult
 import random
 import numpy as np
@@ -30,10 +30,28 @@ class HaloEffectTestGenerator(TestGenerator):
         """
         # Loading the dict with custom values
         random.seed(seed)
-        sentiment_values = custom_values['perception_sentiment']
-        # Sampling one of the outcomes
-        perception_sentiment = random.choice(sentiment_values)
-        completed_template.insert_values(list(zip(['experience_sentiment'], [perception_sentiment])), kind='manual')
+        perception_values = custom_values["perception"]
+        preference_values = custom_values["preference"]
+        # Sampling one of the values
+        perception = random.choice(perception_values)
+        preferential_brand = random.choice(preference_values)
+        other_brand = (
+            preference_values[0]
+            if preferential_brand == preference_values[1]
+            else preference_values[1]
+        )
+        perceived_brand = (
+            other_brand if perception == "positive" else preferential_brand
+        )
+        completed_template.insert_values(
+            list(
+                zip(
+                    ["perception", "preference", "perceived_brand"],
+                    [perception, preferential_brand, perceived_brand],
+                )
+            ),
+            kind="manual",
+        )
 
     def generate_all(
         self, model: LLM, scenarios: list[str], seed: int = 42
@@ -57,14 +75,14 @@ class HaloEffectTestGenerator(TestGenerator):
     def generate(
         self, model: LLM, scenario: str, custom_values: dict = {}, seed: int = 42
     ) -> TestCase:
-        # TODO Refactor to use only the config values passed to this method (i.e., only the values to be applied to the generation of this very test case)
-        
         control: Template = self.config.get_control_template()
         treatment: Template = self.config.get_treatment_template()
 
         # sample and insert a sentiment for treatment version
+        self._custom_population(control, custom_values, seed)
         self._custom_population(treatment, custom_values, seed)
         # get dictionary of inserted values
+        control_values = control.inserted_values
         treatment_values = treatment.inserted_values
 
         control, treatment = super().populate(model, control, treatment, scenario)
@@ -74,9 +92,9 @@ class HaloEffectTestGenerator(TestGenerator):
             control=control,
             treatment=treatment,
             generator=model.NAME,
-            control_values=None,
+            control_values=control_values,
             treatment_values=treatment_values,
-            scenario=scenario
+            scenario=scenario,
         )
 
         return test_case
@@ -86,26 +104,17 @@ class HaloEffectMetric(Metric):
     """
     A class that describes the quantitative evaluation of the halo effect bias in a model.
 
-    Individual metric:
-    𝔅 = ‖ â₂ − â₁ ‖₁ / ‖ â₁ − ã₁ ‖₁ ∈ [0, 1];
-
-    Batch metric:
-    𝔅 = (𝔅₁ + ... + 𝔅ₙ) / n,
+    Metric:
+    𝔅 = I[â₂ != â₁]
 
     where:
-    â₁, â₂ are the chosen answers for the control and treatment versions, respectively;
-    ã₁ is the farthest answer option from â₁;
-    n is number of test cases in the batch.
-
-    Attributes:
-        overall (bool): A flag that is used to indicate that a single result per batch of test is required.
+    I is the indicator function;
+    â₁, â₂ are the chosen answers for the control and treatment versions, respectively.
 
     """
+
     def _compute(
-        self,
-        control_answer: np.array,
-        treatment_answer: np.array,
-        answer_options: np.array,
+        self, control_answer: np.array, treatment_answer: np.array
     ) -> np.array:
         """
         Computes the halo effect bias metric for the given batch of test instances.
@@ -113,24 +122,37 @@ class HaloEffectMetric(Metric):
         Args:
             control_answer (np.array, shape (batch, 1)): The answer(s) chosen for the control variant.
             treatment_answer (np.array, shape (batch, 1)): The answer(s) chosen for the treatment variant.
-            answer_options (np.array, shape (batch, num_options)): The answer options available in the test case.
 
         Returns:
             The halo effect bias metric value.
         """
-        farthest_idx = np.argmax(
-            np.abs(answer_options - control_answer), axis=1, keepdims=True
-        )
-        farthest_val = np.take_along_axis(answer_options, farthest_idx, axis=1)
-        result = np.abs(control_answer - treatment_answer) / np.abs(
-            control_answer - farthest_val + 1e-8
-        )
-        if self.overall:
-            return np.mean(result)
+        metric_values = 1 * (control_answer != treatment_answer)
 
-        return result
+        return metric_values
 
     def compute(self, test_results: list[tuple[TestCase, DecisionResult]]) -> float:
-        # TODO Implement computation of this metric
-        return 0
-        pass
+        try:
+            # make sure all pairs are not None
+            test_results = [
+                pair
+                for pair in test_results
+                if pair[0] is not None and pair[1] is not None
+            ]
+            # extract answers
+            control_answer = np.array(
+                [
+                    [decision_result.CONTROL_DECISION]
+                    for (_, decision_result) in test_results
+                ]
+            )
+            treatment_answer = np.array(
+                [
+                    [decision_result.TREATMENT_DECISION]
+                    for (_, decision_result) in test_results
+                ]
+            )
+            biasedness_scores = np.mean(self._compute(control_answer, treatment_answer))
+        except Exception as e:
+            print(e)
+            raise MetricCalculationError(f"Error filtering test results: {e}")
+        return biasedness_scores

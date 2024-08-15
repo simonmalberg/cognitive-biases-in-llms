@@ -1,20 +1,24 @@
 <config bias="Halo Effect">
-    <custom_values name="perception_sentiment">
+    <custom_values name="preference">
+        <value>first</value>
+        <value>second</value>
+    </custom_values>
+    <custom_values name="perception">
         <value>positive</value>
         <value>negative</value>
     </custom_values>
     <variant name="default">
         <template type="control">
             <situation>Suppose you are a [[type]] manager at [[organization]].</situation>
-            <situation>[[Describe a task involving a financial choice between an identical product of two brands]]</situation>
+            <situation>[[Describe briefly a task involving a financial choice between two products of two brands, where the {{preference}} product is advantageous]]</situation>
             <prompt>Product of which brand will you select?</prompt>
             <option>[[name of the first brand]]</option>
             <option>[[name of the second brand]]</option>
         </template>
         <template type="treatment">
             <situation>Suppose you are a [[type]] manager at [[organization]].</situation>
-            <situation>[[Describe a task involving a financial choice between an identical product of two brands]]</situation>
-            <situation>Your overall perception of [[name of the first brand]] is {{perception_sentiment}}.</situation>
+            <situation>[[Describe briefly a task involving a financial choice between two products of two brands, where the {{preference}} product is advantageous]]</situation>
+            <situation>Your overall perception of [[name of the {{perceived_brand}} brand]] is {{perception}}.</situation>
             <prompt>Product of which brand will you select?</prompt>
             <option>[[name of the first brand]]</option>
             <option>[[name of the second brand]]</option>

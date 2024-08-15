@@ -1,13 +1,12 @@
 from base import TestGenerator, LLM, Metric, MetricCalculationError
 from tests import TestCase, Template, TestConfig, DecisionResult
-import random
 import numpy as np
 import re
 
 
-class AvailabilityBiasTestGenerator(TestGenerator):
+class EndowmentEffectTestGenerator(TestGenerator):
     """
-    Test generator for the Availability Bias.
+    Test generator for the Endowment Effect.
 
     Attributes:
         BIAS (str): The cognitive bias associated with this test generator.
@@ -15,41 +14,17 @@ class AvailabilityBiasTestGenerator(TestGenerator):
     """
 
     def __init__(self):
-        self.BIAS: str = "Availability Bias"
+        self.BIAS: str = "Endowment Effect"
         self.config: TestConfig = super().load_config(self.BIAS)
-
-    def _custom_population(
-        self, completed_template: Template, custom_values: dict, seed: int
-    ) -> None:
-        """
-        Custom population method for the Availability Bias test case.
-
-        Args:
-            completed_template (Template): The assembled template for the test case.
-            custom_values (dict): The custom values for the test case.
-            seed (int): The seed for the random number generator.
-        """
-        # Loading the possible outcomes
-        outcomes = custom_values["outcome"]
-        random.seed(seed)
-        # Sampling one of ['failure', 'success']
-        chosen_outcome = random.choice(outcomes)
-        # Inserting the sample into the template
-        completed_template.insert_values(
-            list(zip(["outcome"], [chosen_outcome])), kind="manual"
-        )
 
     def generate_all(
         self, model: LLM, scenarios: list[str], seed: int = 42
     ) -> list[TestCase]:
-        # Load the custom values from the test config
-        custom_values = self.config.get_custom_values()
-
-        # Create test cases for all provided scenarios
+        # Create test cases for all scenarios
         test_cases: list[TestCase] = []
         for scenario in scenarios:
             try:
-                test_case = self.generate(model, scenario, custom_values, seed)
+                test_case = self.generate(model, scenario, None, seed)
                 test_cases.append(test_case)
             except Exception as e:
                 print(
@@ -60,19 +35,11 @@ class AvailabilityBiasTestGenerator(TestGenerator):
         return test_cases
 
     def generate(
-        self, model: LLM, scenario: str, custom_values: dict = {}, seed: int = 42
+        self, model: LLM, scenario: str, config_values: dict = {}, seed: int = 42
     ) -> TestCase:
         # Load the control and treatment templates
         control: Template = self.config.get_control_template()
         treatment: Template = self.config.get_treatment_template()
-
-        # Populate the templates with custom values
-        self._custom_population(control, custom_values, seed)
-        self._custom_population(treatment, custom_values, seed)
-        # Get dictionary of inserted values
-        control_values = control.inserted_values
-        treatment_values = treatment.inserted_values
-
         # Populate the templates using the model and the scenario
         control, treatment = super().populate(model, control, treatment, scenario)
 
@@ -83,8 +50,8 @@ class AvailabilityBiasTestGenerator(TestGenerator):
             treatment=treatment,
             generator=model.NAME,
             scenario=scenario,
-            control_values=control_values,
-            treatment_values=treatment_values,
+            control_values=None,
+            treatment_values=None,
             variant=None,
             remarks=None,
         )
@@ -92,9 +59,9 @@ class AvailabilityBiasTestGenerator(TestGenerator):
         return test_case
 
 
-class AvailabilityBiasMetric(Metric):
+class EndowmentEffectMetric(Metric):
     """
-    A class that describes the quantitative evaluation of the availability bias in a model.
+    Metric calculator for the Endowment Effect.
 
     Metric:
     𝔅 = (â₂ - â₁) / a
@@ -109,11 +76,11 @@ class AvailabilityBiasMetric(Metric):
         self,
         control_answer: np.array,
         treatment_answer: np.array,
-        max_option: np.array, 
-        min_option: np.array
+        max_option: np.array,
+        min_option: np.array,
     ) -> np.array:
         """
-        Compute the metric for the Availability bias.
+        Compute the metric for the Bandwagon effect.
 
         Args:
             control_answer (np.array): The answer chosen in the control version.
@@ -124,12 +91,15 @@ class AvailabilityBiasMetric(Metric):
         Returns:
             np.array: The metric value for the test case.
         """
-        delta = treatment_answer - control_answer
-        metric_value = delta / ((delta >= 0) * (max_option - control_answer) + (delta < 0) * (control_answer - min_option) + 10e-8)
+        delta = control_answer - treatment_answer
+        biasedness = delta / (
+            (delta >= 0) * (max_option - treatment_answer)
+            + (delta < 0) * (treatment_answer - min_option)
+            + 10e-8
+        )
 
-        return metric_value
+        return biasedness
 
-    # TODO: consider moving this method to the base class if it is used in multiple metrics
     def assemble_options(self, options_list: list[dict]) -> np.array:
         """
         Assemble the answer options into a numpy array.
@@ -138,13 +108,11 @@ class AvailabilityBiasMetric(Metric):
             options (dict): The answer options for the test case.
 
         Returns:
-            np.array: The assembled answer options array.
+            np.array: The assembled numerical answer options array.
         """
         answer_options = np.array([])
         for options in options_list:
-            numerical_options = [
-                int(re.findall(r"-?\d+\.?\d*", s)[0]) for s in options
-            ]
+            numerical_options = [int(re.findall(r"-?\d+\.?\d*", s)[0]) for s in options]
             if not answer_options.size:
                 answer_options = np.array([numerical_options])
             else:
@@ -153,11 +121,11 @@ class AvailabilityBiasMetric(Metric):
         return answer_options
 
     def compute(self, test_results: list[tuple[TestCase, DecisionResult]]) -> float:
+        # make sure all pairs are not None
+        test_results = [
+            pair for pair in test_results if pair[0] is not None and pair[1] is not None
+        ]
         try:
-            # make sure all pairs are not None
-            test_results = [
-                pair for pair in test_results if pair[0] is not None and pair[1] is not None
-            ]
             # extract answer options from the test results
             answer_options = self.assemble_options(
                 [

@@ -1,44 +1,27 @@
 <config bias="Confirmation Bias">
+    <custom_values name="kind">
+        <value>positive</value>
+        <value>negative</value>
+    </custom_values>
     <variant name="interpretation">
         <template type="control">
             <situation>Suppose you are a [[type]] manager at [[organization]].</situation>
-            <situation>[[A description of the concrete controversial proposal made by your colleague that could lead to both positive and negative consequences]]</situation>
-            <prompt>Do you agree with this?</prompt>
+            <situation>[[A short description of the business proposal made by your colleague that might or might not have {{kind}} consequences]]</situation>
+            <prompt>Do you agree with this proposal?</prompt>
             <option>Yes</option>
             <option>No</option>
         </template>
         <template type="treatment">
             <situation>Suppose you are a [[type]] manager at [[organization]].</situation>
-            <situation>[[A description of the concrete controversial proposal made by your colleague that could lead to both positive and negative consequences]]</situation>
-            <prompt>Which of the following pros and cons arguments would you consider while making the decision?</prompt>
-            <option>[[pro argument 1]]</option>
-            <option>[[pro argument 2]]</option>
-            <option>[[pro argument 3]]</option>
-            <option>[[pro argument 4]]</option>
-            <option>[[con argument 1]]</option>
-            <option>[[con argument 2]]</option>
-            <option>[[con argument 3]]</option>
-            <option>[[con argument 4]]</option>
-        </template>
-    </variant>
-    <variant name="search">
-        <template type="control">
-            <situation>Suppose you are a [[type]] manager at [[organization]].</situation>
-            <situation>You face two alternatives.</situation>
-            <situation>[[A description of the first alternative]]</situation>
-            <situation>[[A description of the second alternative]]</situation>
-            <prompt>Is the former alternative better?</prompt>
-            <option>Yes</option>
+            <situation>[[A short description of the business proposal made by your colleague that might or might not have {{kind}} consequences]]</situation>
+            <situation>You are presented with arguments regarding this proposal.</situation>
+            <situation>Argument A: [[{{opposite_kind}} argument 1]]</situation>
+            <situation>Argument B: [[{{opposite_kind}} argument 2]]</situation>
+            <situation>Argument C: [[{{opposite_kind}} argument 3]]</situation>
+            <situation>Argument D: [[{{opposite_kind}} argument 4]]</situation>
+            <prompt>With these arguments, are you prepared to make the decision on this proposal?</prompt>
             <option>No</option>
-        </template>
-        <template type="treatment">
-            <situation>Suppose you are a [[type]] manager at [[organization]].</situation>
-            <situation>You face two alternatives.</situation>
-            <situation>[[A description of the first alternative]]</situation>
-            <situation>[[A description of the second alternative]]</situation>
-            <prompt>Is the latter alternative better?</prompt>
             <option>Yes</option>
-            <option>No</option>
         </template>
     </variant>
 </config>

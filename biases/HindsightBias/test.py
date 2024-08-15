@@ -150,7 +150,7 @@ class HindsightBiasMetric(Metric):
         answer_options = np.array([])
         for options in options_list:
             numerical_options = [
-                int(re.findall(r"-?\d+\.?\d*", s)[0]) for s in options.values()
+                int(re.findall(r"-?\d+\.?\d*", s)[0]) for s in options
             ]
             if not answer_options.size:
                 answer_options = np.array([numerical_options])
@@ -176,7 +176,7 @@ class HindsightBiasMetric(Metric):
             control_answer_idx = (
                 np.array(
                     [
-                        decision_result.CONTROL_DECISION
+                        [decision_result.CONTROL_DECISION]
                         for (_, decision_result) in test_results
                     ]
                 )
@@ -185,7 +185,7 @@ class HindsightBiasMetric(Metric):
             treatment_answer_idx = (
                 np.array(
                     [
-                        decision_result.TREATMENT_DECISION
+                        [decision_result.TREATMENT_DECISION]
                         for (_, decision_result) in test_results
                     ]
                 )
@@ -209,5 +209,6 @@ class HindsightBiasMetric(Metric):
                 self._compute(control_answer, treatment_answer, ground_truth)
             )
         except Exception as e:
-            raise MetricCalculationError("The metric could not be computed.")
+           print(e)
+           raise MetricCalculationError("The metric could not be computed.")
         return np.around(biasedness_scores, 2)
