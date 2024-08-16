@@ -1,27 +1,27 @@
 from base import TestGenerator, LLM, Metric, MetricCalculationError
-from tests import TestCase, Template, DecisionResult
-import random
+from tests import TestCase, Template, TestConfig, DecisionResult
 import numpy as np
+import random
 
 
-class ConfirmationBiasTestGenerator(TestGenerator):
+class BandwagonEffectTestGenerator(TestGenerator):
     """
-    Test generator for the Confirmation Bias.
+    Test generator for the Bandwagon Effect.
 
     Attributes:
         BIAS (str): The cognitive bias associated with this test generator.
-        config (TestConfig): The test configuration for the Confirmation Bias.
+        config (TestConfig): The test configuration for this cognitive bias.
     """
 
     def __init__(self):
-        self.BIAS = "Confirmation Bias"
-        self.config = super().load_config(self.BIAS)
+        self.BIAS: str = "Bandwagon Effect"
+        self.config: TestConfig = super().load_config(self.BIAS)
 
     def _custom_population(
         self, completed_template: Template, custom_values: dict, seed: int
     ) -> None:
         """
-        Custom population method for the Confirmation Bias test case.
+        Custom population method for the Bandwagon Effect test case.
 
         Args:
             completed_template (Template): The assembled template for the test case.
@@ -29,14 +29,13 @@ class ConfirmationBiasTestGenerator(TestGenerator):
             seed (int): The seed for the random number generator.
         """
         # Loading the options
-        kinds = custom_values["kind"]
+        majority_options = custom_values["majority_option"]
         random.seed(seed)
-        # Sampling one of ['positive', 'negative']
-        kind = random.choice(kinds)
-        opposite_kind = kinds[0] if kind == kinds[1] else kinds[1]
+        # Sampling one of ['A', 'B']
+        majority_option = random.choice(majority_options)
         # Inserting the sample into the template
         completed_template.insert_values(
-            list(zip(["kind", "opposite_kind"], [kind, opposite_kind])), kind="manual"
+            list(zip(["majority_option"], [majority_option])), kind="manual"
         )
 
     def generate_all(
@@ -61,6 +60,7 @@ class ConfirmationBiasTestGenerator(TestGenerator):
     def generate(
         self, model: LLM, scenario: str, custom_values: dict = {}, seed: int = 42
     ) -> TestCase:
+        # Load the control and treatment templates
         control: Template = self.config.get_control_template()
         treatment: Template = self.config.get_treatment_template()
 
@@ -74,30 +74,32 @@ class ConfirmationBiasTestGenerator(TestGenerator):
         # Populate the templates using the model and the scenario
         control, treatment = super().populate(model, control, treatment, scenario)
 
+        # Create a test case object
         test_case = TestCase(
             bias=self.BIAS,
             control=control,
             treatment=treatment,
             generator=model.NAME,
+            scenario=scenario,
             control_values=control_values,
             treatment_values=treatment_values,
-            scenario=scenario,
+            variant=None,
+            remarks=None,
         )
 
         return test_case
 
 
-class ConfirmationBiasMetric(Metric):
+class BandwagonEffectMetric(Metric):
     """
-    A class that describes the quantitative evaluation of the confirmation bias in a model.
+    Metric calculator for the Bandwagon Effect.
 
     Metric:
-    𝔅 = â₂ * (2 * I[â₁=a] - 1)
+    𝔅 = ∑ I{â₁ = â₂ ∧ â₁ = a} - ∑ I{â₁ = â₂ ∧ â₁ != a}
+
     where:
     â₁, â₂ are the chosen answers for the control and treatment versions, respectively;
-    a is the opposite kind in the test case.
-
-    TODO: both -1 and 1 metric value can be seen as an instance of the confirmation bias - discuss
+    a is the majority option inserted in the test case.
 
     """
 
@@ -105,20 +107,24 @@ class ConfirmationBiasMetric(Metric):
         self,
         control_answer: np.array,
         treatment_answer: np.array,
-        opposite_kind: np.array,
+        majority_option: np.array,
     ) -> np.array:
         """
-        Compute the metric for the Confirmation bias.
+        Compute the metric for the Bandwagon effect.
 
         Args:
             control_answer (np.array): The answer chosen in the control version.
             treatment_answer (np.array): The answer chosen in the treatment version.
-            opposite_kind (np.array): The index of the opposite kind in the test case.
+            majority_option (np.array): The majority option inserted in the test case.
 
         Returns:
             np.array: The metric value for the test case.
         """
-        metric_value = treatment_answer * (2 * (control_answer == opposite_kind) - 1)
+        metric_value = np.sum(
+            (control_answer == treatment_answer) & (control_answer == majority_option)
+        ) - np.sum(
+            (control_answer == treatment_answer) & (control_answer != majority_option)
+        )
 
         return metric_value
 
@@ -131,7 +137,6 @@ class ConfirmationBiasMetric(Metric):
                 if pair[0] is not None and pair[1] is not None
             ]
             # extract indices of the chosen answers (-1 because the option indices are 1-indexed)
-            # always yields 0 for Yes and 1 for No
             control_answer_idx = np.array(
                 [
                     [
@@ -142,7 +147,6 @@ class ConfirmationBiasMetric(Metric):
                     for (_, decision_result) in test_results
                 ]
             )
-            # always yields 0 for Yes and 1 for No
             treatment_answer_idx = np.array(
                 [
                     [
@@ -153,22 +157,15 @@ class ConfirmationBiasMetric(Metric):
                     for (_, decision_result) in test_results
                 ]
             )
-            opposite_kind_idx = np.array(
+            majority_option_idx = np.array(
                 [
-                    [
-                        (
-                            0
-                            if test_case.TREATMENT_VALUES["opposite_kind"][0]
-                            == "Positive"
-                            else 1
-                        )
-                    ]
+                    [0 if test_case.CONTROL_VALUES["majority_option"][0] == "A" else 1]
                     for (test_case, _) in test_results
                 ]
             )
             biasedness_scores = np.mean(
                 self._compute(
-                    control_answer_idx, treatment_answer_idx, opposite_kind_idx
+                    control_answer_idx, treatment_answer_idx, majority_option_idx
                 )
             )
         except Exception as e:

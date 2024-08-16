@@ -1,36 +1,27 @@
 <config bias="Confirmation Bias">
-    <custom_values name="argument">
-        <value>pro argument 1</value>
-        <value>pro argument 2</value>
-        <value>pro argument 3</value>
-        <value>pro argument 4</value>
-        <value>con argument 1</value>
-        <value>con argument 2</value>
-        <value>con argument 3</value>
-        <value>con argument 4</value>
+    <custom_values name="kind">
+        <value>positive</value>
+        <value>negative</value>
     </custom_values>
-    <variant name="default">
+    <variant name="interpretation">
         <template type="control">
             <situation>Suppose you are a [[type]] manager at [[organization]].</situation>
-            <situation>[[Some follow-up information about your position, company, and task]]</situation>
-            <situation>[[A description of the concrete non-obvious statement/opinion/proposal made by someone in the company/field associated with this task]]</situation>
-            <prompt>Do you agree with this?</prompt>
+            <situation>[[A short description of the business proposal made by your colleague that might or might not have {{kind}} consequences]]</situation>
+            <prompt>Do you agree with this proposal?</prompt>
             <option>Yes</option>
             <option>No</option>
         </template>
         <template type="treatment">
             <situation>Suppose you are a [[type]] manager at [[organization]].</situation>
-            <situation>[[Some follow-up information about your position, company, and task]]</situation>
-            <situation>[[A description of the concrete non-obvious statement/opinion/proposal made by someone in the company/field associated with this task]]</situation>
-            <prompt>Which of the following pros and cons arguments would you consider while deciding about this matter?</prompt>
-            <option>[[{{argument_1}}]]</option>
-            <option>[[{{argument_2}}]]</option>
-            <option>[[{{argument_3}}]]</option>
-            <option>[[{{argument_4}}]]</option>
-            <option>[[{{argument_5}}]]</option>
-            <option>[[{{argument_6}}]]</option>
-            <option>[[{{argument_7}}]]</option>
-            <option>[[{{argument_8}}]]</option>
+            <situation>[[A short description of the business proposal made by your colleague that might or might not have {{kind}} consequences]]</situation>
+            <situation>You are presented with arguments regarding this proposal.</situation>
+            <situation>Argument A: [[{{opposite_kind}} argument 1]]</situation>
+            <situation>Argument B: [[{{opposite_kind}} argument 2]]</situation>
+            <situation>Argument C: [[{{opposite_kind}} argument 3]]</situation>
+            <situation>Argument D: [[{{opposite_kind}} argument 4]]</situation>
+            <prompt>With these arguments, are you prepared to make the decision on this proposal?</prompt>
+            <option>No</option>
+            <option>Yes</option>
         </template>
     </variant>
 </config>

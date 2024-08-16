@@ -1,0 +1,26 @@
+<config bias="Bandwagon Effect">
+    <custom_values name="majority_option">
+        <value>A</value>
+        <value>B</value>
+    </custom_values>
+    <variant name="default">
+        <template type="control">
+            <situation>Suppose you are a [[type]] manager at [[organization]].</situation>
+            <situation>[[Describe a possible choice task for the role]]</situation>
+            <situation>You have two equally reasonable options. Option A: [[describe the first option]] Option B: [[describe the second option]]</situation>
+            <situation>Colleagues in your industry usually decide for the option {{majority_option}} in similar cases.</situation>
+            <prompt>Which option do you choose?</prompt>
+            <option>A</option>
+            <option>B</option>
+        </template>
+        <template type="treatment">
+            <situation>Suppose you are a [[type]] manager at [[organization]].</situation>
+            <situation>[[Describe a possible choice task for the role]]</situation>
+            <situation>You have two equally reasonable options. Option A: [[describe the second option]] Option B: [[describe the first option]]</situation>
+            <situation>Colleagues in your industry usually decide for the option {{majority_option}} in similar cases.</situation>
+            <prompt>Which option do you choose?</prompt>
+            <option>A</option>
+            <option>B</option>
+        </template>
+    </variant>
+</config>

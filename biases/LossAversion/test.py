@@ -1,6 +1,5 @@
-from base import TestGenerator, LLM, Metric
+from base import TestGenerator, LLM, Metric, MetricCalculationError
 from tests import TestCase, Template, TestConfig, DecisionResult
-import random
 import numpy as np
 
 
@@ -17,48 +16,78 @@ class LossAversionTestGenerator(TestGenerator):
         self.BIAS = "Loss Aversion"
         self.config = super().load_config(self.BIAS)
 
-    def _custom_population(self, completed_template: Template) -> None:
+    def _custom_population(
+        self, completed_template: Template, custom_values: dict, seed: int
+    ) -> None:
         """
         Custom population method for the Loss Aversion test case.
 
         Args:
             completed_template (Template): The assembled template for the test case.
+            custom_values (dict): The custom values for the test case.
+            seed (int): The seed for the random number generator.
         """
-        # Loading the dict with custom values
+        # Loading the possible amounts and lambda values
+        amount_values = custom_values["base_amount"]
+        lambda_values = custom_values["lambda_coef"]
+        np.random.seed(seed)
+        # Loading the mean and max interval for the lambda coefficient
+        lambda_min, lambda_max = float(lambda_values[1]), float(lambda_values[2])
+        # Loading the required distribution (should be a np.random method)
+        lambda_distribution = getattr(np.random, lambda_values[0])
+        # Sampling a numerical value
+        lambda_coef = round(
+            lambda_distribution(
+                lambda_min,
+                lambda_max,
+            ),
+            1,
+        )
+        # Sampling the base amount
+        base_distribution = getattr(np.random, amount_values[0])
+        base_amount = base_distribution(
+            float(amount_values[1]), float(amount_values[2])
+        )
+        # Taking the respective amounts: base and lambda ones
+        lambda_amount, base_amount = str(round(base_amount * lambda_coef, 1)), str(
+            base_amount
+        )
+
+        # Inserting the values into the template
+        patterns = ["lambda_amount", "base_amount"]
+        values = [lambda_amount, base_amount]
+        completed_template.insert_values(list(zip(patterns, values)), kind="manual")
+
+    def generate_all(
+        self, model: LLM, scenarios: list[str], seed: int = 42
+    ) -> list[TestCase]:
+        # Load the custom values from the test config
         custom_values = self.config.get_custom_values()
-        # Loading the possible outcomes and amounts
-        outcome = custom_values['outcome']
-        amount = custom_values['amount']
+        # Create test cases for all provided scenarios
+        test_cases: list[TestCase] = []
+        for scenario in scenarios:
+            try:
+                test_case = self.generate(model, scenario, custom_values, seed)
+                test_cases.append(test_case)
+            except Exception as e:
+                print(
+                    f"Generating the test case failed.\nScenario: {scenario}\nSeed: {seed}"
+                )
+                print(e)
 
-        # Sampling one of ['gain', 'loss'] and taking the index:
-        first_outcome = random.choice(outcome)
-        first_idx = outcome.index(first_outcome)
-        # Taking the other outcome as the second one:
-        second_outcome = outcome[(first_idx + 1) % 2]
-        # Taking the respective amounts
-        first_amount = amount[first_idx]
-        second_amount = amount[(first_idx + 1) % 2]
+        return test_cases
 
-        # Inserting the outcomes and amounts into the template
-        patterns = ['first_outcome', 'second_outcome', 'first_amount', 'second_amount']
-        values = [first_outcome, second_outcome, first_amount, second_amount]
-        completed_template.insert_values(list(zip(patterns, values)), kind='manual')
-
-        # Sampling the value of lambda - TODO: might be better to sample a vector for several tests, discuss it
-        lambda_coef = round(random.uniform(1, 2), 1) # TODO: select the distribution
-        completed_template.insert_values(list(zip(['lambda_coef'], [str(lambda_coef)])), kind='manual')
-
-    def generate_all(self, model: LLM, scenarios: list[str], config_values: dict = {}, seed: int = 42) -> list[TestCase]:
-        # TODO Implement functionality to generate multiple test cases at once (potentially following the ranges or distributions outlined in the config values)
-        pass        
-
-    def generate(self, model: LLM, scenario: str, config_values: dict = {}, seed: int = 42) -> TestCase:
-        # TODO Refactor to use only the config values passed to this method (i.e., only the values to be applied to the generation of this very test case)
-
+    def generate(
+        self, model: LLM, scenario: str, custom_values: dict = {}, seed: int = 42
+    ) -> TestCase:
+        # Load the treatment template
         treatment: Template = self.config.get_treatment_template()
-        self._custom_population(treatment)
+        # Populate the templates with custom values
+        self._custom_population(treatment, custom_values, seed)
+        # Get dictionary of inserted values
         treatment_values = treatment.inserted_values
 
+        # Populate the template using the model and the scenario
         _, treatment = super().populate(model, None, treatment, scenario)
 
         # Create a test case object and remember the sampled lambda value
@@ -67,9 +96,11 @@ class LossAversionTestGenerator(TestGenerator):
             control=None,
             treatment=treatment,
             generator=model.NAME,
+            scenario=scenario,
             control_values=None,
             treatment_values=treatment_values,
-            scenario=scenario
+            variant=None,
+            remarks=None,
         )
 
         return test_case
@@ -88,14 +119,8 @@ class LossAversionMetric(Metric):
 
     where:
     aᵢ ∈ {0,1} is the chosen answer for the i-th test;
-    λᵢ is the loss aversion hyperparameter in the i-th test, decreased by 1 (for sharpness purpose).
-
-    Attributes:
-        overall (bool): A flag that is used to indicate that a single result per batch of test is required.
+    λᵢ is the loss aversion hyperparameter in the i-th test.
     """
-
-    def __init__(self, overall: bool):
-        self.overall = overall
 
     def _compute(self, answer: np.array, lambda_val: np.array) -> np.array:
         """
@@ -108,14 +133,42 @@ class LossAversionMetric(Metric):
         Returns:
             The loss aversion bias metric value.
         """
-        if not self.overall:
-            return answer
-
-        lambda_val = lambda_val
         result = 1 - np.sum(answer / lambda_val) / np.sum(1 / lambda_val)
 
         return result
 
     def compute(self, test_results: list[tuple[TestCase, DecisionResult]]) -> float:
-        # TODO Implement computation of this metric
-        pass
+        try:
+            # make sure all pairs are not None
+            test_results = [
+                pair
+                for pair in test_results
+                if pair[0] is not None and pair[1] is not None
+            ]
+            # extract lambda parameters from the test cases
+            lambdas = np.array(
+                [
+                    float(test_case.TREATMENT_VALUES["lambda_amount"][0])
+                    / float(test_case.TREATMENT_VALUES["base_amount"][0])
+                    for (test_case, _) in test_results
+                ]
+            )
+            # extract answers (-1 because the option indices are 1-indexed)
+            treatment_answer = np.array(
+                [
+                    # 1 if selected risky option
+                    (
+                        1
+                        if "another"
+                        in decision_result.TREATMENT_OPTIONS[
+                            decision_result.TREATMENT_DECISION - 1
+                        ]
+                        else 0
+                    )
+                    for (_, decision_result) in test_results
+                ]
+            )
+            biasedness_scores = np.mean(self._compute(treatment_answer, lambdas))
+        except Exception as e:
+            raise MetricCalculationError("The metric could not be computed.")
+        return np.around(biasedness_scores, 2)
