@@ -65,10 +65,10 @@ class Experiment:
 
         # Track the run on Weights & Biases
         run_name = f"Generation {test_case.BIAS}"
-        self.init(run_name)
-        logs = self.create_test_case_logs(test_case)
-        self.log(logs)
-        self.finish()
+        self._start(run_name)
+        logs = self._create_test_case_logs(test_case)
+        self._log(logs)
+        self._finish()
 
         return test_case
 
@@ -87,12 +87,12 @@ class Experiment:
 
         # Track the run on Weights & Biases
         run_name = f"Decision {test_case.BIAS}"
-        self.init(run_name)
-        logs = self.create_decision_logs(test_case=test_case, decision_result=decision_result, biasedness=biasedness)
-        self.log(logs)
-        self.finish()
+        self._start(run_name)
+        logs = self._create_decision_logs(test_case=test_case, decision_result=decision_result, biasedness=biasedness)
+        self._log(logs)
+        self._finish()
 
-    def create_test_case_logs(self, test_case: TestCase) -> dict:
+    def _create_test_case_logs(self, test_case: TestCase) -> dict:
         # TODO Maybe the TestCase class should have a to_dict() function that returns a dictionary representation of the test case
         # TODO Temperature and seed should be stored inside the TestCase object for later reference
         logs = {
@@ -110,11 +110,11 @@ class Experiment:
 
         return logs
 
-    def create_decision_logs(self, test_case: TestCase, decision_result: DecisionResult, biasedness: float) -> dict:
+    def _create_decision_logs(self, test_case: TestCase, decision_result: DecisionResult, biasedness: float) -> dict:
         # TODO Maybe the DecisionResult class should have a to_dict() function that returns a dictionary representation of the decision result
 
         # Create the logs for the test case that was used
-        logs = self.create_test_case_logs(test_case)
+        logs = self._create_test_case_logs(test_case)
 
         # Add the fields from the decision result to the logs
         logs["Type"] = "DECISION"
@@ -137,7 +137,7 @@ class Experiment:
 
         return logs
 
-    def init(self, name: str):
+    def _start(self, name: str):
         # Start a new wandb run
         wandb.init(
             entity=WANDB_ENTITY,
@@ -146,10 +146,10 @@ class Experiment:
             config={}
         )
 
-    def log(self, metrics: dict):
+    def _log(self, metrics: dict):
         wandb.log(metrics)
 
-    def finish(self):
+    def _finish(self):
         wandb.finish()
 
 
