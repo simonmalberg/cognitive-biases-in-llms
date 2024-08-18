@@ -1,0 +1,22 @@
+decision_prompt: >-
+    You will be given a decision-making task with multiple answer options.
+
+    {{test_case}}
+
+    Select exactly one option.
+extraction_prompt: >-
+    You will be given answer options from a decision-making task and a written answer.
+
+    --- OPTIONS ---
+
+    {{options}}
+
+
+    --- ANSWER ---
+
+    {{answer}}
+
+    
+    --- INSTRUCTION ---
+
+    Extract the option selected in the above answer (explicitly write "Option N" and nothing else where N is the number of the option). If you cannot extract the selected option, write 'No option selected'.

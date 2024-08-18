@@ -1,52 +1,37 @@
-from mistral_inference.transformer import Transformer
-from mistral_inference.generate import generate
-from mistral_common.tokens.tokenizers.mistral import MistralTokenizer
-from mistral_common.protocol.instruct.messages import UserMessage
-from mistral_common.protocol.instruct.request import ChatCompletionRequest
+import google.generativeai as genai
 from tests import Template, TestCase, DecisionResult
 from base import LLM, DecisionError
 import yaml
 import re
+import os
 
+# TODO: might be sensible to consider Gemma model (available through HuggingFace)
 
-class MistralModel(LLM):
+class GeminiModel(LLM):
     """
-    An abstract class representing a model from MistralAI.
+    An abstract class representing a Gemini model from Google.
 
     Attributes:
         NAME (str): The name of the model.
     """
-
     def __init__(self, shuffle_answer_options: bool = False):
         super().__init__(shuffle_answer_options=shuffle_answer_options)
-        with open("./models/MistralAI/prompts.yml") as f:
+        genai.configure(api_key=os.environ["GOOGLE_API_KEY"])
+        with open("./models/Google/prompts.yml") as f:
             self._PROMPTS = yaml.safe_load(f)
-
+            
     def prompt(self, prompt: str, temperature: float = 0.7, seed: int = 42) -> str:
         """
         Function to prompt the model with a given prompt and return the response
-        according to the original MistralAI inference pipeline.
+        according to the Gemini API pipeline.
         """
-        # Load the model and tokenizer
-        tokenizer = MistralTokenizer.from_file(self.TOKENIZER)
-        model = Transformer.from_folder(self.MODEL)
-        # Generate the response
-        completion_request = ChatCompletionRequest(
-            messages=[UserMessage(content=prompt)]
-        )
-        tokens = tokenizer.encode_chat_completion(completion_request).tokens
-        # TODO: haven't seen the random_seed parameter in the mistral_inference, only in their API. Potentially might not work.
-        out_tokens, _ = generate(
-            [tokens],
-            model,
-            max_tokens=1024,
-            temperature=temperature,
-            random_seed=seed,
-            eos_id=tokenizer.instruct_tokenizer.tokenizer.eos_id,
-        )
-        result = tokenizer.instruct_tokenizer.tokenizer.decode(out_tokens[0])
+        self.model = genai.GenerativeModel(self.NAME)
+        # TODO: Gemini API doesn't have a seed parameter -> might need to switch to Vertex AI
+        response = self.model.generate_content(prompt, 
+                                    generation_config=genai.types.GenerationConfig(temperature=temperature))
+        
+        return response.text
 
-        return result
 
     def decide_all(
         self, test_cases: list[TestCase], temperature: float = 0.7, seed: int = 42
@@ -123,7 +108,7 @@ class MistralModel(LLM):
         return decision_result
     
     def populate(self, control: Template, treatment: Template, scenario: str, temperature: float = 0.0, seed: int = 42) -> tuple[Template, Template]:
-        return "MistralAI models are not used to populate test cases."
+        return "Google models are not used to populate test cases."
 
     def _decide(
         self, template: Template, temperature: float = 0.7, seed: int = 42
@@ -204,9 +189,9 @@ class MistralModel(LLM):
         )
 
 
-class MistralLargeTwo(MistralModel):
+class GeminiOneFiveFlash(GeminiModel):
     """
-    A class representing a MistralLargeTwo LLM that decides on the test cases provided.
+    A class representing a Gemini 1.5 Flash LLM that decides on the test cases provided.
 
     Attributes:
         NAME (str): The name of the model.
@@ -214,21 +199,4 @@ class MistralLargeTwo(MistralModel):
 
     def __init__(self, shuffle_answer_options: bool = False):
         super().__init__(shuffle_answer_options=shuffle_answer_options)
-        # TODO: agree on the logic to load the model and tokenizer
-        self.MODEL = "mistral_models/mistral-large-instruct-2407"
-        self.TOKENIZER = "mistral_models/mistral-large-instruct-2407/tokenizer.model"
-
-
-class Mixtral8x7b(MistralModel):
-    """
-    A class representing a Mixtral8x7b LLM that decides on the test cases provided.
-
-    Attributes:
-        NAME (str): The name of the model.
-    """
-
-    def __init__(self, shuffle_answer_options: bool = False):
-        super().__init__(shuffle_answer_options=shuffle_answer_options)
-        # TODO: agree on the logic to load the model and tokenizer
-        self.MODEL = "mistral_models/8x7b_instruct"
-        self.TOKENIZER = "mistral_models/8x7b_instruct/tokenizer.model"
+        self.NAME = "gemini-1.5-flash"
