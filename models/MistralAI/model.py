@@ -121,8 +121,15 @@ class MistralModel(LLM):
         )
 
         return decision_result
-    
-    def populate(self, control: Template, treatment: Template, scenario: str, temperature: float = 0.0, seed: int = 42) -> tuple[Template, Template]:
+
+    def populate(
+        self,
+        control: Template,
+        treatment: Template,
+        scenario: str,
+        temperature: float = 0.0,
+        seed: int = 42,
+    ) -> tuple[Template, Template]:
         return "MistralAI models are not used to populate test cases."
 
     def _decide(

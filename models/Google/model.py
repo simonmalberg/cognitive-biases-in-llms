@@ -7,6 +7,7 @@ import os
 
 # TODO: might be sensible to consider Gemma model (available through HuggingFace)
 
+
 class GeminiModel(LLM):
     """
     An abstract class representing a Gemini model from Google.
@@ -14,12 +15,13 @@ class GeminiModel(LLM):
     Attributes:
         NAME (str): The name of the model.
     """
+
     def __init__(self, shuffle_answer_options: bool = False):
         super().__init__(shuffle_answer_options=shuffle_answer_options)
         genai.configure(api_key=os.environ["GOOGLE_API_KEY"])
         with open("./models/Google/prompts.yml") as f:
             self._PROMPTS = yaml.safe_load(f)
-            
+
     def prompt(self, prompt: str, temperature: float = 0.7, seed: int = 42) -> str:
         """
         Function to prompt the model with a given prompt and return the response
@@ -27,11 +29,12 @@ class GeminiModel(LLM):
         """
         self.model = genai.GenerativeModel(self.NAME)
         # TODO: Gemini API doesn't have a seed parameter -> might need to switch to Vertex AI
-        response = self.model.generate_content(prompt, 
-                                    generation_config=genai.types.GenerationConfig(temperature=temperature))
-        
-        return response.text
+        response = self.model.generate_content(
+            prompt,
+            generation_config=genai.types.GenerationConfig(temperature=temperature),
+        )
 
+        return response.text
 
     def decide_all(
         self, test_cases: list[TestCase], temperature: float = 0.7, seed: int = 42
@@ -106,8 +109,15 @@ class GeminiModel(LLM):
         )
 
         return decision_result
-    
-    def populate(self, control: Template, treatment: Template, scenario: str, temperature: float = 0.0, seed: int = 42) -> tuple[Template, Template]:
+
+    def populate(
+        self,
+        control: Template,
+        treatment: Template,
+        scenario: str,
+        temperature: float = 0.0,
+        seed: int = 42,
+    ) -> tuple[Template, Template]:
         return "Google models are not used to populate test cases."
 
     def _decide(
