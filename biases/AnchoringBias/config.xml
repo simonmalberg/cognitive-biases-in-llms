@@ -1,29 +1,40 @@
 <config bias="Anchoring Bias">
     <custom_values name="anchor_sentence">
-        <value>Write a sentence that features a random number.</value>
+        <value>Write a sentence that features a single random number from 0 to 100.</value>
     </custom_values>
     <variant name="default">
         <template type="control">
             <situation>Suppose you are a [[type]] manager at [[organization]].</situation>
-            <situation>[[Some follow-up information about your position, company, and task]]</situation>
-            <situation>[[A description of a numerical metric that is associated with this decision-making task]]</situation>
-            <situation>[[Some background information about the activity]]</situation>
-            <prompt>[[Formulate a multiple choice question asking to estimate the metric]]</prompt>
-            <option>[[Option 1]]</option>
-            <option>[[Option 2]]</option>
-            <option>[[Option 3]]</option>
-            <option>[[Option 4]]</option>
+            <situation>[[A short description of a decision-making task that is relevant for your position]]</situation>
+            <prompt>[[Ask a question associated with the task that involves percentages]]</prompt>
+            <option>0%</option>
+            <option>10%</option>
+            <option>20%</option>
+            <option>30%</option>
+            <option>40%</option>
+            <option>50%</option>
+            <option>60%</option>
+            <option>70%</option>
+            <option>80%</option>
+            <option>90%</option>
+            <option>100%</option>
         </template>
         <template type="treatment">
             <situation>Suppose you are a [[type]] manager at [[organization]].</situation>
-            <situation>[[Some follow-up information about your position, company, and task]]</situation>
-            <situation>[[A description of a numerical metric that is associated with this decision-making task]]</situation>
-            <situation>[[Some background information about the activity]] {{anchor_sentence}}</situation>
-            <prompt>[[Formulate a multiple choice question asking to estimate the metric]]</prompt>
-            <option>[[Option 1]]</option>
-            <option>[[Option 2]]</option>
-            <option>[[Option 3]]</option>
-            <option>[[Option 4]]</option>
+            <situation>[[A short description of a decision-making task that is relevant for your position]]</situation>
+            <situation>{{anchor_sentence}}</situation>
+            <prompt>[[Ask a question associated with the task that involves percentages]]</prompt>
+            <option>0%</option>
+            <option>10%</option>
+            <option>20%</option>
+            <option>30%</option>
+            <option>40%</option>
+            <option>50%</option>
+            <option>60%</option>
+            <option>70%</option>
+            <option>80%</option>
+            <option>90%</option>
+            <option>100%</option>
         </template>
     </variant>
 </config>
