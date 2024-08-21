@@ -2,10 +2,8 @@ import wandb
 import os
 import random
 import xml.etree.ElementTree as ET
-from utils import get_generator, get_metric
+from utils import get_generator, get_metric, get_model
 from tests import TestCase, DecisionResult
-from models.OpenAI.gpt import GptThreePointFiveTurbo, GptFourO
-from models.Llama.model import LlamaThreePointOneSeventyB
 
 
 # Login to Weights & Biases for experiment tracking
@@ -53,11 +51,12 @@ class Experiment:
 
         return scenario
 
-    def generate(self, scenario: str, seed: int = 42) -> TestCase:
+    def generate(self, model: str, scenario: str, seed: int = 42) -> TestCase:
         """
         Generates a new test case for the specified scenario.
 
         Args:
+            model (str): The name of the LLM to use for generating the test case.
             scenario (str): The scenario for which to generate the test case.
             seed (int): The seed for generating the scenario.
 
@@ -73,7 +72,7 @@ class Experiment:
         self._start(run_name)
 
         # Instantiate the population LLM
-        population_model = GptFourO()       # TODO Allow selection of different LLMs, e.g., via passing the LLM's name as string and having a get_model() method
+        population_model = get_model(model)
 
         # TODO Maybe we can even log the raw LLM inputs and outputs. Can we have an internal prompt log inside the LLM class?
 
@@ -87,11 +86,12 @@ class Experiment:
 
         return test_case
 
-    def decide(self, test_case: TestCase, seed: int = 42, shuffle_answer_options: bool = False) -> tuple[DecisionResult, float]:
+    def decide(self, model: str, test_case: TestCase, seed: int = 42, shuffle_answer_options: bool = False) -> tuple[DecisionResult, float]:
         """
         Obtains a decision for a test case and calculates the biasedness.
 
         Args:
+            model (str): The name of the LLM to use for making the decision.
             test_case (TestCase): The test case defining the decision task.
             seed (int): The seed to be used for obtaining the decision.
             shuffle_answer_options (bool): If True, answer options in the test case will be randomly shuffled.
@@ -108,7 +108,7 @@ class Experiment:
         metric = get_metric(self.bias)        
 
         # Instantiate the decision LLM
-        decision_model = LlamaThreePointOneSeventyB(shuffle_answer_options=shuffle_answer_options)
+        decision_model = get_model(model, shuffle_answer_options)
 
         # Obtain a decision for the test case
         decision_result = decision_model.decide(test_case=test_case, seed=seed)

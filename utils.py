@@ -1,4 +1,4 @@
-from base import TestGenerator, Metric
+from base import TestGenerator, Metric, LLM
 import importlib
 import os
 
@@ -164,6 +164,7 @@ def get_generator(bias: str) -> TestGenerator:
 
     Args:
         bias (str): The name of the cognitive bias for which to get the test generator.
+
     Returns:
         A TestGenerator object for the specified cognitive bias.
     """
@@ -191,6 +192,7 @@ def get_metric(bias: str) -> Metric:
 
     Args:
         bias (str): The name of the cognitive bias for which to get the metric generator.
+
     Returns:
         A Metric object for the specified cognitive bias.
     """
@@ -210,6 +212,57 @@ def get_metric(bias: str) -> Metric:
         return MetricClass()
     except (ModuleNotFoundError, AttributeError) as e:
         raise ImportError(f"Could not find the metric for bias '{bias}': {e}")
+
+
+def get_model(model_name: str, shuffle_answer_options: bool = False) -> LLM:
+    """
+    Returns a model instance of the specified type. Currently supported model names:
+    - GPT-4o
+    - GPT-3.5-Turbo
+    - Llama-3.1-8B
+    - Llama-3.1-70B
+    - Llama-3.1-405B
+    - Gemini-1.5-Flash
+    - Claude-3.5-Sonnet
+    - Mistral-Large-2
+    - Mixtral-8x7b
+
+    Args:
+        model_name (str): The name of the model.
+
+    Returns:
+        A LLM object for the specified model.
+    """
+
+    if model_name == "GPT-4o":
+        from models.OpenAI.gpt import GptFourO
+        return GptFourO(shuffle_answer_options)
+    elif model_name == "GPT-3.5-Turbo":
+        from models.OpenAI.gpt import GptThreePointFiveTurbo
+        return GptThreePointFiveTurbo(shuffle_answer_options)
+    elif model_name == "Llama-3.1-8B":
+        from models.Llama.model import LlamaThreePointOneEightB
+        return LlamaThreePointOneEightB(shuffle_answer_options)
+    elif model_name == "Llama-3.1-70B":
+        from models.Llama.model import LlamaThreePointOneSeventyB
+        return LlamaThreePointOneSeventyB(shuffle_answer_options)
+    elif model_name == "Llama-3.1-405B":
+        from models.Llama.model import LlamaThreePointOneFourHundredFiveB
+        return LlamaThreePointOneFourHundredFiveB(shuffle_answer_options)
+    elif model_name == "Gemini-1.5-Flash":
+        from models.Google.model import GeminiOneFiveFlash
+        return GeminiOneFiveFlash(shuffle_answer_options)
+    elif model_name == "Claude-3.5-Sonnet":
+        from models.Anthropic.model import ClaudeThreeFiveSonnet
+        return ClaudeThreeFiveSonnet(shuffle_answer_options)
+    elif model_name == "Mistral-Large-2":
+        from models.MistralAI.model import MistralLargeTwo
+        return MistralLargeTwo(shuffle_answer_options)
+    elif model_name == "Mixtral-8x7b":
+        from models.MistralAI.model import Mixtral8x7b
+        return Mixtral8x7b(shuffle_answer_options)
+    
+    raise ValueError(f"Model '{model_name}' is not supported. Please choose one of 'GPT-4o', 'GPT-3.5-Turbo', 'Llama-3.1-8B', 'Llama-3.1-70B', 'Llama-3.1-405B', 'Gemini-1.5-Flash', 'Claude-3.5-Sonnet', 'Mistral-Large-2', 'Mixtral-8x7b'.")
 
 
 if __name__ == "__main__":
