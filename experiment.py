@@ -12,7 +12,7 @@ from models.Llama.model import LlamaThreePointOneSeventyB
 if "WANDB_KEY" in os.environ:
     wandb.login(key=os.environ["WANDB_KEY"])
 
-WANDB_ENTITY = "simonmalberg"
+WANDB_ENTITY = "tum-nlp"
 WANDB_PROJECT = "Cognitive Biases in LLMs"
 
 
