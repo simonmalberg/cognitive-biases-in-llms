@@ -5,6 +5,7 @@ import xml.etree.ElementTree as ET
 from utils import get_generator, get_metric
 from tests import TestCase, DecisionResult
 from models.OpenAI.gpt import GptThreePointFiveTurbo, GptFourO
+from models.Llama.model import LlamaThreePointOneSeventyB
 
 
 # Login to Weights & Biases for experiment tracking
@@ -107,7 +108,7 @@ class Experiment:
         metric = get_metric(self.bias)        
 
         # Instantiate the decision LLM
-        decision_model = GptThreePointFiveTurbo(shuffle_answer_options=shuffle_answer_options)
+        decision_model = LlamaThreePointOneSeventyB(shuffle_answer_options=shuffle_answer_options)
 
         # Obtain a decision for the test case
         decision_result = decision_model.decide(test_case=test_case, seed=seed)
@@ -174,12 +175,12 @@ class Experiment:
         logs["Shuffled Answer Options"] = shuffled_answer_options
 
         logs["Control Options"] = decision_result.CONTROL_OPTIONS
-        logs["Control Option Order"] = decision_result.CONTROL_OPTION_ORDER
+        logs["Control Option Shuffling"] = decision_result.CONTROL_OPTION_SHUFFLING
         logs["Control Answer"] = decision_result.CONTROL_ANSWER
         logs["Control Decision"] = decision_result.CONTROL_DECISION
 
         logs["Treatment Options"] = decision_result.TREATMENT_OPTIONS
-        logs["Treatment Option Order"] = decision_result.TREATMENT_OPTION_ORDER
+        logs["Treatment Option Shuffling"] = decision_result.TREATMENT_OPTION_SHUFFLING
         logs["Treatment Answer"] = decision_result.TREATMENT_ANSWER
         logs["Treatment Decision"] = decision_result.TREATMENT_DECISION
 

@@ -14,14 +14,14 @@ class DecisionResult:
         TEMPERATURE (float): The LLM temperature parameter used to generate the decisions.
         SEED (int): The LLM seed used to generate the decisions.
         TIMESTAMP (str): The timestamp when the decision was made.
-        CONTROL_OPTIONS (list[str]): A list containing the options available for the control template.
-        CONTROL_OPTION_ORDER (list[int]): A list containing the zero-based IDs (original positions before shuffling) of the options in the control template.
+        CONTROL_OPTIONS (list[str]): A list containing the (shuffled) options available for the control template.
+        CONTROL_OPTION_SHUFFLING (list[int]): A list containing the zero-based IDs (original positions before shuffling) of the options in the control template.
         CONTROL_ANSWER (str): The raw decision output from the deciding LLM for the control template.
-        CONTROL_DECISION (int): The decision made by the LLM for the control template.
-        TREATMENT_OPTIONS (list[str]): A list containing the options available for the treatment template.
-        TREATMENT_OPTION_ORDER (list[int]): A list containing the zero-based IDs (original positions before shuffling) of the options in the treatment template.
+        CONTROL_DECISION (int): The decision made by the LLM for the control template, corresponding to the position in the shuffled options list with one-based indexing.
+        TREATMENT_OPTIONS (list[str]): A list containing the (shuffled) options available for the treatment template.
+        TREATMENT_OPTION_SHUFFLING (list[int]): A list containing the zero-based IDs (original positions before shuffling) of the options in the treatment template.
         TREATMENT_ANSWER (str): The raw decision output from the deciding LLM for the treatment template.
-        TREATMENT_DECISION (int): The decision made by the LLM for the treatment template.
+        TREATMENT_DECISION (int): The decision made by the LLM for the treatment template, corresponding to the position in the shuffled options list with one-based indexing.
     """
 
     def __init__(self, model: str, control_options: list[str], control_option_order: list[int], control_answer: str, control_decision: int, treatment_options: list[str], treatment_option_order: list[int], treatment_answer: str, treatment_decision: int, temperature: float = None, seed: int = None):
@@ -30,18 +30,68 @@ class DecisionResult:
         self.SEED: int = seed
         self.TIMESTAMP: str = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
+        # Unshuffle the options and convert the decision to zero-based indexing
+        control_options, control_option_order, control_decision = self._unshuffle(control_options, control_option_order, control_decision, convert_to_zero_based=True)
+        treatment_options, treatment_option_order, treatment_decision = self._unshuffle(treatment_options, treatment_option_order, treatment_decision, convert_to_zero_based=True)
+
         self.CONTROL_OPTIONS: list[str] = control_options
-        self.CONTROL_OPTION_ORDER: list[int] = control_option_order
+        self.CONTROL_OPTION_SHUFFLING: list[int] = control_option_order
         self.CONTROL_ANSWER: str = control_answer
         self.CONTROL_DECISION: int = control_decision
 
         self.TREATMENT_OPTIONS: list[str] = treatment_options
-        self.TREATMENT_OPTION_ORDER: list[int] = treatment_option_order
+        self.TREATMENT_OPTION_SHUFFLING: list[int] = treatment_option_order
         self.TREATMENT_ANSWER: str = treatment_answer
         self.TREATMENT_DECISION: int = treatment_decision
 
+    def _unshuffle(self, options: list[str], option_order: list[int], decision: int, convert_to_zero_based: bool = True) -> tuple[list[str], list[int], int]:
+        """
+        Reverts the shuffling of options and the final chosen decision.
+
+        Args:
+            options (list[str]): A list containing the shuffled options.
+            option_order (list[int]): A list containing the zero-based IDs (original positions before shuffling) of the options in the template.
+            decision (int): The decision made by the LLM, corresponding to the formatted, one-based ID of the option in the shuffled template.
+            convert_to_zero_based (bool): Whether to convert the decision to zero-based indexing, i.e., first option has ID 0 instead of 1.
+
+        Returns:
+            tuple[list[str], list[int], int]: A tuple containing the unshuffled options, the unshuffled option order, and the unshuffled decision.
+        """
+
+        # Verify that options and option_order have the same length
+        if len(options) != len(option_order):
+            raise ValueError(f"Passed options and option order must have the same length. Found len(options)={len(options)} and len(option_order)={len(option_order)}.")
+
+        # Verify that option order is a permutation of [0, 1, ..., len(options)-1]
+        if set(option_order) != set(range(len(option_order))):
+            raise ValueError(f"Passed option order must be a permutation of [0, 1, ..., len(options)-1]. Found {option_order}.")
+
+        # Verify that the decision is within the range [1, len(options)]
+        if decision < 1 or decision > len(options):
+            raise ValueError(f"Passed decision must be within the range [1, {len(options)}]. Found {decision}.")
+
+        # Unshuffle the options list and option order list based on the option order list
+        unshuffled_options: list[str] = []
+        unshuffled_option_order: list[int] = []
+        for original_index in range(len(option_order)):
+            shuffled_index = option_order.index(original_index)
+            unshuffled_options.append(options[shuffled_index])
+            unshuffled_option_order.append(option_order[shuffled_index])
+
+        # Convert the decision into zero-based indexing
+        decision -= 1
+
+        # Unshuffle the decision
+        unshuffled_decision: int = option_order[decision]
+
+        # If requested, convert the unshuffled decision back to one-based indexing
+        if not convert_to_zero_based:
+            unshuffled_decision += 1
+
+        return unshuffled_options, unshuffled_option_order, unshuffled_decision
+
     def __str__(self) -> str:
-        return f"---DecisionResult---\n\nTIMESTAMP: {self.TIMESTAMP}\nMODEL: {self.MODEL}\nTEMPERATURE: {self.TEMPERATURE}\nSEED: {self.SEED}\n\nCONTROL OPTIONS: {self.CONTROL_OPTIONS}\nCONTROL OPTION ORDER: {self.CONTROL_OPTION_ORDER}\nRAW CONTROL ANSWER: {self.CONTROL_ANSWER}\nCONTROL DECISION: {self.CONTROL_DECISION}\n\nTREATMENT OPTIONS: {self.TREATMENT_OPTIONS}\nTREATMENT OPTION ORDER: {self.TREATMENT_OPTION_ORDER}\nRAW TREATMENT ANSWER: {self.TREATMENT_ANSWER}\nTREATMENT DECISION: {self.TREATMENT_DECISION}\n\n------"
+        return f"---DecisionResult---\n\nTIMESTAMP: {self.TIMESTAMP}\nMODEL: {self.MODEL}\nTEMPERATURE: {self.TEMPERATURE}\nSEED: {self.SEED}\n\nCONTROL OPTIONS: {self.CONTROL_OPTIONS}\nCONTROL OPTION SHUFFLING: {self.CONTROL_OPTION_SHUFFLING}\nRAW CONTROL ANSWER: {self.CONTROL_ANSWER}\nCONTROL DECISION: {self.CONTROL_DECISION}\n\nTREATMENT OPTIONS: {self.TREATMENT_OPTIONS}\nTREATMENT OPTION SHUFFLING: {self.TREATMENT_OPTION_SHUFFLING}\nRAW TREATMENT ANSWER: {self.TREATMENT_ANSWER}\nTREATMENT DECISION: {self.TREATMENT_DECISION}\n\n------"
 
     def __repr__(self) -> str:
         return self.__str__()
