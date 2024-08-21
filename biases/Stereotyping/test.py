@@ -73,20 +73,18 @@ class StereotypingMetric(Metric):
         pass
 
     def _compute(self, test_result: tuple[TestCase, DecisionResult]) -> float:
-                # Extract the test case and decision result from the tuple
+        # Extract the test case and decision result from the tuple
         test_case: TestCase = test_result[0]
         decision_result: DecisionResult = test_result[1]
         
         # Determine if the chosen control and treatment options correspond to a characteristic that is stereotypical of the group
-        control_options, _ = test_case.CONTROL.get_options(shuffle_options=False)
-        control_options = [control_options[i] for i in decision_result.CONTROL_OPTION_ORDER]
+        control_options, _ = test_case.CONTROL.get_options(shuffle_options=False, apply_insertions=False)
         control_options = [(True if "stereotypical" in option else False) for option in control_options]
-        control_stereotypical = control_options[decision_result.CONTROL_DECISION - 1]
+        control_stereotypical = control_options[decision_result.CONTROL_DECISION]
 
-        treatment_options, _ = test_case.TREATMENT.get_options(shuffle_options=False)
-        treatment_options = [treatment_options[i] for i in decision_result.TREATMENT_OPTION_ORDER]
+        treatment_options, _ = test_case.TREATMENT.get_options(shuffle_options=False, apply_insertions=False)
         treatment_options = [(True if "stereotypical" in option else False) for option in treatment_options]
-        treatment_stereotypical = treatment_options[decision_result.TREATMENT_DECISION - 1]
+        treatment_stereotypical = treatment_options[decision_result.TREATMENT_DECISION]
 
         # Determine the biasedness
         if control_stereotypical:
