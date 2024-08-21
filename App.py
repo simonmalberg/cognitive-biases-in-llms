@@ -1,6 +1,7 @@
 from utils import get_generator, get_metric
 from base import PopulationError, DecisionError, MetricCalculationError
 from models.OpenAI.gpt import GptThreePointFiveTurbo, GptFourO
+from models.Llama.model import LlamaThreePointOneSeventyB
 import random
 
 
@@ -28,8 +29,7 @@ if __name__ == "__main__":
 
     # Instantiate the population and decision LLMs
     population_model = GptFourO()
-    decision_model = GptThreePointFiveTurbo(shuffle_answer_options=True)
-    
+    decision_model = LlamaThreePointOneSeventyB(shuffle_answer_options=True)
     # Generate test cases and decide for all given scenarios and compute the metric
     try:
         test_cases = generator.generate_all(population_model, [scenario], seed)

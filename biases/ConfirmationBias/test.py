@@ -93,6 +93,7 @@ class ConfirmationBiasMetric(Metric):
 
     Metric:
     𝔅 = â₂ * (2 * I[â₁=a] - 1)
+    
     where:
     â₁, â₂ are the chosen answers for the control and treatment versions, respectively;
     a is the opposite kind in the test case.

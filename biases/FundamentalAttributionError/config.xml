@@ -6,16 +6,21 @@
     <variant name="default">
         <template type="control">
             <situation>Suppose you are a [[type]] manager at [[organization]].</situation>
-            <prompt>Which option do you choose?</prompt>
-            <option>First option</option>
-            <option>Second option</option>
+            <situation>Today, you [[description of a socially negative, controversial action]].</situation>
+            <prompt>Which of the following best reasons your action?</prompt>
+            <option>[[Provide the first dispositional reasoning]]</option>
+            <option>[[Provide the second dispositional reasoning]]</option>
+            <option>[[Provide the first situational reasoning]]</option>
+            <option>[[Provide the second situational reasoning]]</option>
         </template>
         <template type="treatment">
             <situation>Suppose you are a [[type]] manager at [[organization]].</situation>
-            <situation>You always choose the {{my_custom_value}} option.</situation>
-            <prompt>Which option do you choose?</prompt>
-            <option>First option</option>
-            <option>Second option</option>
+            <situation>Today, your colleague [[description of a socially negative, controversial action]].</situation>
+            <prompt>In your opinion, which of the following best reasons their action?</prompt>
+            <option>[[Rewrite the following with in the third-person plural: [[Provide the first dispositional reasoning]]]]</option>
+            <option>[[Rewrite the following with in the third-person plural: [[Provide the second dispositional reasoning]]]]</option>
+            <option>[[Rewrite the following with in the third-person plural: [[Provide the first situational reasoning]]]]</option>
+            <option>[[Rewrite the following with in the third-person plural: [[Provide the second situational reasoning]]]]</option>
         </template>
     </variant>
 </config>

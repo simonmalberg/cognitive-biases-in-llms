@@ -1,7 +1,7 @@
-from base import TestGenerator, LLM, Metric
+from base import TestGenerator, LLM, Metric, MetricCalculationError
 from tests import TestCase, Template, TestConfig, DecisionResult
 import numpy as np
-import random
+
 
 class FramingEffectTestGenerator(TestGenerator):
     """
@@ -36,7 +36,9 @@ class FramingEffectTestGenerator(TestGenerator):
 
         return test_cases
 
-    def generate(self, model: LLM, scenario: str, custom_values: dict = {}, seed: int = 42) -> TestCase:
+    def generate(
+        self, model: LLM, scenario: str, custom_values: dict = {}, seed: int = 42
+    ) -> TestCase:
         # Load the control and treatment templates
         control: Template = self.config.get_control_template()
         treatment: Template = self.config.get_treatment_template()
@@ -49,7 +51,7 @@ class FramingEffectTestGenerator(TestGenerator):
             float(first_percentage[1]), float(first_percentage[2])
         )
         control.insert("first_percentage", str(first_percentage))
-        treatment.insert("second_percentage", str(100-first_percentage))
+        treatment.insert("second_percentage", str(100 - first_percentage))
         # Get dictionary of inserted values
         control_values = control.inserted_values
         treatment_values = treatment.inserted_values
@@ -67,29 +69,92 @@ class FramingEffectTestGenerator(TestGenerator):
             control_values=control_values,
             treatment_values=treatment_values,
             variant=None,
-            remarks=None
+            remarks=None,
         )
 
         return test_case
 
 
 class FramingEffectMetric(Metric):
+    """
+    A class that describes the quantitative evaluation of the framing effect in a model.
 
-    def __init__(self):
-        pass
+    Metric:
+    𝔅 = (â₂ - â₁) / a
 
-    def _compute(self, test_result: tuple[TestCase, DecisionResult]) -> float:
-        # Extract the test case and decision result from the tuple
-        test_case: TestCase = test_result[0]
-        decision_result: DecisionResult = test_result[1]
+    where:
+    â₁, â₂ are the chosen answers for the control and treatment versions, respectively (where Bad is 4, ..., Great is 0);
+    a = ã - â₁ (if â₂ - â₁ > 0) or else a = â₁ - â, where ã is the maximum option (0-indexed), â - the minimum option (0).
 
-        # Calculate the biasedness
-        biasedness = 0.0   # TODO: Implement calculation of biasedness here
+    """
 
-        return biasedness
+    def _compute(
+        self,
+        control_answer: np.array,
+        treatment_answer: np.array,
+        max_option: np.array,
+        min_option: np.array,
+    ) -> np.array:
+        """
+        Compute the metric for the Availability bias.
+
+        Args:
+            control_answer (np.array): The answer chosen in the control version.
+            treatment_answer (np.array): The answer chosen in the treatment version.
+            max_option (np.array): The maximum answer option.
+            min_option (np.array): The minimum answer option.
+
+        Returns:
+            np.array: The metric value for the test case.
+        """
+        delta = treatment_answer - control_answer
+        metric_value = delta / (
+            (delta >= 0) * (max_option - control_answer)
+            + (delta < 0) * (control_answer - min_option)
+            + 10e-8
+        )
+
+        return metric_value
 
     def compute(self, test_results: list[tuple[TestCase, DecisionResult]]) -> float:
-        # Calculate the average biasedness score across all tests
-        return 0
-        biasedness_scores = [self._compute(test_result) for test_result in test_results]
-        return np.mean(biasedness_scores)
+        try:
+            # make sure all pairs are not None
+            test_results = [
+                pair
+                for pair in test_results
+                if pair[0] is not None and pair[1] is not None
+            ]
+            # extract the answer options' length
+            len_answer_options = len(test_results[0][1].CONTROL_OPTIONS)
+            min_option, max_option = 0, len_answer_options - 1
+            # extract original unshuffled indices of the chosen answers (-1 because the option indices are 1-indexed)
+            control_answer_idx = np.array(
+                [
+                    [
+                        decision_result.CONTROL_OPTION_ORDER[
+                            decision_result.CONTROL_DECISION - 1
+                        ]
+                    ]
+                    for (_, decision_result) in test_results
+                ]
+            )
+            treatment_answer_idx = np.array(
+                [
+                    [
+                        decision_result.TREATMENT_OPTION_ORDER[
+                            decision_result.TREATMENT_DECISION - 1
+                        ]
+                    ]
+                    for (_, decision_result) in test_results
+                ]
+            )
+            # extract the chosen answers (-1 because the option indices are 1-indexed)
+            biasedness_scores = np.mean(
+                self._compute(
+                    control_answer_idx, treatment_answer_idx, max_option, min_option
+                )
+            )
+        except Exception as e:
+            print(e)
+            raise MetricCalculationError("The metric could not be computed.")
+        return np.around(biasedness_scores, 2)

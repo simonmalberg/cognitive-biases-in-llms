@@ -1,4 +1,4 @@
-from base import TestGenerator, LLM, Metric
+from base import TestGenerator, LLM, Metric, MetricCalculationError
 from tests import TestCase, Template, TestConfig, DecisionResult
 import numpy as np
 
@@ -16,33 +16,29 @@ class FundamentalAttributionErrorTestGenerator(TestGenerator):
         self.BIAS: str = "Fundamental Attribution Error"
         self.config: TestConfig = super().load_config(self.BIAS)
 
-    def generate_all(self, model: LLM, scenarios: list[str], seed: int = 42) -> list[TestCase]:
-        # Load the custom values from the test config
-        config_values = self.config.get_custom_values()   # TODO: Remove this line if custom values are not needed
-
+    def generate_all(
+        self, model: LLM, scenarios: list[str], seed: int = 42
+    ) -> list[TestCase]:
         # Create test cases for all scenarios
         test_cases: list[TestCase] = []
         for scenario in scenarios:
             try:
-                custom_values = {
-                    "custom_value": config_values["my_custom_value"][0]   # TODO: Remove this line if custom values are not needed
-                }
-
-                test_case = self.generate(model, scenario, custom_values, seed)
+                test_case = self.generate(model, scenario, None, seed)
                 test_cases.append(test_case)
             except Exception as e:
-                print(f"Generating the test case failed.\nScenario: {scenario}\nSeed: {seed}")
+                print(
+                    f"Generating the test case failed.\nScenario: {scenario}\nSeed: {seed}"
+                )
                 print(e)
 
         return test_cases
 
-    def generate(self, model: LLM, scenario: str, config_values: dict = {}, seed: int = 42) -> TestCase:
+    def generate(
+        self, model: LLM, scenario: str, custom_values: dict = {}, seed: int = 42
+    ) -> TestCase:
         # Load the control and treatment templates
-        control: Template = self.config.get_control_template()       # TODO: Pass the variant name as a function parameter if you have more than one test variant
-        treatment: Template = self.config.get_treatment_template()   # TODO: Pass the variant name as a function parameter if you have more than one test variant
-
-        # Populate the templates with custom values
-        treatment.insert_values([("my_custom_value", config_values["custom_value"])], kind='manual')   # TODO: Remove this line if custom values are not needed
+        control: Template = self.config.get_control_template()
+        treatment: Template = self.config.get_treatment_template()
 
         # Populate the templates using the model and the scenario
         control, treatment = super().populate(model, control, treatment, scenario)
@@ -57,28 +53,68 @@ class FundamentalAttributionErrorTestGenerator(TestGenerator):
             control_values=None,
             treatment_values=None,
             variant=None,
-            remarks=None
+            remarks=None,
         )
 
         return test_case
 
 
 class FundamentalAttributionErrorMetric(Metric):
+    """
+    A class that describes the quantitative evaluation of the FAE in a model.
 
-    def __init__(self):
-        pass
+    Metric:
+    𝔅 = â₁ - â₂ ∈ [-1, 1]
+    where:
+    â₁, â₂ are the chosen answers for the control and treatment versions, respectively (0 for dispositional, 1 for situational);
+    """
 
-    def _compute(self, test_result: tuple[TestCase, DecisionResult]) -> float:
-        # Extract the test case and decision result from the tuple
-        test_case: TestCase = test_result[0]
-        decision_result: DecisionResult = test_result[1]
+    def _compute(
+        self, control_answer: np.array, treatment_answer: np.array
+    ) -> np.array:
+        """
+        Compute the metric for the Confirmation bias.
 
-        # Calculate the biasedness
-        biasedness = 0.0   # TODO: Implement calculation of biasedness here
+        Args:
+            control_answer (np.array): The answer chosen in the control version.
+            treatment_answer (np.array): The answer chosen in the treatment version.
 
-        return biasedness
+        Returns:
+            np.array: The metric value for the test case.
+        """
+        metric_value = control_answer - treatment_answer
+
+        return metric_value
 
     def compute(self, test_results: list[tuple[TestCase, DecisionResult]]) -> float:
-        # Calculate the average biasedness score across all tests
-        biasedness_scores = [self._compute(test_result) for test_result in test_results]
-        return np.mean(biasedness_scores)
+        try:
+            # make sure all pairs are not None
+            test_results = [
+                pair
+                for pair in test_results
+                if pair[0] is not None and pair[1] is not None
+            ]
+            # extract strings of the chosen answers
+            control_answer = [
+                decision_result.CONTROL_OPTIONS[decision_result.CONTROL_DECISION - 1]
+                for (_, decision_result) in test_results
+            ]
+            treatment_answer = [
+                decision_result.TREATMENT_OPTIONS[
+                    decision_result.TREATMENT_DECISION - 1
+                ]
+                for (_, decision_result) in test_results
+            ]
+            # convert to respective integer values
+            control_answer = np.array(
+                [[0 if "dispositional" in answer else 1] for answer in control_answer]
+            )
+            treatment_answer = np.array(
+                [[0 if "dispositional" in answer else 1] for answer in treatment_answer]
+            )
+            # compute the biasedness scores
+            biasedness_scores = np.mean(self._compute(control_answer, treatment_answer))
+        except Exception as e:
+            print(e)
+            raise MetricCalculationError(f"Error filtering test results: {e}")
+        return biasedness_scores

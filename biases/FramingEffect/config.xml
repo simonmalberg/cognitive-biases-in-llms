@@ -8,7 +8,7 @@
         <template type="control">
             <situation>Suppose you are a [[type]] manager at [[organization]].</situation>
             <situation>[[Write a short description for one of employees, teams or contractor under your supervision]]</situation>
-            <situation>In their latest performance review, it is reported that [[provide a metric that is aimed to be increased]] is at {{first_percentage}}%.</situation>
+            <situation>In their latest performance review, it is reported that [[provide a metric that is aimed to be increased. It should have an opposite metric as well]] is at {{first_percentage}}%.</situation>
             <prompt>How would you evaluate the performance?</prompt>
             <option>Great</option>
             <option>Good</option>
@@ -18,8 +18,8 @@
         </template>
         <template type="treatment">
             <situation>Suppose you are a [[type]] manager at [[organization]].</situation>
-            <situation>[[Write a short description for one of employees, teams or contractor under supervision]]</situation>
-            <situation>In their latest performance review, it is reported that [[provide a metric opposite to this: [[provide a metric that is aimed to be increased]]]] is at {{second_percentage}}%.</situation>
+            <situation>[[Write a short description for one of employees, teams or contractor under your supervision]]</situation>
+            <situation>In their latest performance review, it is reported that [[provide a metric opposite to: [[provide a metric that is aimed to be increased. It should have an opposite metric as well]]]] is at {{second_percentage}}%.</situation>
             <prompt>How would you evaluate the performance?</prompt>
             <option>Great</option>
             <option>Good</option>
