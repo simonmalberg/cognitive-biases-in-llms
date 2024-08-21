@@ -279,7 +279,7 @@ class GptThreePointFiveTurbo(GPT):
 
     def __init__(self, shuffle_answer_options: bool = False):
         super().__init__(shuffle_answer_options=shuffle_answer_options)
-        self.NAME = "gpt-3.5-turbo"
+        self.NAME = "gpt-3.5-turbo-0125"
 
 
 class GptFourO(GPT):
