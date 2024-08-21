@@ -123,12 +123,14 @@ class Experiment:
 
         return decision_result, biasedness
 
-    def _create_test_case_logs(self, test_case: TestCase) -> dict:
+    def _create_test_case_logs(self, test_case: TestCase, shuffled_answer_options: bool = False, seed: int = 42) -> dict:
         """
         Function to be used after the generation of a test case. Converts a TestCase object into run logs.
 
         Args:
             test_case (TestCase): The TestCase that was generated during the run.
+            shuffled_answer_options (bool): Whether the answer options were randomly shuffled for this run.
+            seed (int): The seed used for shuffling the answer options.
 
         Returns:
             dict: A dictionary of run logs.
@@ -141,8 +143,8 @@ class Experiment:
             "Generator": test_case.GENERATOR,
             "Scenario": test_case.SCENARIO,
             "Variant": test_case.VARIANT,
-            "Control": test_case.CONTROL.format(),
-            "Treatment": test_case.TREATMENT.format(),
+            "Control": test_case.CONTROL.format(shuffle_options=shuffled_answer_options, seed=seed),
+            "Treatment": test_case.TREATMENT.format(shuffle_options=shuffled_answer_options, seed=seed),
             "Control (Raw)": ET.tostring(test_case.CONTROL._data),    # TODO Implement parsing/serialization functionality in Template class
             "Treatment (Raw)": ET.tostring(test_case.TREATMENT._data),
             "Remarks": test_case.REMARKS
@@ -165,7 +167,7 @@ class Experiment:
         """
 
         # Create the logs for the test case that was used
-        logs = self._create_test_case_logs(test_case)
+        logs = self._create_test_case_logs(test_case, shuffled_answer_options, seed=decision_result.SEED)
 
         # Add the fields from the decision result to the logs
         logs["Type"] = "DECISION"

@@ -31,8 +31,8 @@ class DecisionResult:
         self.TIMESTAMP: str = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
         # Unshuffle the options and convert the decision to zero-based indexing
-        control_options, control_option_order, control_decision = self._unshuffle(control_options, control_option_order, control_decision, convert_to_zero_based=True)
-        treatment_options, treatment_option_order, treatment_decision = self._unshuffle(treatment_options, treatment_option_order, treatment_decision, convert_to_zero_based=True)
+        control_options, _, control_decision = self._unshuffle(control_options, control_option_order, control_decision, convert_to_zero_based=True)
+        treatment_options, _, treatment_decision = self._unshuffle(treatment_options, treatment_option_order, treatment_decision, convert_to_zero_based=True)
 
         self.CONTROL_OPTIONS: list[str] = control_options
         self.CONTROL_OPTION_SHUFFLING: list[int] = control_option_order
@@ -447,12 +447,13 @@ class Template:
 
         return formatted
 
-    def get_options(self, shuffle_options: bool = False, seed: int = 42) -> tuple[list[str], list[int]]:
+    def get_options(self, shuffle_options: bool = False, apply_insertions: bool = True, seed: int = 42) -> tuple[list[str], list[int]]:
         """
         Gets the answer options defined in this template and offers functionality to randomly shuffle them.
 
         Args:
             shuffle_options (bool): If True, the answer options will be randomly shuffled using the provided seed.
+            apply_insertions (bool): If True, insertions made into this template will be applied to the answer options.
             seed (int): The seed to used for shuffling the answer options.
 
         Returns:
@@ -470,6 +471,10 @@ class Template:
         if shuffle_options:
             random.Random(seed).shuffle(indices)
         options = [options[i] for i in indices]
+
+        # If requested, apply all insertions made into this template to the options
+        if apply_insertions:
+            options = [self._apply_insertions(option) for option in options] 
 
         return options, indices
 
