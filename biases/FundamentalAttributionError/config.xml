@@ -1,0 +1,21 @@
+<config bias="Fundamental Attribution Error">
+    <custom_values name="my_custom_value">
+        <value>first</value>
+        <value>second</value>
+    </custom_values>
+    <variant name="default">
+        <template type="control">
+            <situation>Suppose you are a [[type]] manager at [[organization]].</situation>
+            <prompt>Which option do you choose?</prompt>
+            <option>First option</option>
+            <option>Second option</option>
+        </template>
+        <template type="treatment">
+            <situation>Suppose you are a [[type]] manager at [[organization]].</situation>
+            <situation>You always choose the {{my_custom_value}} option.</situation>
+            <prompt>Which option do you choose?</prompt>
+            <option>First option</option>
+            <option>Second option</option>
+        </template>
+    </variant>
+</config>
