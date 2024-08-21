@@ -1,10 +1,9 @@
-from base import TestGenerator, LLM, Metric
+from base import TestGenerator, LLM, Metric, PopulationError, MetricCalculationError
 from tests import TestCase, Template, TestConfig, DecisionResult
 import re
 import numpy as np
 
 
-# TODO: add functionality to generate the anchor from the answer options' interval
 class AnchoringBiasTestGenerator(TestGenerator):
     """
     Test generator for the Anchoring Bias.
@@ -15,42 +14,67 @@ class AnchoringBiasTestGenerator(TestGenerator):
     """
 
     def __init__(self):
-        self.BIAS = "Anchoring Bias"
-        self.config = super().load_config(self.BIAS)
+        self.BIAS: str = "Anchoring Bias"
+        self.config: TestConfig = super().load_config(self.BIAS)
 
-    def _custom_population(self, model: LLM, completed_template: Template) -> None:
+    def _custom_population(
+        self, model: LLM, completed_template: Template, custom_values: dict, seed: int
+    ) -> None:
         """
         Custom population method for the Anchoring Bias test case.
 
         Args:
             model (LLM): The LLM model to use for generating the anchor sentence.
             completed_template (Template): The assembled template with scenario for the test case.
+            custom_values (dict): The custom values for the test case.
+            seed (int): The seed.
         """
-        custom_values = self.config.get_custom_values()
         # Loading the anchor sentence generation prompt
-        anchor_sentence = custom_values['anchor_sentence'][0]
+        anchor_prompt = custom_values["anchor_sentence"]
         # generate the anchor sentence
-        anchor_sentence = model.generate_misc(anchor_sentence) # TODO This line causes an error when used with RandomModel as it doesn't have a generate_misc function
-        # Inserting the anchor into the template
-        completed_template.insert_values(list(zip(['anchor_sentence'], [anchor_sentence])), kind='manual')
+        anchor_sentence = model.prompt(anchor_prompt, seed=seed)
+        # Inserting the anchor sentence into the (treatment) template
+        completed_template.insert("anchor_sentence", anchor_sentence)
         # Explicitly extract the numerical value from the generated anchor sentence
-        anchor = re.findall(r'\d+', anchor_sentence)
-        assert len(anchor) == 1, "The anchor sentence should contain exactly one numerical value"
+        anchor = re.findall(r"\d+", anchor_sentence)
+        if len(anchor) != 1:
+            raise PopulationError(
+                "The anchor sentence should contain exactly one numerical value"
+            )
 
-    def generate_all(self, model: LLM, scenarios: list[str], config_values: dict = {}, seed: int = 42) -> list[TestCase]:
-        # TODO Implement functionality to generate multiple test cases at once (potentially following the ranges or distributions outlined in the config values)
-        pass
+    def generate_all(
+        self, model: LLM, scenarios: list[str], seed: int = 42
+    ) -> list[TestCase]:
+        # Load the custom values from the test configuration
+        custom_values = self.config.get_custom_values()
 
-    def generate(self, model: LLM, scenario: str, config_values: dict = {}, seed: int = 42) -> TestCase:
-        # TODO Refactor to use only the config values passed to this method (i.e., only the values to be applied to the generation of this very test case)
+        # Create test cases for all scenarios
+        test_cases: list[TestCase] = []
+        for scenario in scenarios:
+            try:
+                test_case = self.generate(model, scenario, custom_values, seed)
+                test_cases.append(test_case)
+            except Exception as e:
+                print(
+                    f"Generating the test case failed.\nScenario: {scenario}\nSeed: {seed}"
+                )
+                print(e)
 
+        return test_cases
+
+    def generate(
+        self, model: LLM, scenario: str, custom_values: dict = {}, seed: int = 42
+    ) -> TestCase:
+        # Load the control and treatment templates
         control: Template = self.config.get_control_template()
         treatment: Template = self.config.get_treatment_template()
 
-        # Insert custom anchor sentence and remember the anchor value
-        self._custom_population(model, treatment)
+        # Populate the treatment template with the anchor sentence
+        self._custom_population(model, treatment, custom_values, seed)
+        # Get dictionary of inserted values
         treatment_values = treatment.inserted_values
 
+        # Populate the templates using the model and the scenario
         control, treatment = super().populate(model, control, treatment, scenario)
 
         # Create a test case object
@@ -59,9 +83,11 @@ class AnchoringBiasTestGenerator(TestGenerator):
             control=control,
             treatment=treatment,
             generator=model.NAME,
+            scenario=scenario,
             control_values=None,
             treatment_values=treatment_values,
-            scenario=scenario
+            variant=None,
+            remarks=None,
         )
 
         return test_case
@@ -70,88 +96,16 @@ class AnchoringBiasTestGenerator(TestGenerator):
 class AnchoringBiasMetric(Metric):
     """
     A class that describes the quantitative evaluation of the anchoring bias in a model.
-    Currently, two variations of individual metric are implemented: anchor agnostic and anchor specific,
 
-    Individual agnostic:
-    𝔅 = ‖ â₂ − â₁ ‖₁ / ‖ â₁ − ã₁ ‖₁ ∈ [0, 1];
-
-    Individual specific:
-    𝔅' = max[0, (‖ â₁ − a' ‖₁ − ‖ â₂ − a' ‖₁) / ‖ â₁ − a' ‖₁] ∈ [0, 1];
-
-    Batch metric:
-    𝔅 = (𝔅₁ + ... + 𝔅ₙ) / n,
+    Metric:
+    𝔅 = (‖ â₁ − a' ‖₁ − ‖ â₂ − a' ‖₁) / a ∈ [-1, 1];
 
     where:
     â₁, â₂ are the chosen answers for the control and treatment versions, respectively;
-    ã₁ is the farthest answer option from â₁;
     a' is the answer option closest to the anchor value;
-    n is number of test cases in the batch.
-
-    Attributes:
-        anchor_agnostic (bool): A flag that is used for choice between two variations of the metric.
-        overall (bool): A flag that is used to indicate that a single result per batch of test is required.
+    a = ‖ â₁ − a' ‖₁ (if numerator is positive) or else a = ‖ â₂ − a' ‖₁.
 
     """
-
-    def __init__(self, anchor_agnostic: bool, overall: bool):
-        self.anchor_agnostic = anchor_agnostic
-        self.overall = overall
-
-    def anchor_agnostic_metric(
-        self,
-        control_answer: np.array,
-        treatment_answer: np.array,
-        answer_options: np.array,
-    ) -> np.array:
-        """
-        Computes the anchor agnostic anchoring bias metric for the given batch of test instances.
-
-        Args:
-            control_answer (np.array, shape (batch, 1)): The answer(s) chosen for the control variant.
-            treatment_answer (np.array, shape (batch, 1)): The answer(s) chosen for the treatment variant.
-            answer_options (np.array, shape (batch, num_options)): The answer options available in the test case.
-
-        Returns:
-            The anchor agnostic anchoring bias metric value.
-        """
-        farthest_idx = np.argmax(
-            np.abs(answer_options - control_answer), axis=1, keepdims=True
-        )
-        farthest_val = np.take_along_axis(answer_options, farthest_idx, axis=1)
-        result = np.abs(control_answer - treatment_answer) / np.abs(
-            control_answer - farthest_val + 1e-8
-        )
-
-        return result
-
-    def anchor_specific_metric(
-        self,
-        control_answer: np.array,
-        treatment_answer: np.array,
-        answer_options: np.array,
-        anchor: np.array,
-    ) -> np.array:
-        """
-        Computes the anchor specific anchoring bias metric for the given batch of test instances.
-
-        Args:
-            control_answer (np.array, shape (batch, 1)): The answer(s) chosen for the control variant.
-            treatment_answer (np.array, shape (batch, 1)): The answer(s) chosen for the treatment variant.
-            answer_options (np.array, shape (batch, num_options)): The answer options available in the test case.
-            anchor (np.array, shape (batch, 1)): The anchor value(s) used in the test case.
-
-        Returns:
-            The anchor specific anchoring bias metric value.
-        """
-        closest_idx = np.argmin(np.abs(anchor - answer_options), axis=1, keepdims=True)
-        closest_val = np.take_along_axis(answer_options, closest_idx, axis=1)
-        result = (
-            np.abs(control_answer - closest_val)
-            - np.abs(treatment_answer - closest_val)
-        ) / np.abs(control_answer - closest_val + 1e-8)
-        result = np.maximum(0, result)
-
-        return result
 
     def _compute(
         self,
@@ -161,7 +115,7 @@ class AnchoringBiasMetric(Metric):
         anchor: np.array,
     ) -> np.array:
         """
-        Computes the chosen anchoring bias metric.
+        Compute the metric for the anchoring bias.
 
         Args:
             control_answer (np.array, shape (batch, 1)): The answer(s) chosen for the control variant.
@@ -172,27 +126,97 @@ class AnchoringBiasMetric(Metric):
         Returns:
             The anchoring bias metric value.
         """
-
-        if self.anchor_agnostic:
-            if self.overall:
-                return np.mean(
-                    self.anchor_agnostic_metric(
-                        control_answer, treatment_answer, answer_options
-                    )
-                )
-            return self.anchor_agnostic_metric(
-                control_answer, treatment_answer, answer_options
-            )
-        if self.overall:
-            return np.mean(
-                self.anchor_specific_metric(
-                    control_answer, treatment_answer, answer_options, anchor
-                )
-            )
-        return self.anchor_specific_metric(
-            control_answer, treatment_answer, answer_options, anchor
+        delta = np.abs(control_answer - anchor) - np.abs(treatment_answer - anchor)
+        closest_idx = np.argmin(np.abs(anchor - answer_options), axis=1, keepdims=True)
+        closest_val = np.take_along_axis(answer_options, closest_idx, axis=1)
+        result = delta / (
+            (delta >= 0) * np.abs(control_answer - closest_val)
+            + (delta < 0) * np.abs(treatment_answer - closest_val)
+            + 10e-8
         )
 
+        return result
+
+    def assemble_options(self, options_list: list[dict]) -> np.array:
+        """
+        Assemble the answer options into a numpy array.
+
+        Args:
+            options (dict): The answer options for the test case.
+
+        Returns:
+            np.array: The assembled answer options array.
+        """
+        answer_options = np.array([])
+        for options in options_list:
+            numerical_options = [int(re.findall(r"-?\d+\.?\d*", s)[0]) for s in options]
+            if not answer_options.size:
+                answer_options = np.array([numerical_options])
+            else:
+                answer_options = np.vstack((answer_options, numerical_options))
+
+        return answer_options
+
     def compute(self, test_results: list[tuple[TestCase, DecisionResult]]) -> float:
-        # TODO Implement computation of this metric
-        pass
+        try:
+            # make sure all pairs are not None
+            test_results = [
+                pair
+                for pair in test_results
+                if pair[0] is not None and pair[1] is not None
+            ]
+            # extract answer options from the test results
+            answer_options = self.assemble_options(
+                [
+                    decision_result.CONTROL_OPTIONS
+                    for (_, decision_result) in test_results
+                ]
+            )
+            # extract indices of the chosen answers (-1 because the option indices are 1-indexed)
+            control_answer_idx = (
+                np.array(
+                    [
+                        [decision_result.CONTROL_DECISION]
+                        for (_, decision_result) in test_results
+                    ]
+                )
+                - 1
+            )
+            treatment_answer_idx = (
+                np.array(
+                    [
+                        [decision_result.TREATMENT_DECISION]
+                        for (_, decision_result) in test_results
+                    ]
+                )
+                - 1
+            )
+            # extract the anchor values
+            anchor_values = np.array(
+                [
+                    [
+                        int(
+                            re.findall(
+                                r"\d+", test_case.TREATMENT_VALUES["anchor_sentence"][0]
+                            )[0]
+                        )
+                        for test_case, _ in test_results
+                    ]
+                ]
+            )
+            # extract the chosen answers (-1 because the option indices are 1-indexed)
+            control_answer = np.take_along_axis(
+                answer_options, control_answer_idx, axis=1
+            )
+            treatment_answer = np.take_along_axis(
+                answer_options, treatment_answer_idx, axis=1
+            )
+            biasedness_scores = np.mean(
+                self._compute(
+                    control_answer, treatment_answer, answer_options, anchor_values
+                )
+            )
+        except Exception as e:
+            print(e)
+            raise MetricCalculationError("The metric could not be computed.")
+        return np.around(biasedness_scores, 2)

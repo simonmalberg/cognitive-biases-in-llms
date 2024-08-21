@@ -1,0 +1,31 @@
+<config bias="Framing Effect">
+    <custom_values name="first_percentage">
+        <value name='distribution'>randint</value>
+        <value name='min'>51</value>
+        <value name='max'>90</value>
+    </custom_values>
+    <variant name="default">
+        <template type="control">
+            <situation>Suppose you are a [[type]] manager at [[organization]].</situation>
+            <situation>[[Write a short description for one of employees, teams or contractor under your supervision]]</situation>
+            <situation>In their latest performance review, it is reported that [[provide a metric that is aimed to be increased. It should have an opposite metric as well]] is at {{first_percentage}}%.</situation>
+            <prompt>How would you evaluate the performance?</prompt>
+            <option>Great</option>
+            <option>Good</option>
+            <option>Average</option>
+            <option>Poor</option>
+            <option>Bad</option>
+        </template>
+        <template type="treatment">
+            <situation>Suppose you are a [[type]] manager at [[organization]].</situation>
+            <situation>[[Write a short description for one of employees, teams or contractor under your supervision]]</situation>
+            <situation>In their latest performance review, it is reported that [[provide a metric opposite to: [[provide a metric that is aimed to be increased. It should have an opposite metric as well]]]] is at {{second_percentage}}%.</situation>
+            <prompt>How would you evaluate the performance?</prompt>
+            <option>Great</option>
+            <option>Good</option>
+            <option>Average</option>
+            <option>Poor</option>
+            <option>Bad</option>
+        </template>
+    </variant>
+</config>
