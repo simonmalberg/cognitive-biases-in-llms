@@ -14,17 +14,34 @@ class DecisionResult:
         TEMPERATURE (float): The LLM temperature parameter used to generate the decisions.
         SEED (int): The LLM seed used to generate the decisions.
         TIMESTAMP (str): The timestamp when the decision was made.
-        CONTROL_OPTIONS (list[str]): A list containing the (shuffled) options available for the control template.
-        CONTROL_OPTION_SHUFFLING (list[int]): A list containing the zero-based IDs (original positions before shuffling) of the options in the control template.
+        CONTROL_OPTIONS (list[str]): A list containing the non-shuffled options available for the control template.
+        CONTROL_OPTION_SHUFFLING (list[int]): A list containing the zero-based IDs (original positions before shuffling) of the shuffled options in the control template.
         CONTROL_ANSWER (str): The raw decision output from the deciding LLM for the control template.
-        CONTROL_DECISION (int): The decision made by the LLM for the control template, corresponding to the position in the shuffled options list with one-based indexing.
-        TREATMENT_OPTIONS (list[str]): A list containing the (shuffled) options available for the treatment template.
-        TREATMENT_OPTION_SHUFFLING (list[int]): A list containing the zero-based IDs (original positions before shuffling) of the options in the treatment template.
+        CONTROL_DECISION (int): The decision made by the LLM for the control template, corresponding to the zero-based index of the option in the non-shuffled control template.
+        TREATMENT_OPTIONS (list[str]): A list containing the non-shuffled options available for the treatment template.
+        TREATMENT_OPTION_SHUFFLING (list[int]): A list containing the zero-based IDs (original positions before shuffling) of the shuffled options in the treatment template.
         TREATMENT_ANSWER (str): The raw decision output from the deciding LLM for the treatment template.
-        TREATMENT_DECISION (int): The decision made by the LLM for the treatment template, corresponding to the position in the shuffled options list with one-based indexing.
+        TREATMENT_DECISION (int): The decision made by the LLM for the treatment template, corresponding to the zero-based index of the option in the non-shuffled treatment template.
     """
 
     def __init__(self, model: str, control_options: list[str], control_option_order: list[int], control_answer: str, control_decision: int, treatment_options: list[str], treatment_option_order: list[int], treatment_answer: str, treatment_decision: int, temperature: float = None, seed: int = None):
+        """
+        Instantiates a new DecisionResult object.
+
+        Args:
+            model (str): The name of the LLM used to make the decision.
+            control_options (list[str]): A list containing the (shuffled) options available for the control template.
+            control_option_order (list[int]): A list containing the zero-based IDs (original positions before shuffling) of the options in the control template.
+            control_answer (str): The raw decision output from the deciding LLM for the control template.
+            control_decision (int): The decision made by the LLM for the control template, corresponding to the position in the shuffled options list with one-based indexing.
+            treatment_options (list[str]): A list containing the (shuffled) options available for the treatment template.
+            treatment_option_order (list[int]): A list containing the zero-based IDs (original positions before shuffling) of the options in the treatment template.
+            treatment_answer (str): The raw decision output from the deciding LLM for the treatment template.
+            treatment_decision (int): The decision made by the LLM for the treatment template, corresponding to the position in the shuffled options list with one-based indexing.
+            temperature (float): The LLM temperature parameter used to generate the decisions.
+            seed (int): The LLM seed used to generate the decisions.
+        """
+        
         self.MODEL: str = model
         self.TEMPERATURE: float = temperature
         self.SEED: int = seed
