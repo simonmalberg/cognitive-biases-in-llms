@@ -1,8 +1,4 @@
 <config bias="Fundamental Attribution Error">
-    <custom_values name="my_custom_value">
-        <value>first</value>
-        <value>second</value>
-    </custom_values>
     <variant name="default">
         <template type="control">
             <situation>Suppose you are a [[type]] manager at [[organization]].</situation>
