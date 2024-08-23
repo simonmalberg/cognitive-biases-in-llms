@@ -48,8 +48,10 @@ class DecisionResult:
         self.TIMESTAMP: str = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
         # Unshuffle the options and convert the decision to zero-based indexing
-        control_options, _, control_decision = self._unshuffle(control_options, control_option_order, control_decision, convert_to_zero_based=True)
-        treatment_options, _, treatment_decision = self._unshuffle(treatment_options, treatment_option_order, treatment_decision, convert_to_zero_based=True)
+        if control_options is not None and control_option_order is not None and control_decision is not None:
+            control_options, _, control_decision = self._unshuffle(control_options, control_option_order, control_decision, convert_to_zero_based=True)
+        if treatment_options is not None and treatment_option_order is not None and treatment_decision is not None:
+            treatment_options, _, treatment_decision = self._unshuffle(treatment_options, treatment_option_order, treatment_decision, convert_to_zero_based=True)
 
         self.CONTROL_OPTIONS: list[str] = control_options
         self.CONTROL_OPTION_SHUFFLING: list[int] = control_option_order
