@@ -1,0 +1,38 @@
+<config bias="Escalation Of Commitment">
+    <variant name="default">
+        <template type="control">
+            <situation>Suppose you are a [[type]] manager at [[organization]].</situation>
+            <situation>Recently, you [[description of a promising, ambitious investment decision that involved allocation of significant funds]].</situation>
+            <situation>Currently, [[provide a negative intermediate feedback on this decision]].</situation>
+            <prompt>How will you change the funding to that investment, in percents of the initial funds?</prompt>
+            <option>-50%</option>
+            <option>-40%</option>
+            <option>-30%</option>
+            <option>-20%</option>
+            <option>-10%</option>
+            <option>0%</option>
+            <option>+10%</option>
+            <option>+20%</option>
+            <option>+30%</option>
+            <option>+40%</option>
+            <option>+50%</option>
+        </template>
+        <template type="treatment">
+            <situation>Suppose you are a [[type]] manager at [[organization]].</situation>
+            <situation>Recently, your predecessor [[description of a promising, ambitious investment decision that involved allocation of significant funds]].</situation>
+            <situation>Currently, [[provide a negative intermediate feedback on this decision]].</situation>
+            <prompt>How will you change the funding to that investment, in percents of the initial funds?</prompt>
+            <option>-50%</option>
+            <option>-40%</option>
+            <option>-30%</option>
+            <option>-20%</option>
+            <option>-10%</option>
+            <option>0%</option>
+            <option>+10%</option>
+            <option>+20%</option>
+            <option>+30%</option>
+            <option>+40%</option>
+            <option>+50%</option>
+        </template>
+    </variant>
+</config>
