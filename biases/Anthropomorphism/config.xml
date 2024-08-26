@@ -1,0 +1,13 @@
+<config bias="Anthropomorphism">
+    <variant name="default">
+        <template type="treatment">
+            <situation>Suppose you are a [[type]] manager at [[organization]].</situation>
+            <situation>[[Describe a decision made by an AI assistant used in your organization]].</situation>
+            <prompt>In your opinion, what is the best explanation for this decision made by the assistant?</prompt>
+            <option>[[First option that reasons about the decision from purely humane view]]</option>
+            <option>[[Second option that reasons about the decision from purely humane view]]</option>
+            <option>[[First option that reasons about the decision from purely inanimate view]]</option>
+            <option>[[Second option that reasons about the decision from purely inanimate view]]</option>
+        </template>
+    </variant>
+</config>
