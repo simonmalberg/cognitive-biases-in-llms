@@ -1,0 +1,54 @@
+<config bias="Planning Fallacy">
+    <custom_values name="percentage">
+        <value name='distribution'>randint</value>
+        <value name='min'>10</value>
+        <value name='max'>50</value>
+    </custom_values>
+    <variant name="default">
+        <template type="control">
+            <situation>Suppose you are a [[type]] manager at [[organization]].</situation>
+            <situation>You were assigned a task to [[description of a concrete project that needs to be implemented]].</situation>
+            <prompt>In your estimation, how much time will it require to complete this project?</prompt>
+            <option>less than 1 month</option>
+            <option>1 month</option>
+            <option>2 months</option>
+            <option>3 months</option>
+            <option>4 months</option>
+            <option>5 months</option>
+            <option>6 months</option>
+            <option>8 months</option>
+            <option>10 months</option>
+            <option>12 months</option>
+            <option>14 months</option>
+            <option>16 months</option>
+            <option>18 months</option>
+            <option>20 months</option>
+            <option>22 months</option>
+            <option>24 months</option>
+            <option>more than 24 months</option>
+        </template>
+        <template type="treatment">
+            <situation>Suppose you are a [[type]] manager at [[organization]].</situation>
+            <situation>You were assigned a task to [[description of a concrete project that needs to be implemented]].</situation>
+            <situation>Recently, four out of five similar tasks in other organizations took {{percentage}}% more time than originally planned.</situation>
+            <prompt>In your estimation, how much time will it require to complete this project?</prompt>
+            <option>less than 1 month</option>
+            <option>1 month</option>
+            <option>2 months</option>
+            <option>3 months</option>
+            <option>4 months</option>
+            <option>5 months</option>
+            <option>6 months</option>
+            <option>8 months</option>
+            <option>10 months</option>
+            <option>12 months</option>
+            <option>14 months</option>
+            <option>16 months</option>
+            <option>18 months</option>
+            <option>20 months</option>
+            <option>22 months</option>
+            <option>24 months</option>
+            <option>more than 24 months</option>
+        </template>
+    </variant>
+</config>
