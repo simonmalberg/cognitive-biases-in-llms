@@ -18,7 +18,7 @@ if __name__ == "__main__":
     scenario = random.choice(scenarios)
 
     # Define a cognitive bias to test
-    bias = 'Anthropomorphism'
+    bias = 'HyperbolicDiscounting'
     # Define seed and temperature
     seed = random.randint(0, 1000)
     temperature = 0.7

@@ -1,0 +1,37 @@
+<config bias="Hyperbolic Discounting">
+    <custom_values name="earlier_reward">
+        <value name='distribution'>randint</value>
+        <value name='min'>1</value>
+        <value name='max'>30</value>
+    </custom_values>
+    <custom_values name="later_coef">
+        <value name='distribution'>uniform</value>
+        <value name='min'>2</value>
+        <value name='max'>10</value>
+    </custom_values>
+    <custom_values name="months_delay">
+        <value name='distribution'>randint</value>
+        <value name='min'>1</value>
+        <value name='max'>12</value>
+    </custom_values>
+    <variant name="default">
+        <template type="control">
+            <situation>Suppose you are a [[type]] manager at [[organization]].</situation>
+            <situation>You [[Describe the task assigned to you]].</situation>
+            <situation>Recently, an unforeseen funding has been made available.</situation>
+            <situation>This additional funding is not allocated to your particular task but rather to [[your team]] in general.</situation>
+            <prompt>Which option for the funding schedule do you choose?</prompt>
+            <option>Receive guaranteed {{earlier_reward}}% of extra funding immediately</option>
+            <option>Receive guaranteed {{later_reward}}% of extra funding in {{months_delay}} months</option>
+        </template>
+        <template type="treatment">
+            <situation>Suppose you are a [[type]] manager at [[organization]].</situation>
+            <situation>You [[Describe the task assigned to you]].</situation>
+            <situation>Recently, an unforeseen funding has been made available.</situation>
+            <situation>This additional funding is not allocated to your particular task but rather to [[your team]] in general.</situation>
+            <prompt>Which option for the funding schedule do you choose?</prompt>
+            <option>Receive guaranteed {{earlier_reward}}% of extra funding in 1 year</option>
+            <option>Receive guaranteed {{later_reward}}% of extra funding in 1 year and {{months_delay}} months</option>
+        </template>
+    </variant>
+</config>

@@ -72,7 +72,6 @@ class AnthropomorphismMetric(Metric):
         Compute the metric for the Anthropomorphism.
 
         Args:
-            control_answer (np.array): The answer chosen in the control version.
             treatment_answer (np.array): The answer chosen in the treatment version.
 
         Returns:
