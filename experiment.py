@@ -223,9 +223,25 @@ class Experiment:
 
 
 if __name__ == "__main__":
-
-    # TODO Adapt to logic of current App.py
-    experiment = Experiment(bias="StatusQuoBias")
+    
+    # Instantiate the experiment for the desired bias
+    experiment = Experiment(bias="HindsightBias")
+    # Randomly pick a scenario and a seed
     scenario = experiment.get_random_scenario()
-    test_case = experiment.generate(scenario)
-    decision_result = experiment.decide(test_case)
+    seed = random.randint(0, 1000)
+    # Instantiate the population and decision LLMs
+    population_model = "GPT-4o"
+    decision_model = "Llama-3.1-70B"
+    # Generate a test case
+    test_case = experiment.generate(model=population_model, 
+                                    scenario=scenario, 
+                                    seed=seed)
+    # Decide for the test case
+    decision_result = experiment.decide(model=decision_model, 
+                                        test_case=test_case, 
+                                        seed=seed, 
+                                        shuffle_answer_options=True)
+
+    print(test_case) 
+    print(decision_result[0])
+    print(f'Bias metric: {decision_result[1]}')
