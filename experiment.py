@@ -225,13 +225,13 @@ class Experiment:
 if __name__ == "__main__":
     
     # Instantiate the experiment for the desired bias
-    experiment = Experiment(bias="HyperbolicDiscounting")
+    experiment = Experiment(bias="NegativityBias")
     # Randomly pick a scenario and a seed
     scenario = experiment.get_random_scenario()
     seed = random.randint(0, 1000)
     # Instantiate the population and decision LLMs
     population_model = "GPT-4o"
-    decision_model = "Llama-3.1-70B"
+    decision_model = "GPT-3.5-Turbo"
     # Generate a test case
     test_case = experiment.generate(model=population_model, 
                                     scenario=scenario, 
