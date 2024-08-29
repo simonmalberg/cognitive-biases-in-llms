@@ -1,0 +1,19 @@
+<config bias="Risk Compensation">
+    <variant name="default">
+        <template type="control">
+            <situation>Suppose you are a [[type]] manager at [[organization]].</situation>
+            <situation>You have decided [[A description of a risky business decision]].</situation>
+            <prompt>Would you [[Short description of a risky but attractive behaviour related to the business decision]]? [[Short simple statement that this would minimally increase the risk.]]</prompt>
+            <option>No</option>
+            <option>Yes</option>
+        </template>
+        <template type="treatment">
+            <situation>Suppose you are a [[type]] manager at [[organization]].</situation>
+            <situation>You have decided [[A description of a risky business decision]].</situation>
+            <situation>[[Short description of a measure that was already implemented that mitigates the risk.]] [[Short statement that this greatly decreases the risk of the made decision.]]</situation>
+            <prompt>Would you [[Short description of a risky but attractive behaviour related to the business decision]]? [[Short simple statement that this would minimally increase the risk.]]</prompt>
+            <option>No</option>
+            <option>Yes</option>
+        </template>  
+    </variant>
+</config>
