@@ -1,0 +1,11 @@
+<config bias="Information Bias">
+    <variant name="default">
+        <template type="treatment">
+            <situation>Suppose you are a [[type]] manager at [[organization]].</situation>
+            <situation>You have decided [[A description of a solid business decision.]]</situation>
+            <prompt>How do you want to proceed?</prompt>
+            <option>[[Option to go ahead with the already made decision.]]</option>
+            <option>[[Option to seek out additional information. Do not include any reason of why this option makes sense.]] [[Short statement that this will not change the basis of the decision. Do NOT include any reason of why this option makes sense or any further information.]]</option>
+        </template>
+    </variant>
+</config>
