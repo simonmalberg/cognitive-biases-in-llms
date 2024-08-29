@@ -17,28 +17,6 @@ class ConfirmationBiasTestGenerator(TestGenerator):
         self.BIAS = "Confirmation Bias"
         self.config = super().load_config(self.BIAS)
 
-    def _custom_population(
-        self, completed_template: Template, custom_values: dict, seed: int
-    ) -> None:
-        """
-        Custom population method for the Confirmation Bias test case.
-
-        Args:
-            completed_template (Template): The assembled template for the test case.
-            custom_values (dict): The custom values for the test case.
-            seed (int): The seed for the random number generator.
-        """
-        # Loading the options
-        kinds = custom_values["kind"]
-        random.seed(seed)
-        # Sampling one of ['positive', 'negative']
-        kind = random.choice(kinds)
-        opposite_kind = kinds[0] if kind == kinds[1] else kinds[1]
-        # Inserting the sample into the template
-        completed_template.insert_values(
-            list(zip(["kind", "opposite_kind"], [kind, opposite_kind])), kind="manual"
-        )
-
     def generate_all(
         self, model: LLM, scenarios: list[str], seed: int = 42
     ) -> list[TestCase]:
@@ -65,8 +43,15 @@ class ConfirmationBiasTestGenerator(TestGenerator):
         treatment: Template = self.config.get_treatment_template()
 
         # Populate the templates with custom values
-        self._custom_population(control, custom_values, seed)
-        self._custom_population(treatment, custom_values, seed)
+        kinds = custom_values["kind"]
+        random.seed(seed)
+        # Sampling one of ['positive', 'negative']
+        kind = random.choice(kinds)
+        opposite_kind = kinds[0] if kind == kinds[1] else kinds[1]
+        # Inserting the sample into the template
+        for template in [control, treatment]:
+            template.insert("kind", kind, origin="user")
+            template.insert("opposite_kind", opposite_kind, origin="user")
         # Get dictionary of inserted values
         control_values = control.inserted_values
         treatment_values = treatment.inserted_values
@@ -89,23 +74,19 @@ class ConfirmationBiasTestGenerator(TestGenerator):
 
 class ConfirmationBiasMetric(Metric):
     """
-    A class that describes the quantitative evaluation of the confirmation bias in a model.
+    A class that describes the quantitative evaluation of the Confirmation bias in a model.
 
     Metric:
-    𝔅 = â₂ * (2 * I[â₁=a] - 1)
+    𝔅 = |â₂ - â₁| / a
+
     where:
     â₁, â₂ are the chosen answers for the control and treatment versions, respectively;
-    a is the opposite kind in the test case.
-
-    TODO: both -1 and 1 metric value can be seen as an instance of the confirmation bias - discuss
+    a = max(â₁, â₂) - a', where a' - the minimum option (= 0).
 
     """
 
     def _compute(
-        self,
-        control_answer: np.array,
-        treatment_answer: np.array,
-        opposite_kind: np.array,
+        self, control_answer: np.array, treatment_answer: np.array
     ) -> np.array:
         """
         Compute the metric for the Confirmation bias.
@@ -113,12 +94,14 @@ class ConfirmationBiasMetric(Metric):
         Args:
             control_answer (np.array): The answer chosen in the control version.
             treatment_answer (np.array): The answer chosen in the treatment version.
-            opposite_kind (np.array): The index of the opposite kind in the test case.
 
         Returns:
             np.array: The metric value for the test case.
         """
-        metric_value = treatment_answer * (2 * (control_answer == opposite_kind) - 1)
+        delta = treatment_answer - control_answer
+        metric_value = np.abs(delta) / (
+            np.maximum(control_answer, treatment_answer) + 10e-8
+        )
 
         return metric_value
 
@@ -130,48 +113,21 @@ class ConfirmationBiasMetric(Metric):
                 for pair in test_results
                 if pair[0] is not None and pair[1] is not None
             ]
-            # extract indices of the chosen answers (-1 because the option indices are 1-indexed)
-            # always yields 0 for Yes and 1 for No
-            control_answer_idx = np.array(
+            # extract the chosen answers
+            control_answer = np.array(
                 [
-                    [
-                        decision_result.CONTROL_OPTION_ORDER.index(
-                            decision_result.CONTROL_DECISION - 1
-                        )
-                    ]
+                    [decision_result.CONTROL_DECISION]
                     for (_, decision_result) in test_results
                 ]
             )
-            # always yields 0 for Yes and 1 for No
-            treatment_answer_idx = np.array(
+            treatment_answer = np.array(
                 [
-                    [
-                        decision_result.TREATMENT_OPTION_ORDER.index(
-                            decision_result.TREATMENT_DECISION - 1
-                        )
-                    ]
+                    [decision_result.TREATMENT_DECISION]
                     for (_, decision_result) in test_results
                 ]
             )
-            opposite_kind_idx = np.array(
-                [
-                    [
-                        (
-                            0
-                            if test_case.TREATMENT_VALUES["opposite_kind"][0]
-                            == "Positive"
-                            else 1
-                        )
-                    ]
-                    for (test_case, _) in test_results
-                ]
-            )
-            biasedness_scores = np.mean(
-                self._compute(
-                    control_answer_idx, treatment_answer_idx, opposite_kind_idx
-                )
-            )
+            biasedness_scores = np.mean(self._compute(control_answer, treatment_answer))
         except Exception as e:
             print(e)
-            raise MetricCalculationError(f"Error filtering test results: {e}")
-        return biasedness_scores
+            raise MetricCalculationError("The metric could not be computed.")
+        return np.around(biasedness_scores, 2)
