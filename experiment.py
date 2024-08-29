@@ -225,7 +225,7 @@ class Experiment:
 if __name__ == "__main__":
     
     # Instantiate the experiment for the desired bias
-    experiment = Experiment(bias="HyperbolicDiscounting")
+    experiment = Experiment(bias="InGroupBias")
     # Randomly pick a scenario and a seed
     scenario = experiment.get_random_scenario()
     seed = random.randint(0, 1000)

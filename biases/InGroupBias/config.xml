@@ -1,0 +1,28 @@
+<config bias="In Group Bias">
+    <custom_values name="my_custom_value">
+        <value>first</value>
+        <value>second</value>
+    </custom_values>
+    <variant name="default">
+        <template type="control">
+            <situation>Suppose you are a [[type]] manager at [[organization]].</situation>
+            <situation>[[Desription of the given task]]</situation>
+            <situation>[[Descibe an urgent reason to forward this task to someone else]]</situation>
+            <situation>Thus, you have to forward this task to one of your subordinate colleagues: Colleague A or Colleague B.</situation>
+            <situation>You and the Colleague A [[Describe a common interest, hobby, or view completely unrelated to your job or industry]].</situation>
+            <prompt>Whom will you forward the project to?</prompt>
+            <option>Colleague A</option>
+            <option>Colleague B</option>
+        </template>
+        <template type="treatment">
+            <situation>Suppose you are a [[type]] manager at [[organization]].</situation>
+            <situation>[[Desription of the given task]]</situation>
+            <situation>[[Descibe an urgent reason to forward this task to someone else]]</situation>
+            <situation>Thus, you have to forward this task to one of your subordinate colleagues: Colleague A or Colleague B.</situation>
+            <situation>You and Colleague B [[Describe a common interest, hobby, or view completely unrelated to your job or industry]].</situation>
+            <prompt>Whom will you forward the project to?</prompt>
+            <option>Colleague A</option>
+            <option>Colleague B</option>
+        </template>
+    </variant>
+</config>
