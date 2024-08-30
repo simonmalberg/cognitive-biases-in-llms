@@ -17,27 +17,6 @@ class BandwagonEffectTestGenerator(TestGenerator):
         self.BIAS: str = "Bandwagon Effect"
         self.config: TestConfig = super().load_config(self.BIAS)
 
-    def _custom_population(
-        self, completed_template: Template, custom_values: dict, seed: int
-    ) -> None:
-        """
-        Custom population method for the Bandwagon Effect test case.
-
-        Args:
-            completed_template (Template): The assembled template for the test case.
-            custom_values (dict): The custom values for the test case.
-            seed (int): The seed for the random number generator.
-        """
-        # Loading the options
-        majority_options = custom_values["majority_option"]
-        random.seed(seed)
-        # Sampling one of ['A', 'B']
-        majority_option = random.choice(majority_options)
-        # Inserting the sample into the template
-        completed_template.insert_values(
-            list(zip(["majority_option"], [majority_option])), kind="manual"
-        )
-
     def generate_all(
         self, model: LLM, scenarios: list[str], seed: int = 42
     ) -> list[TestCase]:
@@ -65,8 +44,13 @@ class BandwagonEffectTestGenerator(TestGenerator):
         treatment: Template = self.config.get_treatment_template()
 
         # Populate the templates with custom values
-        self._custom_population(control, custom_values, seed)
-        self._custom_population(treatment, custom_values, seed)
+        majority_opinions = custom_values["majority_opinion"]
+        random.seed(seed)
+        # Sampling one of ['A', 'B']
+        majority_opinion = random.choice(majority_opinions)
+        # Inserting the sample into the template
+        for template in [control, treatment]:
+            template.insert("majority_opinion", majority_opinion, origin="user")
         # Get dictionary of inserted values
         control_values = control.inserted_values
         treatment_values = treatment.inserted_values
@@ -99,7 +83,7 @@ class BandwagonEffectMetric(Metric):
 
     where:
     â₁, â₂ are the chosen answers for the control and treatment versions, respectively;
-    a is the majority option inserted in the test case.
+    a is the majority opinion inserted in the test case.
 
     """
 
@@ -107,7 +91,7 @@ class BandwagonEffectMetric(Metric):
         self,
         control_answer: np.array,
         treatment_answer: np.array,
-        majority_option: np.array,
+        majority_opinion: np.array,
     ) -> np.array:
         """
         Compute the metric for the Bandwagon effect.
@@ -115,15 +99,15 @@ class BandwagonEffectMetric(Metric):
         Args:
             control_answer (np.array): The answer chosen in the control version.
             treatment_answer (np.array): The answer chosen in the treatment version.
-            majority_option (np.array): The majority option inserted in the test case.
+            majority_opinion (np.array): The majority opinion inserted in the test case.
 
         Returns:
             np.array: The metric value for the test case.
         """
         metric_value = np.sum(
-            (control_answer == treatment_answer) & (control_answer == majority_option)
+            (control_answer == treatment_answer) & (control_answer == majority_opinion)
         ) - np.sum(
-            (control_answer == treatment_answer) & (control_answer != majority_option)
+            (control_answer == treatment_answer) & (control_answer != majority_opinion)
         )
 
         return metric_value
@@ -136,36 +120,28 @@ class BandwagonEffectMetric(Metric):
                 for pair in test_results
                 if pair[0] is not None and pair[1] is not None
             ]
-            # extract indices of the chosen answers (-1 because the option indices are 1-indexed)
-            control_answer_idx = np.array(
+            # extract indices of the chosen answers
+            control_answer = np.array(
                 [
-                    [
-                        decision_result.CONTROL_OPTION_ORDER.index(
-                            decision_result.CONTROL_DECISION - 1
-                        )
-                    ]
+                    [decision_result.CONTROL_DECISION]
                     for (_, decision_result) in test_results
                 ]
             )
-            treatment_answer_idx = np.array(
+            treatment_answer = np.array(
                 [
-                    [
-                        decision_result.TREATMENT_OPTION_ORDER.index(
-                            decision_result.TREATMENT_DECISION - 1
-                        )
-                    ]
+                    [decision_result.TREATMENT_DECISION]
                     for (_, decision_result) in test_results
                 ]
             )
-            majority_option_idx = np.array(
+            majority_opinion = np.array(
                 [
-                    [0 if test_case.CONTROL_VALUES["majority_option"][0] == "A" else 1]
+                    [0 if test_case.CONTROL_VALUES["majority_opinion"][0] == "A" else 1]
                     for (test_case, _) in test_results
                 ]
             )
             biasedness_scores = np.mean(
                 self._compute(
-                    control_answer_idx, treatment_answer_idx, majority_option_idx
+                    control_answer, treatment_answer, majority_opinion
                 )
             )
         except Exception as e:

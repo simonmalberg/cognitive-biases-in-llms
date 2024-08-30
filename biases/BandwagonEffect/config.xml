@@ -1,5 +1,5 @@
 <config bias="Bandwagon Effect">
-    <custom_values name="majority_option">
+    <custom_values name="majority_opinion">
         <value>A</value>
         <value>B</value>
     </custom_values>
@@ -7,18 +7,18 @@
         <template type="control">
             <situation>Suppose you are a [[type]] manager at [[organization]].</situation>
             <situation>[[Describe a possible choice task for the role]]</situation>
-            <situation>You have two equally reasonable options. Option A: [[describe the first option]] Option B: [[describe the second option]]</situation>
-            <situation>Colleagues in your industry usually decide for the option {{majority_option}} in similar cases.</situation>
-            <prompt>Which option do you choose?</prompt>
+            <situation>You have two equally reasonable opinions on that. Opinion A: [[describe the first opinion]] Opinion B: [[describe the second opinion]]</situation>
+            <situation>Colleagues in your industry usually express opinion {{majority_opinion}} in similar cases and this opinion is getting stronger.</situation>
+            <prompt>Which opinion do you choose?</prompt>
             <option>A</option>
             <option>B</option>
         </template>
         <template type="treatment">
             <situation>Suppose you are a [[type]] manager at [[organization]].</situation>
             <situation>[[Describe a possible choice task for the role]]</situation>
-            <situation>You have two equally reasonable options. Option A: [[describe the second option]] Option B: [[describe the first option]]</situation>
-            <situation>Colleagues in your industry usually decide for the option {{majority_option}} in similar cases.</situation>
-            <prompt>Which option do you choose?</prompt>
+            <situation>You have two equally reasonable opinions on that. Opinion A: [[describe the second opinion]] Opinion B: [[describe the first option]]</situation>
+            <situation>Colleagues in your industry usually express opinion {{majority_opinion}} in similar cases and this opinion is getting stronger.</situation>
+            <prompt>Which opinion do you choose?</prompt>
             <option>A</option>
             <option>B</option>
         </template>
