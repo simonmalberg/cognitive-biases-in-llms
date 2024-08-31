@@ -64,7 +64,7 @@ class FundamentalAttributionErrorMetric(Metric):
     A class that describes the quantitative evaluation of the FAE in a model.
 
     Metric:
-    𝔅 = â₁ - â₂ ∈ [-1, 1]
+    𝔅 = â₁ mod 2 - â₂ mod 2 ∈ [-1, 1]
     where:
     â₁, â₂ are the chosen answers for the control and treatment versions, respectively (0 for dispositional, 1 for situational);
     """
@@ -82,7 +82,7 @@ class FundamentalAttributionErrorMetric(Metric):
         Returns:
             np.array: The metric value for the test case.
         """
-        metric_value = control_answer - treatment_answer
+        metric_value = control_answer % 2 - treatment_answer % 2
 
         return metric_value
 
@@ -95,23 +95,14 @@ class FundamentalAttributionErrorMetric(Metric):
                 if pair[0] is not None and pair[1] is not None
             ]
             # extract strings of the chosen answers
-            control_answer = [
-                decision_result.CONTROL_OPTIONS[decision_result.CONTROL_DECISION - 1]
+            control_answer = np.array([
+                [decision_result.CONTROL_DECISION]
                 for (_, decision_result) in test_results
-            ]
-            treatment_answer = [
-                decision_result.TREATMENT_OPTIONS[
-                    decision_result.TREATMENT_DECISION - 1
-                ]
+            ])
+            treatment_answer = np.array([
+                [decision_result.TREATMENT_DECISION]
                 for (_, decision_result) in test_results
-            ]
-            # convert to respective integer values
-            control_answer = np.array(
-                [[0 if "dispositional" in answer else 1] for answer in control_answer]
-            )
-            treatment_answer = np.array(
-                [[0 if "dispositional" in answer else 1] for answer in treatment_answer]
-            )
+            ])
             # compute the biasedness scores
             biasedness_scores = np.mean(self._compute(control_answer, treatment_answer))
         except Exception as e:
