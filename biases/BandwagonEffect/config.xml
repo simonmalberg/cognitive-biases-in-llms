@@ -7,7 +7,9 @@
         <template type="control">
             <situation>Suppose you are a [[type]] manager at [[organization]].</situation>
             <situation>[[Describe a possible choice task for the role]]</situation>
-            <situation>You have two equally reasonable opinions on that. Opinion A: [[describe the first opinion]] Opinion B: [[describe the second opinion]]</situation>
+            <situation>You have two equally reasonable opinions on that.</situation>
+            <situation>Opinion A: [[describe the first opinion]]</situation>
+            <situation>Opinion B: [[describe the second opinion]]</situation>
             <situation>Colleagues in your industry usually express opinion {{majority_opinion}} in similar cases and this opinion is getting stronger.</situation>
             <prompt>Which opinion do you choose?</prompt>
             <option>A</option>
@@ -16,7 +18,9 @@
         <template type="treatment">
             <situation>Suppose you are a [[type]] manager at [[organization]].</situation>
             <situation>[[Describe a possible choice task for the role]]</situation>
-            <situation>You have two equally reasonable opinions on that. Opinion A: [[describe the second opinion]] Opinion B: [[describe the first option]]</situation>
+            <situation>You have two equally reasonable opinions on that.</situation>
+            <situation>Opinion A: [[describe the second opinion]]</situation>
+            <situation>Opinion B: [[describe the first option]]</situation>
             <situation>Colleagues in your industry usually express opinion {{majority_opinion}} in similar cases and this opinion is getting stronger.</situation>
             <prompt>Which opinion do you choose?</prompt>
             <option>A</option>
