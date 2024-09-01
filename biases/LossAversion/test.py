@@ -153,22 +153,16 @@ class LossAversionMetric(Metric):
                     for (test_case, _) in test_results
                 ]
             )
-            # extract answers (-1 because the option indices are 1-indexed)
+            # extract answer
             treatment_answer = np.array(
                 [
                     # 1 if selected risky option
-                    (
-                        1
-                        if "another"
-                        in decision_result.TREATMENT_OPTIONS[
-                            decision_result.TREATMENT_DECISION - 1
-                        ]
-                        else 0
-                    )
+                    [decision_result.TREATMENT_DECISION]
                     for (_, decision_result) in test_results
                 ]
             )
             biasedness_scores = np.mean(self._compute(treatment_answer, lambdas))
         except Exception as e:
-            raise MetricCalculationError("The metric could not be computed.")
+            print(e)
+            raise MetricCalculationError(f"Error filtering test results: {e}")
         return np.around(biasedness_scores, 2)
