@@ -143,10 +143,10 @@ class Experiment:
             "Generator": test_case.GENERATOR,
             "Scenario": test_case.SCENARIO,
             "Variant": test_case.VARIANT,
-            "Control": test_case.CONTROL.format(shuffle_options=shuffled_answer_options, seed=seed),
-            "Treatment": test_case.TREATMENT.format(shuffle_options=shuffled_answer_options, seed=seed),
-            "Control (Raw)": ET.tostring(test_case.CONTROL._data),    # TODO Implement parsing/serialization functionality in Template class
-            "Treatment (Raw)": ET.tostring(test_case.TREATMENT._data),
+            "Control": test_case.CONTROL.format(shuffle_options=shuffled_answer_options, seed=seed) if test_case.CONTROL is not None else "",
+            "Treatment": test_case.TREATMENT.format(shuffle_options=shuffled_answer_options, seed=seed) if test_case.TREATMENT is not None else "",
+            "Control (Raw)": ET.tostring(test_case.CONTROL._data) if test_case.CONTROL is not None else "",    # TODO Implement parsing/serialization functionality in Template class
+            "Treatment (Raw)": ET.tostring(test_case.TREATMENT._data) if test_case.TREATMENT is not None else "",
             "Remarks": test_case.REMARKS
         }
 
