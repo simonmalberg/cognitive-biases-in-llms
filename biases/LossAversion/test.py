@@ -164,5 +164,5 @@ class LossAversionMetric(Metric):
             biasedness_scores = np.mean(self._compute(treatment_answer, lambdas))
         except Exception as e:
             print(e)
-            raise MetricCalculationError(f"Error filtering test results: {e}")
+            raise MetricCalculationError(f"Error computing the metric: {e}")
         return np.around(biasedness_scores, 2)

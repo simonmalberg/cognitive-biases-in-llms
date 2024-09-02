@@ -129,5 +129,5 @@ class ConfirmationBiasMetric(Metric):
             biasedness_scores = np.mean(self._compute(control_answer, treatment_answer))
         except Exception as e:
             print(e)
-            raise MetricCalculationError("The metric could not be computed.")
+            raise MetricCalculationError(f"Error computing the metric: {e}")
         return np.around(biasedness_scores, 2)

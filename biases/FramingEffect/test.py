@@ -47,6 +47,7 @@ class FramingEffectTestGenerator(TestGenerator):
         # Loading the required distribution (should be a np.random method)
         first_percentage = custom_values["first_percentage"]
         distribution = getattr(np.random, first_percentage[0])
+        np.random.seed(seed)
         first_percentage = distribution(
             float(first_percentage[1]), float(first_percentage[2])
         )
@@ -127,34 +128,25 @@ class FramingEffectMetric(Metric):
             # extract the answer options' length
             len_answer_options = len(test_results[0][1].CONTROL_OPTIONS)
             min_option, max_option = 0, len_answer_options - 1
-            # extract original unshuffled indices of the chosen answers (-1 because the option indices are 1-indexed)
-            control_answer_idx = np.array(
+            # extract original unshuffled indices of the chosen answers
+            control_answer = np.array(
                 [
-                    [
-                        decision_result.CONTROL_OPTION_ORDER[
-                            decision_result.CONTROL_DECISION - 1
-                        ]
-                    ]
+                    [decision_result.CONTROL_DECISION]
                     for (_, decision_result) in test_results
                 ]
             )
-            treatment_answer_idx = np.array(
+            treatment_answer = np.array(
                 [
-                    [
-                        decision_result.TREATMENT_OPTION_ORDER[
-                            decision_result.TREATMENT_DECISION - 1
-                        ]
-                    ]
+                    [decision_result.TREATMENT_DECISION]
                     for (_, decision_result) in test_results
                 ]
             )
-            # extract the chosen answers (-1 because the option indices are 1-indexed)
             biasedness_scores = np.mean(
                 self._compute(
-                    control_answer_idx, treatment_answer_idx, max_option, min_option
+                    control_answer, treatment_answer, max_option, min_option
                 )
             )
         except Exception as e:
             print(e)
-            raise MetricCalculationError("The metric could not be computed.")
+            raise MetricCalculationError(f"Error computing the metric: {e}")
         return np.around(biasedness_scores, 2)

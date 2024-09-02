@@ -146,5 +146,5 @@ class BandwagonEffectMetric(Metric):
             )
         except Exception as e:
             print(e)
-            raise MetricCalculationError(f"Error filtering test results: {e}")
+            raise MetricCalculationError(f"Error computing the metric: {e}")
         return biasedness_scores
