@@ -1,4 +1,4 @@
-<config bias="Availability Bias">
+<config bias="Availability Heuristic">
     <custom_values name="outcome">
         <value>failure</value>
         <value>success</value>

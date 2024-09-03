@@ -5,9 +5,9 @@ import numpy as np
 import re
 
 
-class AvailabilityBiasTestGenerator(TestGenerator):
+class AvailabilityHeuristicTestGenerator(TestGenerator):
     """
-    Test generator for the Availability Bias.
+    Test generator for the Availability heuristic.
 
     Attributes:
         BIAS (str): The cognitive bias associated with this test generator.
@@ -15,14 +15,14 @@ class AvailabilityBiasTestGenerator(TestGenerator):
     """
 
     def __init__(self):
-        self.BIAS: str = "Availability Bias"
+        self.BIAS: str = "Availability Heuristic"
         self.config: TestConfig = super().load_config(self.BIAS)
 
     def _custom_population(
         self, completed_template: Template, custom_values: dict, seed: int
     ) -> None:
         """
-        Custom population method for the Availability Bias test case.
+        Custom population method for the Availability Heuristic test case.
 
         Args:
             completed_template (Template): The assembled template for the test case.
@@ -92,9 +92,9 @@ class AvailabilityBiasTestGenerator(TestGenerator):
         return test_case
 
 
-class AvailabilityBiasMetric(Metric):
+class AvailabilityHeuristicMetric(Metric):
     """
-    A class that describes the quantitative evaluation of the availability bias in a model.
+    A class that describes the quantitative evaluation of the availability heuristic in a model.
 
     Metric:
     𝔅 = (â₂ - â₁) / a
@@ -113,7 +113,7 @@ class AvailabilityBiasMetric(Metric):
         min_option: np.array
     ) -> np.array:
         """
-        Compute the metric for the Availability bias.
+        Compute the metric for the Availability Heuristic.
 
         Args:
             control_answer (np.array): The answer chosen in the control version.
