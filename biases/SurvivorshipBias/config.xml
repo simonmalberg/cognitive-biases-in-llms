@@ -1,0 +1,33 @@
+<config bias="Survivorship Bias">
+    <custom_values name="percentage_range">
+        <value>90</value>
+        <value>95</value>
+    </custom_values>
+    <variant name="default">
+        <template type="control">
+            <situation>Suppose you are a [[type]] manager at [[organization]].</situation>
+            <situation>You regularly [[a decision task that involves evaluating a set of entities and selecting only the good entities while dismissing the bad entities]]</situation>
+            <situation>In the past, {{survivor_percentage}}% of the [[good entities]] [[were/had]] [[some measurable characteristic of the entities]].</situation>
+            <situation>Among the [[bad entities]], {{non_survivor_percentage}}% [[were/had]] [[some measurable characteristic of the entities]].</situation>
+            <prompt>[[Question to the manager how important he/she thinks the characteristic is, relative to other characteristics, for identifying the good entities among all entities]]</prompt>
+            <option>Very unimportant</option>
+            <option>Unimportant</option>
+            <option>Somewhat unimportant</option>
+            <option>Somewhat important</option>
+            <option>Important</option>
+            <option>Very important</option>
+        </template>
+        <template type="treatment">
+            <situation>Suppose you are a [[type]] manager at [[organization]].</situation>
+            <situation>You regularly [[a decision task that involves evaluating a set of entities and selecting only the good entities while dismissing the bad entities]]</situation>
+            <situation>In the past, {{survivor_percentage}}% of the [[good entities]] [[were/had]] [[some measurable characteristic of the entities]].</situation>
+            <prompt>[[Question to the manager how important he/she thinks the characteristic is, relative to other characteristics, for identifying the good entities among all entities]]</prompt>
+            <option>Very unimportant</option>
+            <option>Unimportant</option>
+            <option>Somewhat unimportant</option>
+            <option>Somewhat important</option>
+            <option>Important</option>
+            <option>Very important</option>
+        </template>
+    </variant>
+</config>
