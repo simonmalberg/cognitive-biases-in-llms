@@ -17,42 +17,6 @@ class HaloEffectTestGenerator(TestGenerator):
         self.BIAS = "Halo Effect"
         self.config = super().load_config(self.BIAS)
 
-    def _custom_population(
-        self, completed_template: Template, custom_values: dict, seed: int
-    ) -> None:
-        """
-        Custom population method for the Halo Effect test case.
-
-        Args:
-            completed_template (Template): The assembled template for the test case.
-            custom_values (dict): The custom values for the test case.
-            seed (int): The seed for the random number generator.
-        """
-        # Loading the dict with custom values
-        random.seed(seed)
-        perception_values = custom_values["perception"]
-        preference_values = custom_values["preference"]
-        # Sampling one of the values
-        perception = random.choice(perception_values)
-        preferential_brand = random.choice(preference_values)
-        other_brand = (
-            preference_values[0]
-            if preferential_brand == preference_values[1]
-            else preference_values[1]
-        )
-        perceived_brand = (
-            other_brand if perception == "positive" else preferential_brand
-        )
-        completed_template.insert_values(
-            list(
-                zip(
-                    ["perception", "preference", "perceived_brand"],
-                    [perception, preferential_brand, perceived_brand],
-                )
-            ),
-            kind="manual",
-        )
-
     def generate_all(
         self, model: LLM, scenarios: list[str], seed: int = 42
     ) -> list[TestCase]:
@@ -78,12 +42,25 @@ class HaloEffectTestGenerator(TestGenerator):
         control: Template = self.config.get_control_template()
         treatment: Template = self.config.get_treatment_template()
 
-        # sample and insert a sentiment for treatment version
-        self._custom_population(control, custom_values, seed)
-        self._custom_population(treatment, custom_values, seed)
-        # get dictionary of inserted values
-        control_values = control.inserted_values
-        treatment_values = treatment.inserted_values
+        # custom values handling
+        random.seed(seed)
+        perception_values = custom_values["perception"]
+        preference_values = custom_values["preference"]
+        # Sampling one of the values
+        perception = random.choice(perception_values)
+        preferential_brand = random.choice(preference_values)
+        other_brand = (
+            preference_values[0]
+            if preferential_brand == preference_values[1]
+            else preference_values[1]
+        )
+        perceived_brand = (
+            other_brand if perception == "positive" else preferential_brand
+        )
+        for template in [control, treatment]:
+            template.insert("perception", perception, origin="user")
+            template.insert("preference", preferential_brand, origin="user")
+            template.insert("perceived_brand", perceived_brand, origin="user")
 
         control, treatment = super().populate(model, control, treatment, scenario)
 
@@ -92,8 +69,6 @@ class HaloEffectTestGenerator(TestGenerator):
             control=control,
             treatment=treatment,
             generator=model.NAME,
-            control_values=control_values,
-            treatment_values=treatment_values,
             scenario=scenario,
         )
 
@@ -105,16 +80,17 @@ class HaloEffectMetric(Metric):
     A class that describes the quantitative evaluation of the halo effect bias in a model.
 
     Metric:
-    𝔅 = I[â₂ != â₁]
+    𝔅 = I[â₂ != â₁] * (1 - 2I[â₁ != p])
 
     where:
     I is the indicator function;
     â₁, â₂ are the chosen answers for the control and treatment versions, respectively.
+    p is the advantageous product (0 or 1).
 
     """
 
     def _compute(
-        self, control_answer: np.array, treatment_answer: np.array
+        self, control_answer: np.array, treatment_answer: np.array, preference: np.array
     ) -> np.array:
         """
         Computes the halo effect bias metric for the given batch of test instances.
@@ -122,11 +98,14 @@ class HaloEffectMetric(Metric):
         Args:
             control_answer (np.array, shape (batch, 1)): The answer(s) chosen for the control variant.
             treatment_answer (np.array, shape (batch, 1)): The answer(s) chosen for the treatment variant.
+            preference (np.array, shape (batch, 1)): The advantageous product (0 or 1).
 
         Returns:
             The halo effect bias metric value.
         """
-        metric_values = 1 * (control_answer != treatment_answer)
+        metric_values = (control_answer != treatment_answer) * (
+            1 - 2 * (control_answer != preference)
+        )
 
         return metric_values
 
@@ -151,7 +130,20 @@ class HaloEffectMetric(Metric):
                     for (_, decision_result) in test_results
                 ]
             )
-            biasedness_scores = np.mean(self._compute(control_answer, treatment_answer))
+            preference = [
+                [
+                    insertion.text
+                    for insertion in test_case.CONTROL.get_insertions()
+                    if insertion.pattern == "preference"
+                ]
+                for (test_case, _) in test_results
+            ]
+            print(preference)
+            preference = np.array([[0] if p == ["A"] else [1] for p in preference])
+            print(preference)
+            biasedness_scores = np.mean(
+                self._compute(control_answer, treatment_answer, preference)
+            )
         except Exception as e:
             print(e)
             raise MetricCalculationError(f"Error filtering test results: {e}")

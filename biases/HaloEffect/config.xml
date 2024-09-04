@@ -1,7 +1,7 @@
 <config bias="Halo Effect">
     <custom_values name="preference">
-        <value>first</value>
-        <value>second</value>
+        <value>A</value>
+        <value>B</value>
     </custom_values>
     <custom_values name="perception">
         <value>positive</value>
@@ -10,18 +10,18 @@
     <variant name="default">
         <template type="control">
             <situation>Suppose you are a [[type]] manager at [[organization]].</situation>
-            <situation>[[Describe briefly a task involving a financial choice between two products of two brands, where the {{preference}} product is advantageous]]</situation>
+            <situation>[[Describe briefly a task involving a financial choice between two products of two brands A and B, where the product of brand {{preference}} is advantageous]]</situation>
             <prompt>Product of which brand will you select?</prompt>
-            <option>[[name of the first brand]]</option>
-            <option>[[name of the second brand]]</option>
+            <option>Brand A</option>
+            <option>Brand B</option>
         </template>
         <template type="treatment">
             <situation>Suppose you are a [[type]] manager at [[organization]].</situation>
-            <situation>[[Describe briefly a task involving a financial choice between two products of two brands, where the {{preference}} product is advantageous]]</situation>
-            <situation>Your overall perception of [[name of the {{perceived_brand}} brand]] is {{perception}}.</situation>
+            <situation>[[Describe briefly a task involving a financial choice between two products of two brands A and B, where the product of brand {{preference}} is advantageous]]</situation>
+            <situation>Your overall perception of the brand {{perceived_brand}} is very {{perception}}.</situation>
             <prompt>Product of which brand will you select?</prompt>
-            <option>[[name of the first brand]]</option>
-            <option>[[name of the second brand]]</option>
+            <option>Brand A</option>
+            <option>Brand B</option>
         </template>
     </variant>
 </config>
