@@ -138,9 +138,7 @@ class HaloEffectMetric(Metric):
                 ]
                 for (test_case, _) in test_results
             ]
-            print(preference)
             preference = np.array([[0] if p == ["A"] else [1] for p in preference])
-            print(preference)
             biasedness_scores = np.mean(
                 self._compute(control_answer, treatment_answer, preference)
             )
