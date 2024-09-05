@@ -17,35 +17,6 @@ class HindsightBiasTestGenerator(TestGenerator):
         self.BIAS: str = "Hindsight Bias"
         self.config: TestConfig = super().load_config(self.BIAS)
 
-    def _custom_population(
-        self, completed_template: Template, custom_values: dict, seed: int
-    ) -> None:
-        """
-        Custom population method for the Hindsight Bias test case.
-
-        Args:
-            completed_template (Template): The assembled template for the test case.
-            custom_values (dict): The custom values for the test case.
-            seed (int): The seed for the random number generator.
-        """
-        np.random.seed(seed)
-        # Loading the mean and max interval for the samples of numerical value
-        sample_min, sample_max = int(custom_values["percentage"][1]), int(
-            custom_values["percentage"][2]
-        )
-        # Loading the required distribution (should be a np.random method)
-        distribution = getattr(np.random, custom_values["percentage"][0])
-
-        # Sampling a numerical value
-        sample = str(int(distribution(sample_min, sample_max, )))
-
-        # Inserting the sample into the template
-        completed_template.insert_values(
-            list(zip(["percentage"], [sample])), kind="manual"
-        )
-
-        return sample
-
     def generate_all(
         self, model: LLM, scenarios: list[str], seed: int = 42
     ) -> list[TestCase]:
@@ -73,10 +44,26 @@ class HindsightBiasTestGenerator(TestGenerator):
         control: Template = self.config.get_control_template()
         treatment: Template = self.config.get_treatment_template()
 
-        # Populate the templates with custom values
-        _ = self._custom_population(treatment, custom_values, seed)
-        # Get dictionary of inserted values
-        treatment_values = treatment.inserted_values
+        # Populate the treatment template with a custom value
+        np.random.seed(seed)
+        # Loading the mean and max interval for the sample of numerical value
+        sample_min, sample_max = int(custom_values["percentage"][1]), int(
+            custom_values["percentage"][2]
+        )
+        # Loading the required distribution (should be a np.random method)
+        distribution = getattr(np.random, custom_values["percentage"][0])
+        # Sampling a numerical value
+        sample = str(
+            int(
+                distribution(
+                    sample_min,
+                    sample_max,
+                )
+            )
+        )
+        # Inserting the sample into the treatment template
+        treatment.insert("percentage", sample, origin="user")
+
         # Populate the templates using the model and the scenario
         control, treatment = super().populate(model, control, treatment, scenario)
 
@@ -87,8 +74,6 @@ class HindsightBiasTestGenerator(TestGenerator):
             treatment=treatment,
             generator=model.NAME,
             scenario=scenario,
-            control_values=None,
-            treatment_values=treatment_values,
             variant=None,
             remarks=None,
         )
@@ -100,12 +85,13 @@ class HindsightBiasMetric(Metric):
     """
     A class that describes the quantitative evaluation of the hindsight bias in a model.
 
-    Individual metric:
-    𝔅 = sgn(x) * min(‖x‖₁, 1), x = (â₂ − â₁) / (a − â₁)
+    Metric:
+    𝔅 = (‖ â₁ − a' ‖₁ − ‖ â₂ − a' ‖₁) / a ∈ [-1, 1];
 
     where:
     â₁, â₂ are the chosen answers for the control and treatment versions, respectively;
-    a is the ground truth percentage (sampled using custom values).
+    a' is the ground truth percentage (sampled using custom values);
+    a = max[‖ â₁ − a' ‖₁, ‖ â₂ − a' ‖₁].
 
     """
 
@@ -127,11 +113,10 @@ class HindsightBiasMetric(Metric):
             np.array: The metric value for the test case.
         """
         # Calculate the metric value
-        metric_value = np.clip(
-            (treatment_answer - control_answer)
-            / (ground_truth - control_answer + 1e-8),
-            -1,
-            1,
+        delta_control = np.abs(control_answer - ground_truth)
+        delta_treatment = np.abs(treatment_answer - ground_truth)
+        metric_value = (delta_control - delta_treatment) / np.maximum(
+            delta_control, delta_treatment
         )
 
         return metric_value
@@ -149,9 +134,7 @@ class HindsightBiasMetric(Metric):
         """
         answer_options = np.array([])
         for options in options_list:
-            numerical_options = [
-                int(re.findall(r"-?\d+\.?\d*", s)[0]) for s in options
-            ]
+            numerical_options = [int(re.findall(r"-?\d+\.?\d*", s)[0]) for s in options]
             if not answer_options.size:
                 answer_options = np.array([numerical_options])
             else:
@@ -172,43 +155,40 @@ class HindsightBiasMetric(Metric):
                     for (_, decision_result) in test_results
                 ]
             )
-            # extract indices of the chosen answers (-1 because the option indices are 1-indexed)
-            control_answer_idx = (
-                np.array(
-                    [
-                        [decision_result.CONTROL_DECISION]
-                        for (_, decision_result) in test_results
-                    ]
-                )
-                - 1
+            # extract indices of the chosen answers
+            control_answer = np.array(
+                [
+                    [decision_result.CONTROL_DECISION]
+                    for (_, decision_result) in test_results
+                ]
             )
-            treatment_answer_idx = (
-                np.array(
-                    [
-                        [decision_result.TREATMENT_DECISION]
-                        for (_, decision_result) in test_results
-                    ]
-                )
-                - 1
+            treatment_answer = np.array(
+                [
+                    [decision_result.TREATMENT_DECISION]
+                    for (_, decision_result) in test_results
+                ]
             )
-            # extract the chosen answers (-1 because the option indices are 1-indexed)
-            control_answer = np.take_along_axis(
-                answer_options, control_answer_idx, axis=1
-            )
+            # extract the chosen answers
+            control_answer = np.take_along_axis(answer_options, control_answer, axis=1)
             treatment_answer = np.take_along_axis(
-                answer_options, treatment_answer_idx, axis=1
+                answer_options, treatment_answer, axis=1
             )
             # extract the ground truth values
-            ground_truth = np.array(
+            ground_truth = [
                 [
-                    int(test_case.TREATMENT_VALUES["percentage"][0])
-                    for (test_case, _) in test_results
+                    insertion.text
+                    for insertion in test_case.TREATMENT.get_insertions()
+                    if insertion.pattern == "percentage"
                 ]
+                for (test_case, _) in test_results
+            ]
+            ground_truth = np.array(
+                [[round(int(p[0]) / 10) * 10] for p in ground_truth]
             )
             biasedness_scores = np.mean(
                 self._compute(control_answer, treatment_answer, ground_truth)
             )
         except Exception as e:
-           print(e)
-           raise MetricCalculationError("The metric could not be computed.")
-        return np.around(biasedness_scores, 2)
+            print(e)
+            raise MetricCalculationError(f"Error filtering test results: {e}")
+        return round(biasedness_scores, 2)

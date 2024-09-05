@@ -130,4 +130,4 @@ class ConfirmationBiasMetric(Metric):
         except Exception as e:
             print(e)
             raise MetricCalculationError(f"Error computing the metric: {e}")
-        return np.around(biasedness_scores, 2)
+        return round(biasedness_scores, 2)

@@ -165,4 +165,4 @@ class NegativityBiasMetric(Metric):
         except Exception as e:
             print(e)
             raise MetricCalculationError("The metric could not be computed.")
-        return np.around(biasedness_scores, 2)
+        return round(biasedness_scores, 2)
