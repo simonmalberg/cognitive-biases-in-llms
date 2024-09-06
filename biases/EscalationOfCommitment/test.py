@@ -51,8 +51,6 @@ class EscalationOfCommitmentTestGenerator(TestGenerator):
             treatment=treatment,
             generator=model.NAME,
             scenario=scenario,
-            control_values=None,
-            treatment_values=None,
             variant=None,
             remarks=None,
         )
@@ -62,23 +60,19 @@ class EscalationOfCommitmentTestGenerator(TestGenerator):
 
 class EscalationOfCommitmentMetric(Metric):
     """
-    Metric calculator for the Escalation of Commitment (Commitment Bias).
+    Metric calculator for the Escalation of commitment (Commitment bias).
 
     Metric:
     𝔅 = (â₁ - â₂) / a
 
     where:
     â₁, â₂ are the chosen answers for the control and treatment versions, respectively;
-    a = â₁ - â (if â₁ - â₂ >= 0) or else a = ã - â₁, where ã is the maximum option, â - the minimum option.
+    a = â₁ - â (if â₁ - â₂ >= 0) or else a = ã - â₁, where ã is the maximum option, â - the minimum option (= 0).
 
     """
 
     def _compute(
-        self,
-        control_answer: np.array,
-        treatment_answer: np.array,
-        max_option: np.array,
-        min_option: np.array,
+        self, control_answer: np.array, treatment_answer: np.array, max_option: np.array
     ) -> np.array:
         """
         Compute the metric for the Escalation of Commitment.
@@ -94,32 +88,12 @@ class EscalationOfCommitmentMetric(Metric):
         """
         delta = control_answer - treatment_answer
         biasedness = delta / (
-            (delta >= 0) * (control_answer - min_option)
+            (delta >= 0) * control_answer
             + (delta < 0) * (max_option - control_answer)
             + 10e-8
         )
 
         return biasedness
-
-    def assemble_options(self, options_list: list[dict]) -> np.array:
-        """
-        Assemble the answer options into a numpy array.
-
-        Args:
-            options (dict): The answer options for the test case.
-
-        Returns:
-            np.array: The assembled numerical answer options array.
-        """
-        answer_options = np.array([])
-        for options in options_list:
-            numerical_options = [int(re.findall(r"-?\d+\.?\d*", s)[0]) for s in options]
-            if not answer_options.size:
-                answer_options = np.array([numerical_options])
-            else:
-                answer_options = np.vstack((answer_options, numerical_options))
-
-        return answer_options
 
     def compute(self, test_results: list[tuple[TestCase, DecisionResult]]) -> float:
         # make sure all pairs are not None
@@ -127,39 +101,25 @@ class EscalationOfCommitmentMetric(Metric):
             pair for pair in test_results if pair[0] is not None and pair[1] is not None
         ]
         try:
-            # extract answer options from the test results
-            answer_options = self.assemble_options(
-                [
-                    decision_result.CONTROL_OPTIONS
-                    for (_, decision_result) in test_results
-                ]
-            )
-            max_option = np.max(answer_options, axis=1)
-            min_option = np.min(answer_options, axis=1)
+            max_option = len(test_results[0][1].CONTROL_OPTIONS)
             # extract indices of the chosen answers
-            control_answer_idx = np.array(
+            control_answer = np.array(
                 [
                     [decision_result.CONTROL_DECISION]
                     for (_, decision_result) in test_results
                 ]
             )
-            treatment_answer_idx = np.array(
+            treatment_answer = np.array(
                 [
                     [decision_result.TREATMENT_DECISION]
                     for (_, decision_result) in test_results
                 ]
             )
             # extract the chosen answers
-            control_answer = np.take_along_axis(
-                answer_options, control_answer_idx, axis=1
-            )
-            treatment_answer = np.take_along_axis(
-                answer_options, treatment_answer_idx, axis=1
-            )
             biasedness_scores = np.mean(
-                self._compute(control_answer, treatment_answer, max_option, min_option)
+                self._compute(control_answer, treatment_answer, max_option)
             )
         except Exception as e:
             print(e)
-            raise MetricCalculationError("The metric could not be computed.")
-        return np.around(biasedness_scores, 2)
+            raise MetricCalculationError(f"Error computing the metric: {e}")
+        return round(biasedness_scores, 2)
