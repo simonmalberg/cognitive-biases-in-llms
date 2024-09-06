@@ -20,9 +20,7 @@ class MentalAccountingTestGenerator(TestGenerator):
         self, model: LLM, scenarios: list[str], seed: int = 42
     ) -> list[TestCase]:
         # Load the custom values from the test config
-        custom_values = (
-            self.config.get_custom_values()
-        )  # TODO: Remove this line if custom values are not needed
+        custom_values = self.config.get_custom_values()
 
         # Create test cases for all scenarios
         test_cases: list[TestCase] = []
@@ -68,8 +66,6 @@ class MentalAccountingTestGenerator(TestGenerator):
             treatment=treatment,
             generator=model.NAME,
             scenario=scenario,
-            control_values=None,
-            treatment_values=None,
             variant=None,
             remarks=None,
         )
@@ -82,7 +78,7 @@ class MentalAccountingMetric(Metric):
     A class that describes the quantitative evaluation of the Mental Accounting in a model.
 
     Metric:
-    𝔅 = â₁ - â₂ ∈ {-1, 0, 1}
+    𝔅 = I[â₁ != â₂] ∈ {0, 1}
     where:
     â₁, â₂ are the chosen answers for the control and treatment versions, respectively;
     """
@@ -100,7 +96,7 @@ class MentalAccountingMetric(Metric):
         Returns:
             np.array: The metric value for the test case.
         """
-        metric_value = control_answer - treatment_answer
+        metric_value = 1 * (control_answer != treatment_answer)
 
         return metric_value
 
@@ -130,4 +126,4 @@ class MentalAccountingMetric(Metric):
         except Exception as e:
             print(e)
             raise MetricCalculationError(f"Error filtering test results: {e}")
-        return biasedness_scores
+        return round(biasedness_scores, 2)

@@ -7,16 +7,16 @@
     <variant name="default">
         <template type="control">
             <situation>Suppose you are a [[type]] manager at [[organization]].</situation>
-            <situation>You decided to organize [[description of a corporate event belonging to entertainment expenses]]. The price of this event is {{price}}$.</situation>
-            <situation>However, the event was canceled, and the money was lost.</situation>
+            <situation>You decided to organize [[description of a corporate event belonging to entertainment expenses]]. The price of this event is {{price}}$ and is funded from your team's budget.</situation>
+            <situation>However, the event was canceled, and the money from your team's budget was lost.</situation>
             <prompt>Would you pay another {{price}}$ for a replacement event?</prompt>
             <option>Yes</option>
             <option>No</option>
         </template>
         <template type="treatment">
             <situation>Suppose you are a [[type]] manager at [[organization]].</situation>
-            <situation>You decided to organize [[description of a corporate event belonging to entertainment expenses]]. The price of this event is {{price}}$.</situation>
-            <situation>After that decision, your organization lost {{price}}$ in [[describe a separate investment]].</situation>
+            <situation>You decided to organize [[description of a corporate event belonging to entertainment expenses]]. The price of this event is {{price}}$ and is funded from your team's budget.</situation>
+            <situation>After that decision, you lost {{price}}$ from your team's budget in [[describe a separate investment]].</situation>
             <prompt>Would you still pay {{price}}$ for the event?</prompt>
             <option>Yes</option>
             <option>No</option>
