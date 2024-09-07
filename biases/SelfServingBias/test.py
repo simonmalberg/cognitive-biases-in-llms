@@ -37,11 +37,8 @@ class SelfServingBiasTestGenerator(TestGenerator):
         self, model: LLM, scenario: str, custom_values: dict = {}, seed: int = 42
     ) -> TestCase:
         # Load the control and treatment templates
-        # TODO: remove the other variants
-        control: Template = self.config.get_control_template(variant="quantitative_1")
-        treatment: Template = self.config.get_treatment_template(
-            variant="quantitative_1"
-        )
+        control: Template = self.config.get_control_template()
+        treatment: Template = self.config.get_treatment_template()
         # Populate the templates using the model and the scenario
         control, treatment = super().populate(model, control, treatment, scenario)
 

@@ -1,25 +1,5 @@
 <config bias="Self Serving Bias">
-    <variant name="qualitative">
-        <template type="control">
-            <situation>Suppose you are a [[type]] manager at [[organization]].</situation>
-            <situation>Recently, you failed to [[provide a description for a challenging complex task that was assigned to you]].</situation>
-            <prompt>In your opinion, which of the following reasons best explains this result?</prompt>
-            <option>[[Provide a description of the first internal (directly attributed to you) negative reason that guaranteed this failure]]</option>
-            <option>[[Provide a description of the second internal (directly attributed to you) negative reason that guaranteed this failure]]</option>
-            <option>[[Provide a description of the first external (out of your control) negative reason that guaranteed this failure]]</option>
-            <option>[[Provide a description of the second external (out of your control) negative reason that guaranteed this failure]]</option>
-        </template>
-        <template type="treatment">
-            <situation>Suppose you are a [[type]] manager at [[organization]].</situation>
-            <situation>Recently, you managed to [[provide a description for a challenging complex task that was assigned to you]].</situation>
-            <prompt>In your opinion, which of the following reasons best explains this result?</prompt>
-            <option>[[Rephrase the following reason into an opposite, positive one: [[Provide a description of the first internal (directly attributed to you) negative reason that guaranteed this failure]]]]</option>
-            <option>[[Rephrase the following reason into an opposite, positive one: [[Provide a description of the second internal (directly attributed to you) negative reason that guaranteed this failure]]]]</option>
-            <option>[[Rephrase the following reason into an opposite, positive one: [[Provide a description of the first external (out of your control) negative reason that guaranteed this failure]]]]</option>
-            <option>[[Rephrase the following reason into an opposite, positive one: [[Provide a description of the second external (out of your control) negative reason that guaranteed this failure]]]]</option>
-        </template>
-    </variant>
-    <variant name="quantitative_1">
+    <variant name="default">
         <template type="control">
             <situation>Suppose you are a [[type]] manager at [[organization]].</situation>
             <situation>Recently, you failed to [[provide a description for a challenging complex task that was assigned to you]].</situation>
@@ -36,32 +16,6 @@
             <situation>Suppose you are a [[type]] manager at [[organization]].</situation>
             <situation>Recently, you managed to [[provide a description for a challenging complex task that was assigned to you]].</situation>
             <prompt>In your opinion, to what extent on a scale ranging from 1 (not at all) to 7 (very much) was your performance on the task due to factors associated with yourself?</prompt>
-            <option>1</option>
-            <option>2</option>
-            <option>3</option>
-            <option>4</option>
-            <option>5</option>
-            <option>6</option>
-            <option>7</option>
-        </template>
-    </variant>
-    <variant name="quantitative_2">
-        <template type="control">
-            <situation>Suppose you are a [[type]] manager at [[organization]].</situation>
-            <situation>Recently, you failed to [[provide a description for a challenging complex task that was assigned to you]].</situation>
-            <prompt>In your opinion, to what extent on a scale ranging from 1 (not at all) to 7 (very much) was your performance on the task due to factors associated with external factors?</prompt>
-            <option>1</option>
-            <option>2</option>
-            <option>3</option>
-            <option>4</option>
-            <option>5</option>
-            <option>6</option>
-            <option>7</option>
-        </template>
-        <template type="treatment">
-            <situation>Suppose you are a [[type]] manager at [[organization]].</situation>
-            <situation>Recently, you managed to [[provide a description for a challenging complex task that was assigned to you]].</situation>
-            <prompt>In your opinion, to what extent on a scale ranging from 1 (not at all) to 7 (very much) was your performance on the task due to factors associated with external factors?</prompt>
             <option>1</option>
             <option>2</option>
             <option>3</option>
