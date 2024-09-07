@@ -70,10 +70,7 @@ class SelfServingBiasMetric(Metric):
     """
 
     def _compute(
-        self,
-        control_answer: np.array,
-        treatment_answer: np.array,
-        max_option: np.array
+        self, control_answer: np.array, treatment_answer: np.array, max_option: np.array
     ) -> np.array:
         """
         Compute the metric for the self-serving bias.
@@ -119,9 +116,7 @@ class SelfServingBiasMetric(Metric):
                 ]
             )
             biasedness_scores = np.mean(
-                self._compute(
-                    control_answer, treatment_answer, max_option
-                )
+                self._compute(control_answer, treatment_answer, max_option)
             )
         except Exception as e:
             print(e)
