@@ -49,8 +49,6 @@ class SelfServingBiasTestGenerator(TestGenerator):
             treatment=treatment,
             generator=model.NAME,
             scenario=scenario,
-            control_values=None,
-            treatment_values=None,
             variant=None,
             remarks=None,
         )
@@ -75,8 +73,7 @@ class SelfServingBiasMetric(Metric):
         self,
         control_answer: np.array,
         treatment_answer: np.array,
-        max_option: np.array,
-        min_option: np.array,
+        max_option: np.array
     ) -> np.array:
         """
         Compute the metric for the self-serving bias.
@@ -85,7 +82,6 @@ class SelfServingBiasMetric(Metric):
             control_answer (np.array): The answer chosen in the control version.
             treatment_answer (np.array): The answer chosen in the treatment version.
             max_option (np.array): The maximum answer option.
-            min_option (np.array): The minimum answer option.
 
         Returns:
             np.array: The metric value for the test case.
@@ -93,7 +89,7 @@ class SelfServingBiasMetric(Metric):
         delta = treatment_answer - control_answer
         metric_value = delta / (
             (delta >= 0) * (max_option - control_answer)
-            + (delta < 0) * (control_answer - min_option)
+            + (delta < 0) * (control_answer)
             + 10e-8
         )
 
@@ -107,29 +103,27 @@ class SelfServingBiasMetric(Metric):
                 for pair in test_results
                 if pair[0] is not None and pair[1] is not None
             ]
-            # extract the answer options' length
-            len_answer_options = len(test_results[0][1].CONTROL_OPTIONS)
-            min_option, max_option = 0, len_answer_options - 1
-            # extract original unshuffled indices of the chosen answers (-1 because the option indices are 1-indexed)
-            control_answer_idx = np.array(
+            # extract the max option
+            max_option = len(test_results[0][1].CONTROL_OPTIONS) - 1
+            # extract original unshuffled indices of the chosen answers
+            control_answer = np.array(
                 [
                     [decision_result.CONTROL_DECISION]
                     for (_, decision_result) in test_results
                 ]
             )
-            treatment_answer_idx = np.array(
+            treatment_answer = np.array(
                 [
                     [decision_result.TREATMENT_DECISION]
                     for (_, decision_result) in test_results
                 ]
             )
-            # extract the chosen answers (-1 because the option indices are 1-indexed)
             biasedness_scores = np.mean(
                 self._compute(
-                    control_answer_idx, treatment_answer_idx, max_option, min_option
+                    control_answer, treatment_answer, max_option
                 )
             )
         except Exception as e:
             print(e)
-            raise MetricCalculationError("The metric could not be computed.")
-        return np.around(biasedness_scores, 2)
+            raise MetricCalculationError(f"Error computing the metric: {e}")
+        return round(biasedness_scores, 2)

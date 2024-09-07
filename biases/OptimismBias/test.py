@@ -120,7 +120,7 @@ class OptimismBiasMetric(Metric):
                 for pair in test_results
                 if pair[0] is not None and pair[1] is not None
             ]
-            max_option = len(test_results[0][1].CONTROL_OPTIONS)
+            max_option = len(test_results[0][1].CONTROL_OPTIONS) - 1
             # extract chosen answers
             control_answer = np.array(
                 [

@@ -3,7 +3,7 @@
         <template type="control">
             <situation>Suppose you are a [[type]] manager at [[organization]].</situation>
             <situation>Recently, you failed to [[provide a description for a challenging complex task that was assigned to you]].</situation>
-            <prompt>In your opinion, to what extent on a scale ranging from 1 (not at all) to 7 (very much) was your performance on the task due to factors associated with yourself?</prompt>
+            <prompt>In your opinion, to what extent on a scale ranging from 1 (not at all) to 10 (completely) was your performance on the task due to factors associated with yourself?</prompt>
             <option>1</option>
             <option>2</option>
             <option>3</option>
@@ -11,11 +11,14 @@
             <option>5</option>
             <option>6</option>
             <option>7</option>
+            <option>8</option>
+            <option>9</option>
+            <option>10</option>
         </template>
         <template type="treatment">
             <situation>Suppose you are a [[type]] manager at [[organization]].</situation>
             <situation>Recently, you managed to [[provide a description for a challenging complex task that was assigned to you]].</situation>
-            <prompt>In your opinion, to what extent on a scale ranging from 1 (not at all) to 7 (very much) was your performance on the task due to factors associated with yourself?</prompt>
+            <prompt>In your opinion, to what extent on a scale ranging from 1 (not at all) to 10 (completely) was your performance on the task due to factors associated with yourself?</prompt>
             <option>1</option>
             <option>2</option>
             <option>3</option>
@@ -23,6 +26,9 @@
             <option>5</option>
             <option>6</option>
             <option>7</option>
+            <option>8</option>
+            <option>9</option>
+            <option>10</option>
         </template>
     </variant>
 </config>
