@@ -6,7 +6,7 @@
     <variant name="default">
         <template type="control">
             <situation>Suppose you are a [[type]] manager at [[organization]].</situation>
-            <situation>[[A description of a product that another company from your industry plans to release]]</situation>
+            <situation>A company in your industry [[Provide a one sentence description of a plan to release a particular product]].</situation>
             <prompt>How likely do you estimate this product to be a {{outcome}}?</prompt>
             <option>0%</option>
             <option>10%</option>
@@ -22,7 +22,7 @@
         </template>
         <template type="treatment">
             <situation>Suppose you are a [[type]] manager at [[organization]].</situation>
-            <situation>[[A description of a product that another company from your industry plans to release]]</situation>
+            <situation>A company in your industry [[Provide a one sentence description of a plan to release a particular product]].</situation>
             <situation>You can easily recall examples of {{outcome}} stories of such products.</situation>
             <prompt>How likely do you estimate this product to be a {{outcome}}?</prompt>
             <option>0%</option>
