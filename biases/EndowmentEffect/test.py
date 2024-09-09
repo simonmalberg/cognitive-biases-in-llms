@@ -50,8 +50,6 @@ class EndowmentEffectTestGenerator(TestGenerator):
             treatment=treatment,
             generator=model.NAME,
             scenario=scenario,
-            control_values=None,
-            treatment_values=None,
             variant=None,
             remarks=None,
         )
@@ -77,7 +75,6 @@ class EndowmentEffectMetric(Metric):
         control_answer: np.array,
         treatment_answer: np.array,
         max_option: np.array,
-        min_option: np.array,
     ) -> np.array:
         """
         Compute the metric for the Bandwagon effect.
@@ -86,85 +83,45 @@ class EndowmentEffectMetric(Metric):
             control_answer (np.array): The answer chosen in the control version.
             treatment_answer (np.array): The answer chosen in the treatment version.
             max_option (np.array): The maximum answer option.
-            min_option (np.array): The minimum answer option.
+            min_option (np.array): The minimum answer option (= 0).
 
         Returns:
             np.array: The metric value for the test case.
         """
         delta = control_answer - treatment_answer
         biasedness = delta / (
-            (delta >= 0) * (max_option - treatment_answer)
-            + (delta < 0) * (treatment_answer - min_option)
+            (delta >= 0) * control_answer
+            + (delta < 0) * (max_option - control_answer)
             + 10e-8
         )
 
         return biasedness
 
-    def assemble_options(self, options_list: list[dict]) -> np.array:
-        """
-        Assemble the answer options into a numpy array.
-
-        Args:
-            options (dict): The answer options for the test case.
-
-        Returns:
-            np.array: The assembled numerical answer options array.
-        """
-        answer_options = np.array([])
-        for options in options_list:
-            numerical_options = [int(re.findall(r"-?\d+\.?\d*", s)[0]) for s in options]
-            if not answer_options.size:
-                answer_options = np.array([numerical_options])
-            else:
-                answer_options = np.vstack((answer_options, numerical_options))
-
-        return answer_options
-
     def compute(self, test_results: list[tuple[TestCase, DecisionResult]]) -> float:
-        # make sure all pairs are not None
-        test_results = [
-            pair for pair in test_results if pair[0] is not None and pair[1] is not None
-        ]
         try:
-            # extract answer options from the test results
-            answer_options = self.assemble_options(
+            # make sure all pairs are not None
+            test_results = [
+                pair for pair in test_results if pair[0] is not None and pair[1] is not None
+            ]
+            # extract the max option
+            max_option = len(test_results[0][1].CONTROL_OPTIONS) - 1
+            # extract answers
+            control_answer = np.array(
                 [
-                    decision_result.CONTROL_OPTIONS
+                    [decision_result.CONTROL_DECISION]
                     for (_, decision_result) in test_results
                 ]
             )
-            max_option = np.max(answer_options, axis=1)
-            min_option = np.min(answer_options, axis=1)
-            # extract indices of the chosen answers (-1 because the option indices are 1-indexed)
-            control_answer_idx = (
-                np.array(
-                    [
-                        [decision_result.CONTROL_DECISION]
-                        for (_, decision_result) in test_results
-                    ]
-                )
-                - 1
-            )
-            treatment_answer_idx = (
-                np.array(
-                    [
-                        [decision_result.TREATMENT_DECISION]
-                        for (_, decision_result) in test_results
-                    ]
-                )
-                - 1
-            )
-            # extract the chosen answers (-1 because the option indices are 1-indexed)
-            control_answer = np.take_along_axis(
-                answer_options, control_answer_idx, axis=1
-            )
-            treatment_answer = np.take_along_axis(
-                answer_options, treatment_answer_idx, axis=1
+            treatment_answer = np.array(
+                [
+                    [decision_result.TREATMENT_DECISION]
+                    for (_, decision_result) in test_results
+                ]
             )
             biasedness_scores = np.mean(
-                self._compute(control_answer, treatment_answer, max_option, min_option)
+                self._compute(control_answer, treatment_answer, max_option)
             )
         except Exception as e:
             print(e)
-            raise MetricCalculationError("The metric could not be computed.")
+            raise MetricCalculationError(f"Error computing the metric: {e}")
         return round(biasedness_scores, 2)
