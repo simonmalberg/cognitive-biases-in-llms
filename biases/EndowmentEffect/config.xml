@@ -21,7 +21,7 @@
             <situation>Suppose you are a [[type]] manager at [[organization]].</situation>
             <situation>One personal asset that is important in your industry is [[introduce a saleable asset which is involved in tasks at positions like yours]].</situation>
             <situation>You do not possess such asset.</situation>
-            <situation>A company in your industry intends to sell it. You know that they purchased it for [[provide a price for this asset]].</situation>
+            <situation>A company in your industry is open to selling it. You know that they purchased it for [[provide a price for this asset]].</situation>
             <prompt>At which maximum price (in percents of its change) are you willing to buy this asset?</prompt>
             <option>-25%</option>
             <option>-20%</option>
