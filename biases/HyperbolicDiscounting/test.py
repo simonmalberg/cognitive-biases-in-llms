@@ -142,5 +142,5 @@ class HyperbolicDiscountingMetric(Metric):
             biasedness_scores = np.mean(self._compute(control_answer, treatment_answer))
         except Exception as e:
             print(e)
-            raise MetricCalculationError(f"Error filtering test results: {e}")
+            raise MetricCalculationError(f"Error computing the metric: {e}")
         return biasedness_scores
