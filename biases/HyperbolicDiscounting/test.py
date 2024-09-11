@@ -83,8 +83,6 @@ class HyperbolicDiscountingTestGenerator(TestGenerator):
             treatment=treatment,
             generator=model.NAME,
             scenario=scenario,
-            control_values=None,
-            treatment_values=None,
             variant=None,
             remarks=None,
         )

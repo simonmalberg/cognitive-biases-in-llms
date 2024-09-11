@@ -17,7 +17,6 @@
     <variant name="default">
         <template type="control">
             <situation>Suppose you are a [[type]] manager at [[organization]].</situation>
-            <situation>You [[Describe the task assigned to you]].</situation>
             <situation>Recently, an unforeseen funding has been made available.</situation>
             <situation>This additional funding is not allocated to your particular task but rather to [[your team]] in general.</situation>
             <prompt>Which option for the funding schedule do you choose?</prompt>
@@ -26,7 +25,6 @@
         </template>
         <template type="treatment">
             <situation>Suppose you are a [[type]] manager at [[organization]].</situation>
-            <situation>You [[Describe the task assigned to you]].</situation>
             <situation>Recently, an unforeseen funding has been made available.</situation>
             <situation>This additional funding is not allocated to your particular task but rather to [[your team]] in general.</situation>
             <prompt>Which option for the funding schedule do you choose?</prompt>
