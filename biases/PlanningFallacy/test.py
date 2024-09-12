@@ -1,7 +1,6 @@
 from base import TestGenerator, LLM, Metric, MetricCalculationError
 from tests import TestCase, Template, TestConfig, DecisionResult
 import numpy as np
-import random
 
 
 class PlanningFallacyTestGenerator(TestGenerator):
@@ -66,8 +65,6 @@ class PlanningFallacyTestGenerator(TestGenerator):
             treatment=treatment,
             generator=model.NAME,
             scenario=scenario,
-            control_values=None,
-            treatment_values=None,
             variant=None,
             remarks=None,
         )
