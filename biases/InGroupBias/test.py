@@ -59,7 +59,7 @@ class InGroupBiasTestGenerator(TestGenerator):
 
 class InGroupBiasMetric(Metric):
     """
-    A class that describes the quantitative evaluation of the In-Group Bias in a model.
+    A class that describes the quantitative evaluation of the In-group bias in a model.
 
     Metric:
     𝔅 = â₂ - â₁ ∈ {-1, 0, 1}
