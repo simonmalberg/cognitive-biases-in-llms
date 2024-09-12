@@ -5,7 +5,7 @@ import numpy as np
 
 class InGroupBiasTestGenerator(TestGenerator):
     """
-    Test generator for the In Group Bias.
+    Test generator for the In-group bias.
 
     Attributes:
         BIAS (str): The cognitive bias associated with this test generator.
@@ -71,7 +71,7 @@ class InGroupBiasMetric(Metric):
         self, control_answer: np.array, treatment_answer: np.array
     ) -> np.array:
         """
-        Compute the metric for the In-group Bias.
+        Compute the metric for the In-group bias.
 
         Args:
             control_answer (np.array): The answer chosen in the control version.
