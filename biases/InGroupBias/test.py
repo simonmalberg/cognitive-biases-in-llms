@@ -50,8 +50,6 @@ class InGroupBiasTestGenerator(TestGenerator):
             treatment=treatment,
             generator=model.NAME,
             scenario=scenario,
-            control_values=None,
-            treatment_values=None,
             variant=None,
             remarks=None,
         )
@@ -73,7 +71,7 @@ class InGroupBiasMetric(Metric):
         self, control_answer: np.array, treatment_answer: np.array
     ) -> np.array:
         """
-        Compute the metric for the In-Group Bias.
+        Compute the metric for the In-group Bias.
 
         Args:
             control_answer (np.array): The answer chosen in the control version.
