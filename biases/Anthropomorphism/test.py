@@ -48,8 +48,6 @@ class AnthropomorphismTestGenerator(TestGenerator):
             treatment=treatment,
             generator=model.NAME,
             scenario=scenario,
-            control_values=None,
-            treatment_values=None,
             variant=None,
             remarks=None,
         )
@@ -101,4 +99,4 @@ class AnthropomorphismMetric(Metric):
         except Exception as e:
             print(e)
             raise MetricCalculationError(f"Error filtering test results: {e}")
-        return biasedness_scores
+        return round(biasedness_scores, 2)
