@@ -1,0 +1,20 @@
+<config bias="Disposition Effect">
+    <custom_values name="change_range">
+        <value>10</value>
+        <value>50</value>
+    </custom_values>
+    <variant name="default">
+        <template type="treatment">
+            <situation>Suppose you are a [[type]] manager at [[organization]].</situation>
+            <situation>You regularly decide whether to [[hold/keep/maintain]] or [[sell/dispose/stop]] [[assets managed by the manager]] which fluctuate in [[some kind of value]].</situation>
+            <situation>Currently, you are [[holding/keeping/maintaining]] the following two [[assets]], which you spend [[large number of resources, e.g., money]] on:</situation>
+            <situation>- '[[Concrete Asset A]]' recently gained {{increase}}% in [[some kind of value]].</situation>
+            <situation>- '[[Concrete Asset B]]' recently lost {{decrease}}% in [[some kind of value]].</situation>
+            <prompt>What is the best action to respond to these changes?</prompt>
+            <option>Continue [[holding/keeping/maintaining]] '[[Concrete Asset A]]' and [[sell/dispose/stop]] '[[Concrete Asset B]]'</option>
+            <option>Continue [[holding/keeping/maintaining]] '[[Concrete Asset A]]' and continue [[holding/keeping/maintaining]] '[[Concrete Asset B]]'</option>
+            <option>[[Sell/dispose/stop]] '[[Concrete Asset A]]' and [[sell/dispose/stop]] '[[Concrete Asset B]]'</option>
+            <option>[[Sell/dispose/stop]] '[[Concrete Asset A]]' and continue [[holding/keeping/maintaining]] '[[Concrete Asset B]]'</option>
+        </template>
+    </variant>
+</config>
