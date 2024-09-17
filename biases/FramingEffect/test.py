@@ -58,7 +58,7 @@ class FramingEffectTestGenerator(TestGenerator):
                         )
                 iteration_seed += 1
             # checking that the generation has not failed too many times for the given bias
-            if num_retries >= max_retries:
+            if num_retries > max_retries:
                 print(f"Max retries reached for bias {self.BIAS}, seed {seed}")
                 break
                 

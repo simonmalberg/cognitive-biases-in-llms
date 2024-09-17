@@ -43,10 +43,7 @@ class EndowmentEffectTestGenerator(TestGenerator):
             custom_values = self.config.get_custom_values()
             # randomly sample each custom value 'num_instances' number of times
             # in this case, it is an empty dictionary as there are no custom values
-            sampled_values = {
-                key: [random.choice(value) for _ in range(num_instances)]
-                for key, value in custom_values.items()
-            }
+            sampled_values = {}
             for step in range(num_instances):
                 try:
                     test_case = self.generate(model, scenario, sampled_values, step, temperature, iteration_seed)
@@ -58,7 +55,7 @@ class EndowmentEffectTestGenerator(TestGenerator):
                         )
                 iteration_seed += 1
             # checking that the generation has not failed too many times for the given bias
-            if num_retries >= max_retries:
+            if num_retries > max_retries:
                 print(f"Max retries reached for bias {self.BIAS}, seed {seed}")
                 break
                 
