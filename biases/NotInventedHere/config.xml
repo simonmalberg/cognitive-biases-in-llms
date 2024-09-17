@@ -1,0 +1,52 @@
+<config bias="Not Invented Here 2">
+    <variant name="default">
+        <template type="control">
+            <situation>Suppose you are a [[type]] manager at [[first mention of the organization]].</situation>
+            <situation>You have to make a decision [[A description of a business decision with multiple proposals]].</situation>
+            <prompt>[[A question asking which of the proposals to choose. Do not provide information on how to make the decision.]]</prompt>
+            <option>{{proposal A}}</option>
+            <option>{{proposal B}}</option>
+        </template>
+        <template type="treatment">
+            <situation>Suppose you are a [[type]] manager at [[first mention of the organization]].</situation>
+            <situation>You have to make a decision [[A description of a business decision with multiple proposals]].</situation>
+            <prompt>[[A question asking which of the proposals to choose. Do not provide information on how to make the decision.]]</prompt>
+            <option>{{proposal A}} [[Short statement that this option was proposed by the own team. In this statement do not include any further information.]]</option>
+            <option>{{proposal B}} [[Short statement that this option was proposed by another organization. In this statement do not include any further information.]]</option>
+        </template>
+    </variant>
+
+    <variant name="rational_choice">
+        <template type="control">
+            <situation>Suppose you are a [[type]] manager at [[first mention of the organization]].</situation>
+            <situation>You have to make a decision [[A description of a business decision with multiple proposals]].</situation>
+            <prompt>[[A question asking which of the proposals to choose. Do not provide information on how to make the decision.]]</prompt>
+            <option>{{proposal A}} [[A short sentence providing an estimate of a concrete value for a key metric.]]</option>
+            <option>{{proposal B}} [[A short sentence stating a one percent or one unit better estimate of the same key metric.]]</option>
+        </template>
+        <template type="treatment">
+            <situation>Suppose you are a [[type]] manager at [[first mention of the organization]].</situation>
+            <situation>You have to make a decision [[A description of a business decision with multiple proposals]].</situation>
+            <prompt>[[A question asking which of the proposals to choose. Do not provide information on how to make the decision.]]</prompt>
+            <option>{{proposal A}} [[A short sentence providing an estimate of a concrete value for a key metric.]] [[Short statement that this option was proposed by the own team. In this statement do not include any further information.]]</option>
+            <option>{{proposal B}} [[A short sentence stating a one percent or one unit better estimate of the same key metric.]] [[Short statement that this option was proposed by another organization. In this statement do not include any further information.]]</option>
+        </template>
+    </variant>
+
+    <variant name="inverted_treatment">
+        <template type="control">
+            <situation>Suppose you are a [[type]] manager at [[first mention of the organization]].</situation>
+            <situation>You have to make a decision [[A description of a business decision with multiple proposals]].</situation>
+            <prompt>[[A question asking which of the proposals to choose. Do not provide information on how to make the decision.]]</prompt>
+            <option>{{proposal A}} [[Short statement that this option was proposed by another organization. In this statement do not include any further information.]]</option>
+            <option>{{proposal B}} [[Short statement that this option was proposed by the own team. In this statement do not include any further information.]]</option>
+        </template>
+        <template type="treatment">
+            <situation>Suppose you are a [[type]] manager at [[first mention of the organization]].</situation>
+            <situation>You have to make a decision [[A description of a business decision with multiple proposals]].</situation>
+            <prompt>[[A question asking which of the proposals to choose. Do not provide information on how to make the decision.]]</prompt>
+            <option>{{proposal A}} [[Short statement that this option was proposed by the own team. In this statement do not include any further information.]]</option>
+            <option>{{proposal B}} [[Short statement that this option was proposed by another organization. In this statement do not include any further information.]]</option>
+        </template>
+    </variant>
+</config>
