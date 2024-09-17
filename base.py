@@ -142,7 +142,7 @@ class TestGenerator(ABC):
         self.BIAS = "None"
 
     @abstractmethod
-    def generate_all(self, model: LLM, scenarios: list[str], temperature: float = 0.0, seed: int = 42, num_instances: int = 5, max_retries: int = 5) -> list[TestCase]:
+    def generate_all(self, model: LLM, scenarios: list[str], temperature: float = 0.0, seed: int = 42, num_instances: int = 1, max_retries: int = 5) -> list[TestCase]:
         """
         Generates all test cases at once for the cognitive bias associated with this test generator.
 
