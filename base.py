@@ -142,14 +142,17 @@ class TestGenerator(ABC):
         self.BIAS = "None"
 
     @abstractmethod
-    def generate_all(self, model: LLM, scenarios: list[str], seed: int = 42) -> list[TestCase]:
+    def generate_all(self, model: LLM, scenarios: list[str], temperature: float = 0.0, seed: int = 42, num_instances: int = 5, max_retries: int = 5) -> list[TestCase]:
         """
         Generates all test cases at once for the cognitive bias associated with this test generator.
 
         Args:
             model (LLM): The LLM model to use for generating the test case.
             scenarios (list[str]): The list of scenarios for which to generate the test case.
+            temperature (float): The temperature to use for generating the test cases.
             seed (int): A seed for deterministic randomness.
+            num_instances (int): The number of instances to generate for each scenario.
+            max_retries (int): The maximum number of retries of generation for the bias.
 
         Returns:
             A list of TestCase objects representing the generated test cases.
@@ -157,7 +160,7 @@ class TestGenerator(ABC):
         pass
     
     @abstractmethod
-    def generate(self, model: LLM, scenario: str, config_values: dict = {}, seed: int = 42) -> TestCase:
+    def generate(self, model: LLM, scenario: str, config_values: dict = {}, temperature: float = 0.0, seed: int = 42) -> TestCase:
         """
         Generates a test case for the cognitive bias associated with this test generator.
 
@@ -165,6 +168,7 @@ class TestGenerator(ABC):
             model (LLM): The LLM model to use for generating the test case.
             scenario (str): The scenario for which to generate the test case.
             config_values (dict): A dictionary containing the configuration data for the test case.
+            temperature (float): The temperature to use for generating the test case.
             seed (int): A seed for deterministic randomness.
 
         Returns:
@@ -184,7 +188,7 @@ class TestGenerator(ABC):
         """
         return TestConfig(f"./biases/{bias.title().replace(' ', '')}/config.xml")
 
-    def populate(self, model: LLM, control: Template, treatment: Template, scenario: str) -> tuple[Template, Template]:
+    def populate(self, model: LLM, control: Template, treatment: Template, scenario: str, temperature: float = 0.0, seed: int = 42) -> tuple[Template, Template]:
         """
         Populates the control and treatment templates using the provided LLM model and scenario.
 
@@ -193,13 +197,15 @@ class TestGenerator(ABC):
             control (Template): The control template.
             treatment (Template): The treatment template.
             scenario (str): The scenario for which to populate the templates.
+            temperature (float): The temperature to use for generating the test cases.
+            seed (int): A seed for deterministic randomness.
 
         Returns:
             A tuple containing the populated control and treatment templates.
         """
 
         # Populate the templates using the model and scenario
-        control, treatment = model.populate(control, treatment, scenario)
+        control, treatment = model.populate(control, treatment, scenario, temperature, seed)
 
         return control, treatment
 

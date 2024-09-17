@@ -1,6 +1,8 @@
 from base import TestGenerator, LLM, Metric, MetricCalculationError
 from tests import TestCase, Template, TestConfig, DecisionResult
 import numpy as np
+from tqdm import tqdm
+import random
 
 
 class FramingEffectTestGenerator(TestGenerator):
@@ -15,50 +17,68 @@ class FramingEffectTestGenerator(TestGenerator):
     def __init__(self):
         self.BIAS: str = "Framing Effect"
         self.config: TestConfig = super().load_config(self.BIAS)
-
+        
     def generate_all(
-        self, model: LLM, scenarios: list[str], seed: int = 42
+        self, model: LLM, scenarios: list[str], temperature: float = 0.0, seed: int = 42, num_instances: int = 5, max_retries: int = 5
     ) -> list[TestCase]:
-        # Load the custom values from the test config
-        custom_values = self.config.get_custom_values()
-
-        # Create test cases for all provided scenarios
+        """
+        Generate several test cases for each provided scenarios.
+        
+        Args:
+            model (LLM): The LLM to use for generating the test cases.
+            scenarios (list[str]): A list of scenarios to generate the test cases for.
+            temperature (float): The temperature to use for generating the test cases.
+            seed (int): The seed to use for generating the test cases.
+            num_instances (int): The number of instances to generate for each scenario.
+            max_retries (int): The maximum number of retries in generation of all tests for this bias.
+        """
         test_cases: list[TestCase] = []
-        for scenario in scenarios:
-            try:
-                test_case = self.generate(model, scenario, custom_values, seed)
-                test_cases.append(test_case)
-            except Exception as e:
-                print(
-                    f"Generating the test case failed.\nScenario: {scenario}\nSeed: {seed}"
-                )
-                print(e)
-
+        sampled_values: dict = {}
+        num_retries = 0
+        for scenario in tqdm(scenarios):
+            # creating a seed for each scenario
+            iteration_seed = hash(scenario + str(seed))
+            random.seed(iteration_seed)
+            # load the custom values for this test
+            custom_values = self.config.get_custom_values()
+            # randomly sample each custom value 'num_instances' number of times
+            # in this case, we are sampling the first_percentage value from randint from the provided range
+            sampled_values = {
+                key: [random.randint(float(value[0]), float(value[1])) for _ in range(num_instances)]
+                for key, value in custom_values.items() if key == "first_percentage"
+            }
+            for step in range(num_instances):
+                try:
+                    test_case = self.generate(model, scenario, sampled_values, step, temperature, iteration_seed)
+                    test_cases.append(test_case)
+                except Exception as e:
+                    num_retries += 1
+                    print(
+                            f"Generating the test case failed.\nScenario: {scenario}\nIteration seed: {iteration_seed}\nError: {e}"
+                        )
+                iteration_seed += 1
+            # checking that the generation has not failed too many times for the given bias
+            if num_retries >= max_retries:
+                print(f"Max retries reached for bias {self.BIAS}, seed {seed}")
+                break
+                
         return test_cases
 
     def generate(
-        self, model: LLM, scenario: str, custom_values: dict = {}, seed: int = 42
+        self, model: LLM, scenario: str, custom_values: dict = {}, step: int = 0, temperature: float = 0.0, seed: int = 42
     ) -> TestCase:
         # Load the control and treatment templates
         control: Template = self.config.get_control_template()
         treatment: Template = self.config.get_treatment_template()
 
-        # Populate the templates with custom values
-        # Loading the required distribution (should be a np.random method)
-        first_percentage = custom_values["first_percentage"]
-        distribution = getattr(np.random, first_percentage[0])
-        np.random.seed(seed)
-        first_percentage = distribution(
-            float(first_percentage[1]), float(first_percentage[2])
-        )
-        control.insert("first_percentage", str(first_percentage))
-        treatment.insert("second_percentage", str(100 - first_percentage))
-        # Get dictionary of inserted values
-        control_values = control.inserted_values
-        treatment_values = treatment.inserted_values
+        # Populate the templates with the custom values sampled in the generate_all method
+        # We retrive the value that was generated for the current step
+        first_percentage = custom_values["first_percentage"][step]
+        control.insert("first_percentage", str(first_percentage), origin='user')
+        treatment.insert("second_percentage", str(100 - first_percentage), origin='user')
 
         # Populate the templates using the model and the scenario
-        control, treatment = super().populate(model, control, treatment, scenario)
+        control, treatment = super().populate(model, control, treatment, scenario, temperature, seed)
 
         # Create a test case object
         test_case = TestCase(
@@ -66,9 +86,9 @@ class FramingEffectTestGenerator(TestGenerator):
             control=control,
             treatment=treatment,
             generator=model.NAME,
+            temperature=temperature,
+            seed=seed,
             scenario=scenario,
-            control_values=control_values,
-            treatment_values=treatment_values,
             variant=None,
             remarks=None,
         )

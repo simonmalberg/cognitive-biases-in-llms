@@ -795,16 +795,20 @@ class TestCase:
         CONTROL (Template): The control template for the test case.
         TREATMENT (Template): The treatment template for the test case.
         GENERATOR (str): The name of the LLM generator used to populate the templates.
+        SEED (int): The seed used to generate the test case.
+        TEMPERATURE (float): The temperature used for sampling from the LLM generator.
         SCENARIO (str): The scenario in which the test case is being conducted.
         VARIANT (str, optional): The variant of the test case.
         REMARKS (str, optional): Any additional remarks about the test case.
     """
 
-    def __init__(self, bias: str, control: Template, treatment: Template, generator: str, scenario: str, variant: str = None, remarks: str = None, **kwargs):
+    def __init__(self, bias: str, control: Template, treatment: Template, generator: str, temperature: float, seed: int, scenario: str, variant: str = None, remarks: str = None, **kwargs):
         self.BIAS: str = bias
         self.CONTROL: Template = control
         self.TREATMENT: Template = treatment
         self.GENERATOR: str = generator
+        self.SEED: int = seed
+        self.TEMPERATURE: float = temperature
         self.SCENARIO: str = scenario
         self.VARIANT: str = variant
         self.REMARKS: str = remarks
@@ -817,7 +821,7 @@ class TestCase:
             setattr(self, key.upper(), value)
 
     def __str__(self) -> str:
-        return f'---TestCase---\n\nBIAS: {self.BIAS}\nVARIANT: {self.VARIANT}\nSCENARIO: {self.SCENARIO}\nGENERATOR: {self.GENERATOR}\n\nCONTROL:\n{self.CONTROL}\n\nTREATMENT:\n{self.TREATMENT}\n\nREMARKS:\n{self.REMARKS}\n\n------'
+        return f'---TestCase---\n\nBIAS: {self.BIAS}\nVARIANT: {self.VARIANT}\nSCENARIO: {self.SCENARIO}\nGENERATOR: {self.GENERATOR}\nTEMPERATURE: {self.TEMPERATURE}\nSEED: {self.SEED}\n\nCONTROL:\n{self.CONTROL}\n\nTREATMENT:\n{self.TREATMENT}\n\nREMARKS:\n{self.REMARKS}\n\n------'
 
     def __repr__(self) -> str:
         return self.__str__()
