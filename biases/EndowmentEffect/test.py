@@ -1,6 +1,5 @@
 from base import TestGenerator, LLM, Metric, MetricCalculationError
 from tests import TestCase, Template, TestConfig, DecisionResult
-from tqdm import tqdm
 import numpy as np
 import random
 

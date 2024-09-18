@@ -99,7 +99,7 @@ def dataset_generation(
     test_cases: list[TestCase] = []
     for bias in biases:
         generator = get_generator(bias)
-        for idx, scenario in enumerate(tqdm(scenarios)):
+        for scenario in tqdm(scenarios):
             test_cases = generator.generate_all(
                 get_model(population_model),
                 [scenario],
@@ -109,7 +109,7 @@ def dataset_generation(
                 max_retries,
             )
             # Save the generated test cases for given bias and scenario to an XML file
-            write_to_xml(test_cases, f"{bias}_scenario_{idx}.xml")
+            write_to_xml(test_cases, f"{bias}_{hash(scenario)}_{num_instances}.xml")
     print("The dataset is successfully created.")
 
     return 0
