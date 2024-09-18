@@ -4,6 +4,7 @@ import random
 import os
 import xml.etree.ElementTree as ET
 from xml.dom import minidom
+from tqdm import tqdm
 
 
 def all_biases() -> list[str]:
@@ -100,14 +101,15 @@ def dataset_generation(
     test_cases: list[TestCase] = []
     for bias in biases:
         generator = get_generator(bias)
-        test_cases = generator.generate_all(
-            get_model(population_model),
-            scenarios,
-            temperature,
-            seed,
-            num_instances,
-            max_retries,
-        )
+        for scenario in tqdm(scenarios):
+            test_cases += generator.generate_all(
+                get_model(population_model),
+                [scenario],
+                temperature,
+                seed,
+                num_instances,
+                max_retries,
+            )
     # Save the dataset to an XML file
     write_to_xml(test_cases, file_path)
     print("The dataset is successfully created.")
@@ -126,9 +128,9 @@ if __name__ == "__main__":
     model = "GPT-4o"
 
     dataset_generation(
-        biases=["EndowmentEffect"],
+        biases=["EndowmentEffect", "FramingEffect"],
         population_model=model,
-        scenarios=random.sample(scenarios, 1),
+        scenarios=random.sample(scenarios, 2),
         file_path="dataset_test.xml",
         temperature=0.7,
         num_instances=2,

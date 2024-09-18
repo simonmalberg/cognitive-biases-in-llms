@@ -1,7 +1,6 @@
 from base import TestGenerator, LLM, Metric, MetricCalculationError
 from tests import TestCase, Template, TestConfig, DecisionResult
 import numpy as np
-from tqdm import tqdm
 import random
 
 
@@ -35,7 +34,7 @@ class FramingEffectTestGenerator(TestGenerator):
         test_cases: list[TestCase] = []
         sampled_values: dict = {}
         num_retries = 0
-        for scenario in tqdm(scenarios):
+        for scenario in scenarios:
             # creating a seed for each scenario
             iteration_seed = hash(scenario + str(seed))
             random.seed(iteration_seed)
@@ -57,10 +56,10 @@ class FramingEffectTestGenerator(TestGenerator):
                             f"Generating the test case failed.\nScenario: {scenario}\nIteration seed: {iteration_seed}\nError: {e}"
                         )
                 iteration_seed += 1
-            # checking that the generation has not failed too many times for the given bias
-            if num_retries > max_retries:
-                print(f"Max retries reached for bias {self.BIAS}, seed {seed}")
-                break
+                # checking that the generation has not failed too many times for the given scenario
+                if num_retries > max_retries:
+                    print(f"Max retries reached for bias {self.BIAS}, scenario {scenario}, and seed {seed}")
+                    break
                 
         return test_cases
 
