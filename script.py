@@ -80,7 +80,6 @@ def dataset_generation(
     biases: list[str],
     population_model: str,
     scenarios: list[str],
-    file_path: str,
     temperature: float = 0.0,
     num_instances: int = 5,
     max_retries: int = 5,
@@ -92,7 +91,6 @@ def dataset_generation(
         biases (list[str]): A list of cognitive biases to generate the dataset for.
         population_model (str): The name of the population model to use for generating the test cases.
         scenarios (list[str]): A list of scenarios to generate the test cases for.
-        file_path (str): The path to the file to save the XML file to.
         temperature (float): The temperature of the LLM to use for generating the test cases.
         num_instances (int): The number of instances to generate for each scenario.
         max_retries (int): The maximum number of retries in generation of all tests for a single bias.
@@ -101,8 +99,8 @@ def dataset_generation(
     test_cases: list[TestCase] = []
     for bias in biases:
         generator = get_generator(bias)
-        for scenario in tqdm(scenarios):
-            test_cases += generator.generate_all(
+        for idx, scenario in enumerate(tqdm(scenarios)):
+            test_cases = generator.generate_all(
                 get_model(population_model),
                 [scenario],
                 temperature,
@@ -110,8 +108,8 @@ def dataset_generation(
                 num_instances,
                 max_retries,
             )
-    # Save the dataset to an XML file
-    write_to_xml(test_cases, file_path)
+            # Save the generated test cases for given bias and scenario to an XML file
+            write_to_xml(test_cases, f"{bias}_scenario_{idx}.xml")
     print("The dataset is successfully created.")
 
     return 0
@@ -131,7 +129,6 @@ if __name__ == "__main__":
         biases=["EndowmentEffect", "FramingEffect"],
         population_model=model,
         scenarios=random.sample(scenarios, 2),
-        file_path="dataset_test.xml",
         temperature=0.7,
         num_instances=2,
         max_retries=5,
