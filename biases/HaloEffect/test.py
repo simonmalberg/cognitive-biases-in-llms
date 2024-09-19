@@ -45,24 +45,13 @@ class HaloEffectTestGenerator(TestGenerator):
         # custom values handling
         random.seed(seed)
         perception_values = custom_values["perception"]
-        preference_values = custom_values["preference"]
         # Sampling one of the values
         perception = random.choice(perception_values)
-        preferential_brand = random.choice(preference_values)
-        other_brand = (
-            preference_values[0]
-            if preferential_brand == preference_values[1]
-            else preference_values[1]
-        )
-        perceived_brand = (
-            other_brand if perception == "positive" else preferential_brand
-        )
         for template in [control, treatment]:
             template.insert("perception", perception, origin="user")
-            template.insert("preference", preferential_brand, origin="user")
-            template.insert("perceived_brand", perceived_brand, origin="user")
 
-        control, treatment = super().populate(model, control, treatment, scenario)
+        # first populate the treatment template, then the control template
+        treatment, control = super().populate(model, treatment, control, scenario)
 
         test_case = TestCase(
             bias=self.BIAS,
@@ -77,37 +66,49 @@ class HaloEffectTestGenerator(TestGenerator):
 
 class HaloEffectMetric(Metric):
     """
-    A class that describes the quantitative evaluation of the halo effect bias in a model.
+    A class that describes the quantitative evaluation of the halo effect in a model.
 
     Metric:
-    𝔅 = I[â₂ != â₁] * (1 - 2I[â₁ != p])
+    𝔅 = k * (â₂ - â₁) / a
 
     where:
-    I is the indicator function;
-    â₁, â₂ are the chosen answers for the control and treatment versions, respectively.
-    p is the advantageous product (0 or 1).
+    â₁, â₂ are the chosen answers for the control and treatment versions, respectively;
+    a = â₁ - â (if â₂ - â₁ < 0) or else a = ã - â₁, where ã is the maximum option, â - the minimum option (= 0).
+    k is the halo type and is 1 for positive and -1 for negative.
 
     """
 
     def _compute(
-        self, control_answer: np.array, treatment_answer: np.array, preference: np.array
+        self,
+        control_answer: np.array,
+        treatment_answer: np.array,
+        halo: np.array,
+        max_option: np.array,
     ) -> np.array:
         """
-        Computes the halo effect bias metric for the given batch of test instances.
+        Compute the metric for the Negativity bias.
 
         Args:
-            control_answer (np.array, shape (batch, 1)): The answer(s) chosen for the control variant.
-            treatment_answer (np.array, shape (batch, 1)): The answer(s) chosen for the treatment variant.
-            preference (np.array, shape (batch, 1)): The advantageous product (0 or 1).
+            control_answer (np.array): The answer chosen in the control version.
+            treatment_answer (np.array): The answer chosen in the treatment version.
+
+            max_option (np.array): The maximum answer option.
 
         Returns:
-            The halo effect bias metric value.
+            np.array: The metric value for the test case.
         """
-        metric_values = (control_answer != treatment_answer) * (
-            1 - 2 * (control_answer != preference)
+        delta = treatment_answer - control_answer
+        metric_value = (
+            halo
+            * delta
+            / (
+                (delta >= 0) * (max_option - control_answer)
+                + (delta < 0) * control_answer
+                + 10e-8
+            )
         )
 
-        return metric_values
+        return metric_value
 
     def compute(self, test_results: list[tuple[TestCase, DecisionResult]]) -> float:
         try:
@@ -117,6 +118,8 @@ class HaloEffectMetric(Metric):
                 for pair in test_results
                 if pair[0] is not None and pair[1] is not None
             ]
+            # extract the max option
+            max_option = len(test_results[0][1].CONTROL_OPTIONS) - 1
             # extract answers
             control_answer = np.array(
                 [
@@ -130,17 +133,17 @@ class HaloEffectMetric(Metric):
                     for (_, decision_result) in test_results
                 ]
             )
-            preference = [
+            halo = [
                 [
                     insertion.text
-                    for insertion in test_case.CONTROL.get_insertions()
-                    if insertion.pattern == "preference"
+                    for insertion in test_case.TREATMENT.get_insertions()
+                    if insertion.pattern == "perception"
                 ]
                 for (test_case, _) in test_results
             ]
-            preference = np.array([[0] if p == ["A"] else [1] for p in preference])
+            halo = np.array([[1] if p == ["positively"] else [-1] for p in halo])
             biasedness_scores = np.mean(
-                self._compute(control_answer, treatment_answer, preference)
+                self._compute(control_answer, treatment_answer, halo, max_option)
             )
         except Exception as e:
             print(e)
