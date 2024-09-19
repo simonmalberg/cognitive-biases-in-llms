@@ -14,8 +14,8 @@
             <situation>Suppose you are a [[type]] manager at [[organization]].</situation>
             <situation>You are presented with two choices.</situation>
             <prompt>Which choice would you choose?</prompt>
-            <option>[[Provide a description of a choice with a guaranteed profit of amount {{base_amount}}. Choose amount magnitude (e.g., thousands or millions) and currency accordingly.]]</option>
-            <option>[[Provide a description of another choice that is equally likely to lead to a profit of amount {{lambda_amount}} and loss of amount {{base_amount}}. Choose amount magnitude (e.g., thousands or millions) and currency accordingly.]]</option>
+            <option>[[Provide a description of a choice with a guaranteed profit for you of total amount {{base_amount}}. The profit is yours personally. Choose amount magnitude (e.g., thousands or millions) and currency accordingly.]]</option>
+            <option>[[Provide a description of another choice that is equally likely to lead to a profit of total amount {{lambda_amount}} and loss of total amount {{base_amount}}. Either profit or loss is yours personally. Choose amount magnitude (e.g., thousands or millions) and currency accordingly.]]</option>
         </template>
     </variant>
 </config>
