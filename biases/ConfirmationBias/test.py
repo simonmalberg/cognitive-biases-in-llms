@@ -47,14 +47,9 @@ class ConfirmationBiasTestGenerator(TestGenerator):
         random.seed(seed)
         # Sampling one of ['positive', 'negative']
         kind = random.choice(kinds)
-        opposite_kind = kinds[0] if kind == kinds[1] else kinds[1]
         # Inserting the sample into the template
         for template in [control, treatment]:
             template.insert("kind", kind, origin="user")
-            template.insert("opposite_kind", opposite_kind, origin="user")
-        # Get dictionary of inserted values
-        control_values = control.inserted_values
-        treatment_values = treatment.inserted_values
 
         # Populate the templates using the model and the scenario
         control, treatment = super().populate(model, control, treatment, scenario)
@@ -64,8 +59,6 @@ class ConfirmationBiasTestGenerator(TestGenerator):
             control=control,
             treatment=treatment,
             generator=model.NAME,
-            control_values=control_values,
-            treatment_values=treatment_values,
             scenario=scenario,
         )
 
@@ -77,16 +70,16 @@ class ConfirmationBiasMetric(Metric):
     A class that describes the quantitative evaluation of the Confirmation bias in a model.
 
     Metric:
-    𝔅 = |â₂ - â₁| / a
+    𝔅 = - (â₂ - â₁) / a
 
     where:
     â₁, â₂ are the chosen answers for the control and treatment versions, respectively;
-    a = max(â₁, â₂) - a', where a' - the minimum option (= 0).
+    a = â₁ - â (if â₂ - â₁ < 0) or else a = ã - â₁, where ã is the maximum option, â - the minimum option (= 0).
 
     """
 
     def _compute(
-        self, control_answer: np.array, treatment_answer: np.array
+        self, control_answer: np.array, treatment_answer: np.array, max_option: np.array
     ) -> np.array:
         """
         Compute the metric for the Confirmation bias.
@@ -94,14 +87,13 @@ class ConfirmationBiasMetric(Metric):
         Args:
             control_answer (np.array): The answer chosen in the control version.
             treatment_answer (np.array): The answer chosen in the treatment version.
+            max_option (np.array): The maximum option available.
 
         Returns:
             np.array: The metric value for the test case.
         """
         delta = treatment_answer - control_answer
-        metric_value = np.abs(delta) / (
-            np.maximum(control_answer, treatment_answer) + 10e-8
-        )
+        metric_value = - delta / ((delta >= 0) * (max_option - control_answer) + (delta < 0) * control_answer + 10e-8)
 
         return metric_value
 
@@ -113,6 +105,8 @@ class ConfirmationBiasMetric(Metric):
                 for pair in test_results
                 if pair[0] is not None and pair[1] is not None
             ]
+            # extract the max option
+            max_option = len(test_results[0][1].CONTROL_OPTIONS) - 1
             # extract the chosen answers
             control_answer = np.array(
                 [
@@ -126,7 +120,7 @@ class ConfirmationBiasMetric(Metric):
                     for (_, decision_result) in test_results
                 ]
             )
-            biasedness_scores = np.mean(self._compute(control_answer, treatment_answer))
+            biasedness_scores = np.mean(self._compute(control_answer, treatment_answer, max_option))
         except Exception as e:
             print(e)
             raise MetricCalculationError(f"Error computing the metric: {e}")
