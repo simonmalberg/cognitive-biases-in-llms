@@ -20,6 +20,7 @@ class NotInventedHereTestGenerator(TestGenerator):
 
         # Get a list of all variants in the test config
         variants = self.config.get_variants()
+        custom_values = self.config.get_custom_values()
 
         # Create test cases for all variants and scenarios
         test_cases: list[TestCase] = []
@@ -27,7 +28,8 @@ class NotInventedHereTestGenerator(TestGenerator):
             for scenario in scenarios:
                 try:
                     instance_values = {
-                        "variant": variant
+                        "variant": variant,
+                        "countries": custom_values["country"],
                     }
 
                     test_case = self.generate(model, scenario, instance_values, seed)
@@ -48,6 +50,11 @@ class NotInventedHereTestGenerator(TestGenerator):
         variant = config_values["variant"]
         control: Template = self.config.get_control_template(variant)
         treatment: Template = self.config.get_treatment_template(variant)
+
+        if variant == "spatial":
+            country = np.random.choice(config_values["countries"])
+            control.insert("country", country)
+            treatment.insert("country", country)
 
         # Generate two decision alternatives the manager could choose from
         alternatives = self._create_alternatives(model, scenario, seed)
@@ -113,11 +120,24 @@ class NotInventedHereMetric(Metric):
         pass
 
     def _compute(self, test_result: tuple[TestCase, DecisionResult]) -> float:
+
         # Extract the decision result from the tuple
         decision_result: DecisionResult = test_result[1]
+        
+        # Check if always the option of the own team was selected
+        if decision_result.CONTROL_DECISION == 1 and decision_result.TREATMENT_DECISION == 0:
+            biasedness = 1.0
 
-        print("Metric not implemented yet.")
-        pass
+        # Check if always the other option was selected
+        elif decision_result.CONTROL_DECISION == 0 and decision_result.TREATMENT_DECISION == 1:
+            biasedness = -1.0
+
+        else:
+            biasedness = 0.0
+
+
+        return biasedness
+
 
     def compute(self, test_results: list[tuple[TestCase, DecisionResult]]) -> float:
         # Calculate the average biasedness score across all tests
