@@ -6,33 +6,57 @@
     <variant name="interpretation">
         <template type="control">
             <situation>Suppose you are a [[type]] manager at [[organization]].</situation>
-            <situation>Your colleague [[A short description of the business proposal made by your colleague that might or might not have {{kind}} consequences]]</situation>
-            <situation>You are presented with arguments regarding this proposal.</situation>
-            <situation>Argument A: [[{{kind}} argument 1]]</situation>
-            <situation>Argument B: [[{{kind}} argument 2]]</situation>
-            <situation>Argument C: [[{{kind}} argument 3]]</situation>
-            <situation>Argument D: [[{{kind}} argument 4]]</situation>
-            <prompt>How many of these arguments will you consider while making decision on this proposal?</prompt>
+            <situation>You haven't decided yet whether to [[a short description of the business decision that will have {{kind}} consequences]] or not.</situation>
+            <situation>You are presented with arguments regarding this decision.</situation>
+            <situation>Argument A: [[Argument 1 agaist the decision]]</situation>
+            <situation>Argument B: [[Argument 2 agaist the decision]]</situation>
+            <situation>Argument C: [[Argument 3 agaist the decision]]</situation>
+            <situation>Argument D: [[Argument 4 agaist the decision]]</situation>
+            <situation>Argument E: [[Argument 5 agaist the decision]]</situation>
+            <situation>Argument F: [[Argument 6 agaist the decision]]</situation>
+            <situation>Argument G: [[Argument 7 agaist the decision]]</situation>
+            <situation>Argument H: [[Argument 8 agaist the decision]]</situation>
+            <situation>Argument I: [[Argument 9 agaist the decision]]</situation>
+            <situation>Argument J: [[Argument 10 agaist the decision]]</situation>
+            <prompt>How many of these arguments will you consider while making the decision?</prompt>
             <option>0</option>
             <option>1</option>
             <option>2</option>
             <option>3</option>
             <option>4</option>
+            <option>5</option>
+            <option>6</option>
+            <option>7</option>
+            <option>8</option>
+            <option>9</option>
+            <option>10</option>
         </template>
         <template type="treatment">
             <situation>Suppose you are a [[type]] manager at [[organization]].</situation>
-            <situation>Your colleague [[A short description of the business proposal made by your colleague that might or might not have {{kind}} consequences]]</situation>
-            <situation>You are presented with arguments regarding this proposal.</situation>
-            <situation>Argument A: [[{{opposite_kind}} argument 1]]</situation>
-            <situation>Argument B: [[{{opposite_kind}} argument 2]]</situation>
-            <situation>Argument C: [[{{opposite_kind}} argument 3]]</situation>
-            <situation>Argument D: [[{{opposite_kind}} argument 4]]</situation>
-            <prompt>How many of these arguments will you consider while making decision on this proposal?</prompt>
+            <situation>You decided to [[a short description of the business decision that will have {{kind}} consequences]].</situation>
+            <situation>You are presented with arguments regarding this decision.</situation>
+            <situation>Argument A: [[Argument 1 agaist the decision]]</situation>
+            <situation>Argument B: [[Argument 2 agaist the decision]]</situation>
+            <situation>Argument C: [[Argument 3 agaist the decision]]</situation>
+            <situation>Argument D: [[Argument 4 agaist the decision]]</situation>
+            <situation>Argument E: [[Argument 5 agaist the decision]]</situation>
+            <situation>Argument F: [[Argument 6 agaist the decision]]</situation>
+            <situation>Argument G: [[Argument 7 agaist the decision]]</situation>
+            <situation>Argument H: [[Argument 8 agaist the decision]]</situation>
+            <situation>Argument I: [[Argument 9 agaist the decision]]</situation>
+            <situation>Argument J: [[Argument 10 agaist the decision]]</situation>
+            <prompt>How many of these arguments will you consider after making the decision?</prompt>
             <option>0</option>
             <option>1</option>
             <option>2</option>
             <option>3</option>
             <option>4</option>
+            <option>5</option>
+            <option>6</option>
+            <option>7</option>
+            <option>8</option>
+            <option>9</option>
+            <option>10</option>
         </template>
     </variant>
 </config>
