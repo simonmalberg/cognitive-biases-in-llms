@@ -6,8 +6,8 @@
     <variant name="default">
         <template type="control">
             <situation>Suppose you are a [[type]] manager at [[organization]].</situation>
-            <situation>You [[intend to buy or purchase]] [[a product relevant for your task]].</situation>
-            <situation>One of the brands that [[offer or produce]] such a product is [[brand]].</situation>
+            <situation>You plan to purchase [[a product relevant for your task]].</situation>
+            <situation>One of the brands that [[offer or produce]] such a product is brand A.</situation>
             <prompt>In your opinion, on a scale from 1 (very bad) to 10 (very good), how would you expect [[feature B, which is completely independent from the feature A]] to be in this product?</prompt>
             <option>1</option>
             <option>2</option>
@@ -22,9 +22,9 @@
         </template>
         <template type="treatment">
             <situation>Suppose you are a [[type]] manager at [[organization]].</situation>
-            <situation>You [[intend to buy or purchase]] [[a product relevant for your task]].</situation>
-            <situation>One of the brands that [[offer or produce]] such a product is [[brand]].</situation>
-            <situation>This product by [[brand]] [[describe a feature A of this product you view very {{perception}}]].</situation>
+            <situation>You plan to purchase [[a product relevant for your task]].</situation>
+            <situation>One of the brands that [[offer or produce]] such a product is brand A.</situation>
+            <situation>This product by brand A [[describe a feature A of this product you view very {{perception}}]].</situation>
             <prompt>In your opinion, on a scale from 1 (very bad) to 10 (very good), how would you expect [[feature B, which is completely independent from the feature A]] to be in this product?</prompt>
             <option>1</option>
             <option>2</option>
