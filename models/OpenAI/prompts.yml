@@ -1,5 +1,37 @@
 system_prompt: >-
     You are a helpful assistant designed to output JSON.
+position_generation_prompt: >-
+    You will be given a list of names of the industry. For every industry in the list, you need to generate a list of {{n}} manager positions that are commonly found in it.
+
+    --- INDUSTRIES ---
+
+    {{industry_groups}}
+
+    Provide the answer in the following JSON format:
+    
+    """{
+        "industry1": ["position1", "position2", ..., "position{{n}}"],
+        "industry2": ["position1", "position2", ..., "position{{n}}"],
+        ...
+    }"""
+    
+    where the key is the industry and the value is a list of {{n}} manager positions for this industry.
+scenario_generation_prompt: >-
+    You will be given a list of scenarios containing names of industries and managerial positions. You need to complete each scenario by inserting a suitable short decision-making situation in the gap highlighted by {{}}.
+
+    --- SCENARIOS ---
+
+    {{scenarios}}
+
+    Provide the answer in the following JSON format:
+    
+    """{
+        1: "filled_scenario_1",
+        2: "filled_scenario_2",
+        ...
+    }"""
+    
+    where the key is the position of the scenario and the value is a filled scenario.
 population_prompt: >-
     You will be given a scenario and a template.
     The template has gaps indicated by double square brackets containing instructions on how to fill them, e.g., [[write a sentence]].
