@@ -97,7 +97,7 @@ class AnchoringMetric(RatioScaleMetric):
     def __init__(self, test_results: list[tuple[TestCase, DecisionResult]]):
         super().__init__(test_results)
         # set the coefficient in the metric
-        self.k = -1
+        self.k = 1
         # set the anchor values as the parameter x in the metric
         self.x = [
                 [
