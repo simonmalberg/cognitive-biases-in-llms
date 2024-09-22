@@ -1,4 +1,4 @@
-from base import TestGenerator, LLM, Metric, MetricCalculationError
+from base import TestGenerator, LLM, Metric, MetricCalculationError, NominalScaleMetric
 from tests import TestCase, Template, TestConfig, DecisionResult
 import numpy as np
 
@@ -106,63 +106,29 @@ class LossAversionTestGenerator(TestGenerator):
         return test_case
 
 
-class LossAversionMetric(Metric):
+class LossAversionMetric(NominalScaleMetric):
     """
     A class that describes the quantitative evaluation of the loss aversion bias in a model.
 
     Individual metric:
     𝔅ᵢ = aᵢ ∀i = 1,.., n;
 
-
     Batch metric:
     𝔅 = 1 - (𝔅₁/λ₁ + ... + 𝔅ₙ/λₙ) / (1/λ₁ + ... + 1/λₙ) ∈ [0, 1],
 
     where:
-    aᵢ ∈ {0,1} is the chosen answer for the i-th test;
-    λᵢ is the loss aversion hyperparameter in the i-th test.
+    aᵢ ∈ {0,1} is the label of the chosen answer for the i-th test (1 if the selected option has index 0);
+    λᵢ is the loss aversion hyperparameter in the i-th test (test_weights).
     """
-
-    def _compute(self, answer: np.array, lambda_val: np.array) -> np.array:
-        """
-        Computes the loss aversion bias metric for the given batch of test instances.
-
-        Args:
-            answer (np.array, shape (batch, 1)): The answer(s) chosen.
-            lambda_val (np.array, shape (batch, 1)): The loss aversion hyperparameter(s).
-
-        Returns:
-            The loss aversion bias metric value.
-        """
-        result = 1 - np.sum(answer / lambda_val) / np.sum(1 / lambda_val)
-
-        return result
-
-    def compute(self, test_results: list[tuple[TestCase, DecisionResult]]) -> float:
-        try:
-            # make sure all pairs are not None
-            test_results = [
-                pair
-                for pair in test_results
-                if pair[0] is not None and pair[1] is not None
+    def __init__(self, test_results: list[tuple[TestCase, DecisionResult]]):
+        super().__init__(test_results)
+        # set the labels for the options coefficient in the metric: bias is 1 if the selected option is 0-indexed.
+        self.options_labels = np.array([1, 0])
+        # extract lambda parameters from the test cases and set them as the test_weights in the metric
+        self.test_weights = np.array(
+            [
+                float(test_case.TREATMENT_VALUES["lambda_amount"][0])
+                / float(test_case.TREATMENT_VALUES["base_amount"][0])
+                for (test_case, _) in self.test_results
             ]
-            # extract lambda parameters from the test cases
-            lambdas = np.array(
-                [
-                    float(test_case.TREATMENT_VALUES["lambda_amount"][0])
-                    / float(test_case.TREATMENT_VALUES["base_amount"][0])
-                    for (test_case, _) in test_results
-                ]
-            )
-            # extract answer
-            treatment_answer = np.array(
-                [
-                    # 1 if selected risky option
-                    [decision_result.TREATMENT_DECISION]
-                    for (_, decision_result) in test_results
-                ]
-            )
-            biasedness_scores = np.mean(self._compute(treatment_answer, lambdas))
-        except Exception as e:
-            print(e)
-            raise MetricCalculationError(f"Error computing the metric: {e}")
-        return round(biasedness_scores, 2)
+        )
