@@ -262,11 +262,11 @@ class RatioScaleMetric:
     
     Attributes:
         test_results (list[tuple[TestCase, DecisionResult]]): A list of test results to be used for the metric calculation.
-        k (int): The constant factor for the metric calculation.
+        k (np.array): The constant factor for the metric calculation.
         x (np.array): The test parameter.
         test_weights (np.array): The array of weights for the individual tests. Required for the metric aggregation.
     """
-    def __init__(self, test_results: list[tuple[TestCase, DecisionResult]], k: int = -1, x: np.array = np.array([0]), test_weights: np.array = np.array([1])):
+    def __init__(self, test_results: list[tuple[TestCase, DecisionResult]], k: np.array = np.array([-1]), x: np.array = np.array([0]), test_weights: np.array = np.array([1])):
         self.test_results = test_results
         self.k = k
         self.x = x
