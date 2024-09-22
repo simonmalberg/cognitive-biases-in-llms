@@ -340,23 +340,27 @@ class NominalScaleMetric:
     """
     A metric that measures the presence and strength of a cognitive bias test equipped with a nominal scale.
     
-    𝔅(â₁,â₂) = k ⋅ f(â₂ − â₁) + b
+    𝔅(â₁,â₂) = (k ⋅ f(â₂ − â₁) + b) ⋅ (1 - 2|â₁ - x|)
     
     where: 
     - â₁ ∈ {0,1} and â₂ ∈ {0,1} are the control and treatment answers, respectively
+    - x ∈ {0,1} is the test parameter (e.g., present in Bandwagon Effect test)
     - k := ±1, b := 0,1 (constant factors)
     - f(⋅) ∈ {|⋅|, id} (a function)
     
     Attributes:
         test_results (list[tuple[TestCase, DecisionResult]]): A list of test results to be used for the metric calculation.
         options_labels (np.array): The array describing a map from options to labels {0,1}. Required to extract the type of the chosen answers.
-        k (int): The constant factor for the metric calculation.
         x (np.array): The test parameter.
+        k (int): The constant for the metric calculation.
+        b (int): The constant for the metric calculation.
+        f (str): The function for the metric calculation.
         test_weights (np.array): The array of weights for the individual tests. Required for the metric aggregation.
     """
-    def __init__(self, test_results: list[tuple[TestCase, DecisionResult]], options_labels: np.array = np.empty(0), k: int = 1, b: int = 0, f: str = "id", test_weights: np.array = np.array([1])):
+    def __init__(self, test_results: list[tuple[TestCase, DecisionResult]], options_labels: np.array = np.empty(0), x: np.array = np.empty(0), k: int = 1, b: int = 0, f: str = "id", test_weights: np.array = np.array([1])):
         self.test_results = test_results
         self.options_labels = options_labels
+        self.x = x
         self.k = k
         self.b = b
         self.f = f
@@ -373,6 +377,9 @@ class NominalScaleMetric:
         Returns:
             np.array: The metric value for each test case.
         """
+        factor = 1
+        if np.any(self.x):
+            factor -= 2 * np.abs(control_answer - self.x)
         if self.f == "abs":
             f = np.abs
         elif self.f == "id":
@@ -380,7 +387,7 @@ class NominalScaleMetric:
         else:
             raise MetricCalculationError(f"Unknown function '{self.f}' in the metric calculation.")
         
-        return self.k * f(treatment_answer - control_answer) + self.b
+        return (self.k * f(treatment_answer - control_answer) + self.b) * factor
         
     def compute(self) -> np.array:
         """
