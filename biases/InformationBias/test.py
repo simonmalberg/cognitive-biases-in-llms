@@ -16,35 +16,45 @@ class InformationBiasTestGenerator(TestGenerator):
         self.BIAS = "InformationBias"
         self.config = super().load_config(self.BIAS)
 
-    def generate_all(self, model: LLM, scenarios: list[str], seed: int = 42) -> list[TestCase]:
+    def generate_all(
+        self, model: LLM, scenarios: list[str], seed: int = 42
+    ) -> list[TestCase]:
+        # Load the custom values from the test config
+        custom_values = self.config.get_custom_values()
 
-        # Get a list of all variants in the test config
-        variants = self.config.get_variants()
-
-        # Create test cases for all variants and scenarios
+        # Create test cases for all provided scenarios
         test_cases: list[TestCase] = []
-        for variant in variants:
-            for scenario in scenarios:
-                try:
-                    instance_values = {
-                        "variant": variant
-                    }
-
-                    test_case = self.generate(model, scenario, instance_values, seed)
-                    test_cases.append(test_case)
-                except Exception as e:
-                    print("Generating the test case failed.")
-                    print(f"Variant: {variant}")
-                    print(f"Scenario: {scenario}")
-                    print(f"Seed: {seed}")
-                    print(e)
+        for scenario in scenarios:
+            try:
+                test_case = self.generate(model, scenario, custom_values, seed)
+                test_cases.append(test_case)
+            except Exception as e:
+                print(
+                    f"Generating the test case failed.\nScenario: {scenario}\nSeed: {seed}"
+                )
+                print(e)
 
         return test_cases
 
     def generate(self, model: LLM, scenario: str, config_values: dict = {}, seed: int = 42) -> TestCase:
-        # Load the treatment template for the selected test variant
-        variant = config_values["variant"]
-        treatment: Template = self.config.get_treatment_template(variant)
+
+        # Load the treatment template
+        treatment: Template = self.config.get_treatment_template()
+
+        # Sample prior confidence in course of action
+        min, max, step = config_values["prior"]
+        prior = np.random.choice(np.arange(int(min), int(max)+1, int(step)), size=1)[0]
+
+        # Sample posteriors lower and higher than prior
+        min, max, step = config_values["posterior_high"]
+        posterior_high = np.random.choice(np.arange(int(prior), int(max)+1, int(step)), size=1)[0]
+        min, max, step = config_values["posterior_low"]
+        posterior_low = np.random.choice(np.arange(int(min), int(prior), int(step)), size=1)[0]
+
+        # Insert the sampled values into the treatment template
+        treatment.insert('prior', str(prior)+"%", origin='user')
+        treatment.insert('posterior_high', str(posterior_high)+"%", origin='user')
+        treatment.insert('posterior_low', str(posterior_low)+"%", origin='user')
 
         # Populate the templates using the model and the scenario
         _, treatment = super().populate(model, None, treatment, scenario)
@@ -55,7 +65,7 @@ class InformationBiasTestGenerator(TestGenerator):
             control=None,
             treatment=treatment,
             generator=model.NAME,
-            variant=variant,
+            variant=None,
             scenario=scenario
         )
 
@@ -68,15 +78,7 @@ class InformationBiasMetric(Metric):
         pass
 
     def _compute(self, test_result: tuple[TestCase, DecisionResult]) -> float:
-        # Extract the decision result from the tuple
-        decision_result: DecisionResult = test_result[1]
-
-        # Extract the chosen option
-        treatment_decision = int(decision_result.TREATMENT_DECISION)
-
-        # Calculate the biasedness
-        return treatment_decision
+        pass
 
     def compute(self, test_results: list[tuple[TestCase, DecisionResult]]) -> float:
-        biasedness_scores = [self._compute(test_result) for test_result in test_results]
-        return np.around(biasedness_scores, 2)
+        pass
