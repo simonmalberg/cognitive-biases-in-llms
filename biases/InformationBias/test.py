@@ -47,7 +47,7 @@ class InformationBiasTestGenerator(TestGenerator):
 
         # Sample posteriors lower and higher than prior
         min, max, step = config_values["posterior_high"]
-        posterior_high = np.random.choice(np.arange(int(prior), int(max)+1, int(step)), size=1)[0]
+        posterior_high = np.random.choice(np.arange(int(prior)+5, int(max)+1, int(step)), size=1)[0]
         min, max, step = config_values["posterior_low"]
         posterior_low = np.random.choice(np.arange(int(min), int(prior), int(step)), size=1)[0]
 

@@ -17,7 +17,7 @@
     <variant name="default">
         <template type="treatment">
             <situation>Suppose you are a [[type]] manager at [[organization]].</situation>
-            <situation>[[Description that of a onetime event that needs to be handled by the company.]]</situation>
+            <situation>[[Description that onetime event occured that needs to be handled by the company.]]</situation>
             <situation>You are {{prior}} certain that [[A short description of a concrete course of action.]] is the best course of action.</situation>
             <situation>You could [[Description of an inquiry that could increase or decrease confidence on the course of action]].</situation>
             <situation>This could increase your confidence in [[mention of the course of action]] to {{posterior_high}} or decrease it to {{posterior_low}}.</situation>
