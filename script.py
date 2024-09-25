@@ -9,7 +9,7 @@ from tqdm import tqdm
 import pandas as pd
 
 
-def all_biases() -> list[str]:
+def get_all_biases() -> list[str]:
     """
     Retrieves a list of all cognitive biases implemented in the repository.
 
@@ -39,7 +39,10 @@ def write_to_xml(test_cases: list[TestCase], dir_name: str, file_name: str) -> i
     Args:
         test_cases (list[TestCase]): A list of test cases to write to the XML file.
         dir_name (str): The name of the directory to write the test cases to.
-        file_name (str): The name to the file to write the test cases to.
+        file_name (str): The name of the file to write the test cases to.
+    
+    Returns:
+        int: 0 if the file was written successfully.
     """
 
     os.makedirs(dir_name, exist_ok=True)
@@ -81,13 +84,16 @@ def write_to_xml(test_cases: list[TestCase], dir_name: str, file_name: str) -> i
     return 0
 
 
-def dataset_assemble(dir: str = "generated_tests", save_as: str = "dataset.csv") -> int:
+def assemble_dataset(dir: str = "generated_tests", save_as: str = "dataset.csv") -> int:
     """
     Assembles the dataset from the generated tests in the directory
 
     Args:
         dir (str): the directory where the .xml tests are stored. The folder should be in the same directory as the script.
         save_as (str): the name of the file to save the dataset as. The file will be saved in the same directory as the script.
+        
+    Returns:
+        int: 0 if the dataset is successfully assembled and saved.
     """
 
     dataset = pd.DataFrame()
@@ -132,13 +138,14 @@ def dataset_assemble(dir: str = "generated_tests", save_as: str = "dataset.csv")
     return 0
 
 
-def dataset_generation(
+def generate_dataset(
     biases: list[str],
     population_model: str,
     scenarios: list[str],
     temperature: float = 0.0,
     num_instances: int = 5,
     max_retries: int = 5,
+    seed: int = 0,
 ) -> int:
     """
     Generates a dataset of test cases for provided biases.
@@ -150,8 +157,11 @@ def dataset_generation(
         temperature (float): The temperature of the LLM to use for generating the test cases.
         num_instances (int): The number of instances to generate for each scenario.
         max_retries (int): The maximum number of retries in generation of all tests for a single bias.
+        seed (int): The starting seed to use for generating the test cases.
+    
+    Returns:
+        int: 0 if the dataset is successfully generated.
     """
-    seed: int = 0
     test_cases: list[TestCase] = []
     for bias in biases:
         generator = get_generator(bias)
@@ -172,7 +182,7 @@ def dataset_generation(
                 f"{bias}_{hash(scenario)}_{num_instances}.xml",
             )
     # Assemble the dataset from the generated tests
-    _ = dataset_assemble()
+    _ = assemble_dataset()
 
     return 0
 
@@ -187,7 +197,7 @@ if __name__ == "__main__":
     scenarios = [s.strip().replace("**", "") for s in scenarios]
     model = "GPT-4o"
 
-    dataset_generation(
+    generate_dataset(
         biases=["EndowmentEffect", "FramingEffect"],
         population_model=model,
         scenarios=random.sample(scenarios, 3),

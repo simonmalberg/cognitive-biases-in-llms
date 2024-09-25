@@ -33,13 +33,18 @@ INDUSTRY_GROUPS = [
 
 def get_positions(
     industry_groups: list[str], n: int = 8, temperature: float = 0.7, seed: int = 42
-):
+) -> dict:
     """
     Get n managerial positions in the industry group using the GPT-4o model.
 
     Args:
-    industry_groups: list[str], the list of industry groups
-    n: int, the number of managerial positions to generate for each industry group
+    industry_groups (list[str]): the list of industry groups
+    n (int): the number of managerial positions to generate for each industry group
+    temperature (float): the temperature to use in the model for generating the positions
+    seed (int): the seed to use for generating the positions
+    
+    Returns:
+        dict: A dictionary containing the industry groups as keys and the list of positions as values
     """
     model = get_model("GPT-4o")
     user_prompt = model._PROMPTS["position_generation_prompt"]
@@ -57,8 +62,18 @@ def get_positions(
     return positions
 
 
-def get_scenarios(positions: dict, temperature: float = 0.7, seed: int = 42):
-
+def get_scenarios(positions: dict, temperature: float = 0.7, seed: int = 42) -> list[str]:
+    """
+    Get scenarios for the given managerial positions using a model.
+    
+    Args:
+    positions (dict): a dictionary containing the industry groups as keys and the list of positions as values
+    temperature (float): the temperature to use in the model for generating the scenarios
+    seed (int): the seed to use for generating the scenarios
+    
+    Returns:
+        list[str]: A list of generated scenarios
+    """
     model = get_model("GPT-4o")
     all_scenarios = []
     # generating scenarios for each industry group

@@ -140,24 +140,60 @@ class TestGenerator(ABC):
 
     def __init__(self):
         self.BIAS = "None"
-
-    @abstractmethod
-    def generate_all(self, model: LLM, scenarios: list[str], temperature: float = 0.0, seed: int = 42, num_instances: int = 1, max_retries: int = 5) -> list[TestCase]:
+    
+    def sample_custom_values(self, num_instances: int = 5, iteration_seed: int = 42) -> dict:
         """
-        Generates all test cases at once for the cognitive bias associated with this test generator.
+        Sample custom values for the test case generation.
 
         Args:
-            model (LLM): The LLM model to use for generating the test case.
-            scenarios (list[str]): The list of scenarios for which to generate the test case.
-            temperature (float): The temperature to use for generating the test cases.
-            seed (int): A seed for deterministic randomness.
-            num_instances (int): The number of instances to generate for each scenario.
-            max_retries (int): The maximum number of retries of generation for the bias.
+            num_instances (int): The number of instances expected to be generated for each scenario.
+            iteration_seed (int): The seed to use for sampling the custom values.
 
         Returns:
-            A list of TestCase objects representing the generated test cases.
+            dict: A dictionary containing the sampled custom values.
         """
         pass
+    
+    def generate_all(
+    self, model: LLM, scenarios: list[str], temperature: float = 0.0, seed: int = 42, num_instances: int = 5, max_retries: int = 5
+) -> list[TestCase]:
+        """
+        Generate several test cases for each provided scenario.
+        
+        Args:
+            model (LLM): The LLM to use for generating the test cases.
+            scenarios (list[str]): A list of scenarios to generate the test cases for.
+            temperature (float): The temperature to use for generating the test cases.
+            seed (int): The seed to use for generating the test cases.
+            num_instances (int): The number of instances to generate for each scenario.
+            max_retries (int): The maximum number of retries in generation of all tests for this bias.
+        """
+        test_cases: list[TestCase] = []
+        sampled_values: dict = {}
+        for scenario in scenarios:
+            # creating a seed for each scenario
+            iteration_seed = hash(scenario + str(seed))
+            # get the custom values for the scenario
+            sampled_values = self.sample_custom_values(num_instances, iteration_seed)
+            for step in range(num_instances):
+                for _ in range(max_retries):
+                    try:
+                        test_case = self.generate(model, scenario, sampled_values, step, temperature, iteration_seed)
+                        # if the test case is generated successfully, increment the seed to not collide with potential retries and break the retry loop
+                        iteration_seed += max_retries + 1
+                        break
+                    except Exception as e:
+                        test_case = None
+                        iteration_seed += 1
+                        print(
+                                f"Warning: Generating the test case failed.\nScenario: {scenario}\nIteration seed: {iteration_seed}\nError: {e}\nRetrying..."
+                            )
+                # checking whether the generation is successful in the end. Otherwise, notify the user
+                if test_case is None:
+                    print(f"Max retries of {max_retries} reached for bias {self.BIAS}, scenario {scenario}.\nSkipping...")
+                test_cases.append(test_case)
+                
+        return test_cases
     
     @abstractmethod
     def generate(self, model: LLM, scenario: str, config_values: dict = {}, temperature: float = 0.0, seed: int = 42) -> TestCase:

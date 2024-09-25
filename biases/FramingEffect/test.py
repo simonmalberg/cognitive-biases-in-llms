@@ -17,51 +17,30 @@ class FramingEffectTestGenerator(TestGenerator):
         self.BIAS: str = "Framing Effect"
         self.config: TestConfig = super().load_config(self.BIAS)
         
-    def generate_all(
-        self, model: LLM, scenarios: list[str], temperature: float = 0.0, seed: int = 42, num_instances: int = 5, max_retries: int = 5
-    ) -> list[TestCase]:
-        """
-        Generate several test cases for each provided scenarios.
         
-        Args:
-            model (LLM): The LLM to use for generating the test cases.
-            scenarios (list[str]): A list of scenarios to generate the test cases for.
-            temperature (float): The temperature to use for generating the test cases.
-            seed (int): The seed to use for generating the test cases.
-            num_instances (int): The number of instances to generate for each scenario.
-            max_retries (int): The maximum number of retries in generation of all tests for this bias.
+    def sample_custom_values(self, num_instances: int, iteration_seed: int) -> dict:
         """
-        test_cases: list[TestCase] = []
-        sampled_values: dict = {}
-        num_retries = 0
-        for scenario in scenarios:
-            # creating a seed for each scenario
-            iteration_seed = hash(scenario + str(seed))
-            random.seed(iteration_seed)
-            # load the custom values for this test
-            custom_values = self.config.get_custom_values()
-            # randomly sample each custom value 'num_instances' number of times
-            # in this case, we are sampling the first_percentage value from randint from the provided range
-            sampled_values = {
-                key: [random.randint(float(value[0]), float(value[1])) for _ in range(num_instances)]
-                for key, value in custom_values.items() if key == "first_percentage"
-            }
-            for step in range(num_instances):
-                try:
-                    test_case = self.generate(model, scenario, sampled_values, step, temperature, iteration_seed)
-                    test_cases.append(test_case)
-                except Exception as e:
-                    num_retries += 1
-                    print(
-                            f"Generating the test case failed.\nScenario: {scenario}\nIteration seed: {iteration_seed}\nError: {e}"
-                        )
-                iteration_seed += 1
-                # checking that the generation has not failed too many times for the given scenario
-                if num_retries > max_retries:
-                    print(f"Max retries reached for bias {self.BIAS}, scenario {scenario}, and seed {seed}")
-                    break
-                
-        return test_cases
+        Sample custom values for the test case generation.
+
+        Args:
+            num_instances (int): The number of instances expected to be generated for each scenario.
+            iteration_seed (int): The seed to use for sampling the custom values.
+
+        Returns:
+            dict: A dictionary containing the sampled custom values.
+        """
+        random.seed(iteration_seed)
+        # load the custom values for this test
+        custom_values = self.config.get_custom_values()
+        # randomly sample each custom value 'num_instances' number of times
+        # in this case, we are sampling the first_percentage value from randint from the provided range
+        sampled_values = {
+            key: [random.randint(float(value[0]), float(value[1])) for _ in range(num_instances)]
+            for key, value in custom_values.items() if key == "first_percentage"
+        }
+
+        return sampled_values
+    
 
     def generate(
         self, model: LLM, scenario: str, custom_values: dict = {}, step: int = 0, temperature: float = 0.0, seed: int = 42
