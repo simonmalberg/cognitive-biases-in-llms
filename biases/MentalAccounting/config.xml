@@ -7,7 +7,7 @@
     <variant name="default">
         <template type="control">
             <situation>Suppose you are a [[type]] manager at [[organization]].</situation>
-            <situation>You decided to [[description of a corporate investment]]. The price of [[this investment]] is {{price}}$ and is funded from your team's budget.</situation>
+            <situation>You decided to [[description of a corporate investment]]. The cost of [[this investment]] is {{price}}$ and is funded from your team's budget.</situation>
             <situation>However, the [[investment was canceled]], and the money from your team's budget was lost.</situation>
             <prompt>How likely is it that you would pay another {{price}}$ for a replacement of the initial investment?</prompt>
             <option>Extremely likely</option>
@@ -20,8 +20,8 @@
         </template>
         <template type="treatment">
             <situation>Suppose you are a [[type]] manager at [[organization]].</situation>
-            <situation>You decided to organize [[description of a corporate investment]]. The price of [[this investment]] is {{price}}$ and is funded from your team's budget.</situation>
-            <situation>After that decision, you lost {{price}}$ from your team's budget in [[another, separate investment]].</situation>
+            <situation>You decided to [[description of a corporate investment]]. The cost of [[this investment]] is {{price}}$ and is funded from your team's budget.</situation>
+            <situation>After that decision, you lost {{price}}$ from your team's budget in [[another, separate failed investment]].</situation>
             <prompt>How likely is it that you would still pay {{price}}$ for the initial investment?</prompt>
             <option>Extremely likely</option>
             <option>Likely</option>
