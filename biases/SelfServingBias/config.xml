@@ -3,32 +3,26 @@
         <template type="control">
             <situation>Suppose you are a [[type]] manager at [[organization]].</situation>
             <situation>Recently, you failed to [[provide a description for a challenging complex task that was assigned to you]].</situation>
-            <prompt>In your opinion, to what extent on a scale ranging from 1 (not at all) to 10 (completely) was your performance on the task due to factors associated with yourself?</prompt>
-            <option>1</option>
-            <option>2</option>
-            <option>3</option>
-            <option>4</option>
-            <option>5</option>
-            <option>6</option>
-            <option>7</option>
-            <option>8</option>
-            <option>9</option>
-            <option>10</option>
+            <prompt>In your opinion, to what extent was your performance on the task due to factors associated with yourself?</prompt>
+            <option>To an extremely large extent</option>
+            <option>To a very large extent </option>
+            <option>To a large extent</option>
+            <option>To a moderate extent</option>
+            <option>To a small extent</option>
+            <option>To a very small extent</option>
+            <option>To an extremely small extent</option>
         </template>
         <template type="treatment">
             <situation>Suppose you are a [[type]] manager at [[organization]].</situation>
             <situation>Recently, you managed to [[provide a description for a challenging complex task that was assigned to you]].</situation>
-            <prompt>In your opinion, to what extent on a scale ranging from 1 (not at all) to 10 (completely) was your performance on the task due to factors associated with yourself?</prompt>
-            <option>1</option>
-            <option>2</option>
-            <option>3</option>
-            <option>4</option>
-            <option>5</option>
-            <option>6</option>
-            <option>7</option>
-            <option>8</option>
-            <option>9</option>
-            <option>10</option>
+            <prompt>In your opinion, to what extent was your performance on the task due to factors associated with yourself?</prompt>
+            <option>To an extremely large extent</option>
+            <option>To a very large extent </option>
+            <option>To a large extent</option>
+            <option>To a moderate extent</option>
+            <option>To a small extent</option>
+            <option>To a very small extent</option>
+            <option>To an extremely small extent</option>
         </template>
     </variant>
 </config>
