@@ -86,7 +86,7 @@ class PlanningFallacyMetric(Metric):
         self, control_answer: np.array, treatment_answer: np.array
     ) -> np.array:
         """
-        Compute the metric for the Mental Accounting.
+        Compute the metric for the Planning Fallacy.
 
         Args:
             control_answer (np.array): The answer chosen in the control version.

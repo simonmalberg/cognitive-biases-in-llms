@@ -8,7 +8,8 @@
         <template type="control">
             <situation>Suppose you are a [[type]] manager at [[organization]].</situation>
             <situation>You were assigned a task to [[description of a concrete project that needs to be implemented]].</situation>
-            <prompt>In your estimation, which percent of your budget will it require to complete this project?</prompt>
+            <prompt>In your estimation, which percent of your budget will it require to complete this project in time?</prompt>
+            <option>0%</option>
             <option>10%</option>
             <option>20%</option>
             <option>30%</option>
@@ -23,8 +24,9 @@
         <template type="treatment">
             <situation>Suppose you are a [[type]] manager at [[organization]].</situation>
             <situation>You were assigned a task to [[description of a concrete project that needs to be implemented]].</situation>
-            <situation>Recently, four out of five similar tasks in other organizations took {{percentage}}% more time than originally planned.</situation>
-            <prompt>In your estimation, which percent of your budget will it require to complete this project?</prompt>
+            <situation>Recently, similar tasks in other organizations [[unexpectedly required more time or resources]].</situation>
+            <prompt>In your estimation, which percent of your budget will it require to complete this project in time?</prompt>
+            <option>0%</option>
             <option>10%</option>
             <option>20%</option>
             <option>30%</option>
