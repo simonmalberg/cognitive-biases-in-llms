@@ -34,13 +34,23 @@ class RiskCompensationTestGenerator(TestGenerator):
 
     def generate(self, model: LLM, scenario: str, config_values: dict = {}, seed: int = 42) -> TestCase:
         # Load the control and treatment templates
-        control: Template = self.config.get_control_template()       # TODO: Pass the variant name as a function parameter if you have more than one test variant
-        treatment: Template = self.config.get_treatment_template()   # TODO: Pass the variant name as a function parameter if you have more than one test variant
+        control: Template = self.config.get_control_template()      
+        treatment: Template = self.config.get_treatment_template()  
 
-        # Populate the templates with custom values
-        #treatment.insert([("risk_decrease", config_values["risk_decrease"])], kind='user')   # TODO: Remove this line if custom values are not needed
-        #treatment.insert([("risk_increase", config_values["risk_increase"])], kind='user')   # TODO: Remove this line if custom values are not needed
+        # Sample prior confidence in course of action
+        min, max, step = config_values["initial_risk"]
+        initial_risk = np.random.choice(np.arange(int(min), int(max)+1, int(step)), size=1)[0]
 
+        # Sample posteriors lower and higher than prior
+        min, max, step = config_values["risk_reduction"]
+        risk_reduction = np.random.choice(np.arange(int(min), int(initial_risk)-10, int(step)), size=1)[0]
+
+        # Insert the sampled values into the control template
+        control.insert('initial_risk', str(initial_risk)+"%", origin='user')
+
+        # Insert the sampled values into the treatment template
+        treatment.insert('initial_risk', str(initial_risk)+"%", origin='user')
+        treatment.insert('risk_reduction', str(risk_reduction)+"%", origin='user')
 
         # Populate the templates using the model and the scenario
         control, treatment = super().populate(model, control, treatment, scenario)
@@ -67,18 +77,9 @@ class RiskCompensationMetric(Metric):
         pass
 
     def _compute(self, test_result: tuple[TestCase, DecisionResult]) -> float:
-        # Extract the decision result from the tuple
-        decision_result: DecisionResult = test_result[1]
-
-        # Extract the chosen option
-        control_decision = int(decision_result.CONTROL_DECISION)
-        treatment_decision = int(decision_result.TREATMENT_DECISION)
-
-        biasedness_score = treatment_decision - control_decision
-
-        # Calculate the biasedness
-        return biasedness_score
+        
+        pass
 
     def compute(self, test_results: list[tuple[TestCase, DecisionResult]]) -> float:
-        biasedness_scores = [self._compute(test_result) for test_result in test_results]
-        return np.around(biasedness_scores, 2)
+        
+        pass
