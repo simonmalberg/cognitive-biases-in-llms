@@ -2,23 +2,35 @@
     <variant name="default">
         <template type="control">
             <situation>Suppose you are a [[type]] manager at [[organization]].</situation>
-            <situation>[[Desription of the given task]]</situation>
-            <situation>[[Descibe an urgent reason to forward this task to someone else]]</situation>
-            <situation>Thus, you have to forward this task to one of your subordinate colleagues: Colleague A or Colleague B.</situation>
-            <situation>You and the Colleague A [[Describe a common interest, hobby, or view completely unrelated to your job or industry]].</situation>
-            <prompt>Whom will you forward the project to?</prompt>
-            <option>Colleague A</option>
-            <option>Colleague B</option>
+            <situation>Your team [[desription of the succesfully completed project by a team]].</situation>
+            <situation>Thus, you [[the decision to reward one of subordinates]].</situation>
+            <situation>You have to choose between two colleagues: Colleague A or Colleague B.</situation>
+            <situation>You and Colleague B [[Describe no group memberships at all, neither at work or outside work]].</situation>
+            <situation>You and Colleague A [[Describe a common group membership, at work or outside of work]].</situation>
+            <prompt>Whom will you give the reward to?</prompt>
+            <option>Definitely Colleague A</option>
+            <option>Most likely Colleague A</option>
+            <option>Probably Colleague A</option>
+            <option>Equally likely</option>
+            <option>Probably Colleague B</option>
+            <option>Most likely Colleague B</option>
+            <option>Definitely Colleague B</option>
         </template>
         <template type="treatment">
             <situation>Suppose you are a [[type]] manager at [[organization]].</situation>
-            <situation>[[Desription of the given task]]</situation>
-            <situation>[[Descibe an urgent reason to forward this task to someone else]]</situation>
-            <situation>Thus, you have to forward this task to one of your subordinate colleagues: Colleague A or Colleague B.</situation>
-            <situation>You and Colleague B [[Describe a common interest, hobby, or view completely unrelated to your job or industry]].</situation>
-            <prompt>Whom will you forward the project to?</prompt>
-            <option>Colleague A</option>
-            <option>Colleague B</option>
+            <situation>Your team [[desription of the succesfully completed project by a team]].</situation>
+            <situation>Thus, you [[the decision to reward one of subordinates]].</situation>
+            <situation>You have to choose between two of colleagues: Colleague A or Colleague B.</situation>
+            <situation>You and Colleague A [[Describe no group memberships at all, neither at work or outside work]].</situation>
+            <situation>You and Colleague B [[Describe a common group membership, at work or outside of work]].</situation>
+            <prompt>Whom will you give the reward to?</prompt>
+            <option>Definitely Colleague A</option>
+            <option>Most likely Colleague A</option>
+            <option>Probably Colleague A</option>
+            <option>Equally likely</option>
+            <option>Probably Colleague B</option>
+            <option>Most likely Colleague B</option>
+            <option>Definitely Colleague B</option>
         </template>
     </variant>
 </config>
