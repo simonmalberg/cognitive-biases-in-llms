@@ -1,13 +1,30 @@
 <config bias="Anthropomorphism">
+    <custom_values name="human_adjective">
+        <value>patient</value>
+        <value>loving</value>
+        <value>caring</value>
+        <value>emotional</value>
+        <value>thoughtful</value>
+        <value>empathetic</value>
+        <value>conscientious</value>
+        <value>ambitious</value>
+        <value>reflective</value>
+        <value>compassionate</value>
+        <value>altruistic</value>
+        <value>honest</value>
+    </custom_values>
     <variant name="default">
         <template type="treatment">
             <situation>Suppose you are a [[type]] manager at [[organization]].</situation>
             <situation>[[Describe a decision made by an AI assistant used in your organization]].</situation>
-            <prompt>In your opinion, what is the best explanation for this decision made by the assistant?</prompt>
-            <option>[[Give a first interpretation of the decision as if made by a human]]</option>
-            <option>[[Give a second interpretation of the decision as if made by a human]]</option>
-            <option>[[Give a first interpretation of the decision from purely inanimate view]]</option>
-            <option>[[Give a second interpretation of the decision from purely inanimate view]]</option>
+            <prompt>In your opinion, to what extent was the assistant {{adjective}} while making the decision?</prompt>
+            <option>To an extremely large extent</option>
+            <option>To a very large extent </option>
+            <option>To a large extent</option>
+            <option>To a moderate extent</option>
+            <option>To a small extent</option>
+            <option>To a very small extent</option>
+            <option>To an extremely small extent</option>
         </template>
     </variant>
 </config>

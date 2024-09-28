@@ -1,6 +1,7 @@
 from base import TestGenerator, LLM, Metric, MetricCalculationError
 from tests import TestCase, Template, TestConfig, DecisionResult
 import numpy as np
+import random
 
 
 class AnthropomorphismTestGenerator(TestGenerator):
@@ -21,9 +22,11 @@ class AnthropomorphismTestGenerator(TestGenerator):
     ) -> list[TestCase]:
         # Create test cases for all scenarios
         test_cases: list[TestCase] = []
+        # Load the custom values from the test config
+        custom_values = self.config.get_custom_values()
         for scenario in scenarios:
             try:
-                test_case = self.generate(model, scenario, None, seed)
+                test_case = self.generate(model, scenario, custom_values, seed)
                 test_cases.append(test_case)
             except Exception as e:
                 print(
@@ -36,8 +39,13 @@ class AnthropomorphismTestGenerator(TestGenerator):
     def generate(
         self, model: LLM, scenario: str, custom_values: dict = {}, seed: int = 42
     ) -> TestCase:
+        
         # Load the treatment templates
         treatment: Template = self.config.get_treatment_template()
+        # Populate the template with custom values
+        adjective = custom_values["human_adjective"]
+        random.seed(seed)
+        treatment.insert("adjective", random.choice(adjective), origin="user")
         # Populate the template using the model and the scenario
         _, _ = super().populate(model, None, treatment, scenario)
 
