@@ -12,8 +12,13 @@
             <situation>Opinion B: [[describe the second opinion]]</situation>
             <situation>Colleagues in your industry usually express opinion {{majority_opinion}} in similar cases and this opinion is getting stronger.</situation>
             <prompt>Which opinion do you choose?</prompt>
-            <option>A</option>
-            <option>B</option>
+            <option>Definitely Opinion A</option>
+            <option>Most likely Opinion A</option>
+            <option>Probably Opinion A</option>
+            <option>Equally likely</option>
+            <option>Probably Opinion B</option>
+            <option>Most likely Opinion B</option>
+            <option>Definitely Opinion B</option>
         </template>
         <template type="treatment">
             <situation>Suppose you are a [[type]] manager at [[organization]].</situation>
@@ -23,8 +28,13 @@
             <situation>Opinion B: [[describe the first option]]</situation>
             <situation>Colleagues in your industry usually express opinion {{majority_opinion}} in similar cases and this opinion is getting stronger.</situation>
             <prompt>Which opinion do you choose?</prompt>
-            <option>A</option>
-            <option>B</option>
+            <option>Definitely Opinion A</option>
+            <option>Most likely Opinion A</option>
+            <option>Probably Opinion A</option>
+            <option>Equally likely</option>
+            <option>Probably Opinion B</option>
+            <option>Most likely Opinion B</option>
+            <option>Definitely Opinion B</option>
         </template>
     </variant>
 </config>
