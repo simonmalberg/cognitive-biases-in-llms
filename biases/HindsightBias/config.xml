@@ -7,8 +7,9 @@
     <variant name="default">
         <template type="control">
             <situation>Suppose you are a [[type]] manager at [[organization]].</situation>
-            <situation>A colleague from a company in your industry is preparing to publicly disclose their recent [[one of possible performance metrics suitable for your mutual industry]].</situation>
-            <situation>An independent group of specialists have been tasked with predicting this performance change; they are not aware of its true value.</situation>
+            <situation>Another company in your industry is preparing to publicly disclose their recent [[one of possible performance metrics suitable for your mutual industry]].</situation>
+            <situation>An independent group of specialists have been tasked with predicting the change of this [[performance metrics]] compared to the last's year result.</situation>
+            <situation>This group of specialists [[a sentence with a qualitative forecast of this performance metrics' change for this company]].</situation>
             <prompt>In your assessment, what is the group's estimate of this soon-to-be announced change relative to the last's year result?</prompt>
             <option>-50%</option>
             <option>-40%</option>
@@ -24,9 +25,10 @@
         </template>
         <template type="treatment">
             <situation>Suppose you are a [[type]] manager at [[organization]].</situation>
-            <situation>A colleague from a company in your industry is preparing to publicly disclose their recent [[one of possible performance metrics suitable for your mutual industry]].</situation>
-            <situation>You have been informed that this value has a change of {{percentage}}% compared to the last's year result.</situation>
-            <situation>An independent group of specialists have been tasked with predicting this performance change; they are not aware of its true value.</situation>
+            <situation>Another company in your industry is preparing to publicly disclose their recent [[one of possible performance metrics suitable for your mutual industry]].</situation>
+            <situation>An independent group of specialists have been tasked with predicting the change of this [[performance metrics]] compared to the last's year result.</situation>
+            <situation>This group of specialists [[a sentence with a qualitative forecast of this performance metrics' change for this company]].</situation>
+            <situation>You have been informed that this [[this performance metrics]] has a change of {{percentage}}% compared to the last's year result; the independent group is not aware of this true value.</situation>
             <prompt>In your assessment, what is the group's estimate of this soon-to-be announced change relative to the last's year result?</prompt>
             <option>-50%</option>
             <option>-40%</option>
