@@ -44,11 +44,21 @@ class HyperbolicDiscountingTestGenerator(TestGenerator):
 
         # Populate the templates with custom values
         np.random.seed(seed)
-        earlier_values, later_values, delay_values = (
+        earlier_values, later_values, delay_values, scheme_control, scheme_treatment = (
             custom_values["earlier_reward"],
             custom_values["later_coef"],
             custom_values["months_delay"],
+            custom_values['scheme_control'],
+            custom_values['scheme_treatment']
         )
+        # Sampling the order of the schemes
+        index = np.random.choice(range(len(scheme_control)))
+        for template in [control, treatment]:
+            template.insert("control_scheme", scheme_control[index], origin="user")
+            template.insert("other_control_scheme", scheme_control[1 - index], origin="user")
+            template.insert("treatment_scheme", scheme_treatment[index], origin="user")
+            template.insert("other_treatment_scheme", scheme_treatment[1 - index], origin="user")
+            
         # Loading the required distributions (should be np.random methods)
         earlier_distribution, later_distribution, delay_distribution = (
             getattr(np.random, earlier_values[0]),

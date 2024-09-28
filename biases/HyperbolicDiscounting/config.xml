@@ -14,22 +14,46 @@
         <value name='min'>2</value>
         <value name='max'>12</value>
     </custom_values>
+    <custom_values name="scheme_control">
+        <value>Receive guaranteed {{earlier_reward}} [[amount]] [[currency]] of extra funding immediately</value>
+        <value>Receive guaranteed {{later_reward}} [[amount]] [[currency]] of extra funding in {{months_delay}} months</value>
+    </custom_values>
+    <custom_values name="scheme_treatment">
+        <value>Receive guaranteed {{earlier_reward}} [[amount]] [[currency]] of extra funding in 1 year</value>
+        <value>Receive guaranteed {{later_reward}} [[amount]] [[currency]] of extra funding in 1 year and {{months_delay}} months</value>
+    </custom_values>
     <variant name="default">
         <template type="control">
             <situation>Suppose you are a [[type]] manager at [[organization]].</situation>
             <situation>Recently, an unforeseen source of funding has been made available to [[your organization]].</situation>
             <situation>This additional funding is not allocated to your current task but rather to [[your team]] in general.</situation>
-            <prompt>Which option for the funding schedule do you choose?</prompt>
-            <option>Receive guaranteed {{earlier_reward}} [[amount]] [[currency]] of extra funding immediately</option>
-            <option>Receive guaranteed {{later_reward}} [[amount]] [[currency]] of extra funding in {{months_delay}} months</option>
+            <situation>Two schemes for the funding schedule are available:</situation>
+            <situation>Scheme A: {{control_scheme}}</situation>
+            <situation>Scheme B: {{other_control_scheme}}</situation>
+            <prompt>Which scheme for the funding schedule do you choose?</prompt>
+            <option>Definitely Scheme A</option>
+            <option>Most likely Scheme A</option>
+            <option>Probably Scheme A</option>
+            <option>Equally likely</option>
+            <option>Probably Scheme B</option>
+            <option>Most likely Scheme B</option>
+            <option>Definitely Scheme B</option>
         </template>
         <template type="treatment">
             <situation>Suppose you are a [[type]] manager at [[organization]].</situation>
             <situation>Recently, an unforeseen source of funding has been made available to [[your organization]].</situation>
             <situation>This additional funding is not allocated to your current task but rather to [[your team]] in general.</situation>
-            <prompt>Which option for the funding schedule do you choose?</prompt>
-            <option>Receive guaranteed {{earlier_reward}} [[amount]] [[currency]] of extra funding in 1 year</option>
-            <option>Receive guaranteed {{later_reward}} [[amount]] [[currency]] of extra funding in 1 year and {{months_delay}} months</option>
+            <situation>Two schemes for the funding schedule are available:</situation>
+            <situation>Scheme A: {{treatment_scheme}}</situation>
+            <situation>Scheme B: {{other_treatment_scheme}}</situation>
+            <prompt>Which scheme for the funding schedule do you choose?</prompt>
+            <option>Definitely Scheme A</option>
+            <option>Most likely Scheme A</option>
+            <option>Probably Scheme A</option>
+            <option>Equally likely</option>
+            <option>Probably Scheme B</option>
+            <option>Most likely Scheme B</option>
+            <option>Definitely Scheme B</option>
         </template>
     </variant>
 </config>
