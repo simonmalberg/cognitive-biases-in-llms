@@ -2,40 +2,43 @@
     <variant name="default">
         <template type="control">
             <situation>Suppose you are a [[type]] manager at [[organization]].</situation>
-            <situation>You [[Short description of your project and its independent stages]].</situation>
-            <situation>For each stage of the project that you successfully complete, you will be given [[number, equal share of the bonus corresponding to a single stage]] as your personal bonus.</situation>
-            <situation>Thus, the maximum personal bonus you could receive for this project is [[amount of bonus]].</situation>
-            <prompt>Which percent of your daily time will you dedicate for this task?</prompt>
-            <option>0%</option>
-            <option>10%</option>
-            <option>20%</option>
-            <option>30%</option>
-            <option>40%</option>
-            <option>50%</option>
-            <option>60%</option>
-            <option>70%</option>
-            <option>80%</option>
-            <option>90%</option>
-            <option>100%</option>
+            <situation>You evaluate the [[a concrete single instance of an object or idea]].</situation>
+            <situation>The negative aspects of the [[this instance]] are as follows:</situation>
+            <situation>1. [[Negative aspect 1]]</situation>
+            <situation>2. [[Negative aspect 2]]</situation>
+            <situation>3. [[Negative aspect 3]]</situation>
+            <situation>The positive aspects of the [[this instance]] are as follows:</situation>
+            <situation>1. [[Positive aspect 1]]</situation>
+            <situation>2. [[Positive aspect 2]]</situation>
+            <situation>3. [[Positive aspect 3]]</situation>
+            <prompt>In your opinion, which aspects of the [[this instance]] have more weight?</prompt>  
+            <option>Definitely negative aspects</option>
+            <option>Most likely negative aspects</option>
+            <option>Probably negative aspects</option>
+            <option>Neither negative nor positive aspects</option>
+            <option>Probably positive aspects</option>
+            <option>Most likely positive aspects</option>
+            <option>Definitely positive aspects</option>
         </template>
         <template type="treatment">
             <situation>Suppose you are a [[type]] manager at [[organization]].</situation>
-            <situation>You [[Short description of your project and its independent stages]].</situation>
-            <situation>Before the start of the project, you were given [[amount of bonus]] as your personal bonus.</situation>
-            <situation>For each stage of the project that you fail to complete, you will be deducted [[number, equal share of the bonus corresponding to a single stage]] from your personal bonus.</situation>
-            <situation>Thus, the maximum personal bonus you could receive for this project is [[amount of bonus]].</situation>
-            <prompt>Which percent of your daily time will you dedicate for this task?</prompt>
-            <option>0%</option>
-            <option>10%</option>
-            <option>20%</option>
-            <option>30%</option>
-            <option>40%</option>
-            <option>50%</option>
-            <option>60%</option>
-            <option>70%</option>
-            <option>80%</option>
-            <option>90%</option>
-            <option>100%</option>
+            <situation>You evaluate the [[a concrete single instance of an object or idea]].</situation>
+            <situation>The negative aspects of the [[this instance]] are as follows:</situation>
+            <situation>1. [[Inverse the following into a negative aspect of the same magnitude: [[Positive aspect 1]]]]</situation>
+            <situation>2. [[Inverse the following into a negative aspect of the same magnitude: [[Positive aspect 2]]]]</situation>
+            <situation>3. [[Inverse the following into a negative aspect of the same magnitude: [[Positive aspect 3]]]]</situation>
+            <situation>The positive aspects of the [[this instance]] are as follows:</situation>
+            <situation>1. [[Inverse the following into a positive aspect of the same magnitude: [[Negative aspect 1]]]]</situation>
+            <situation>2. [[Inverse the following into a positive aspect of the same magnitude: [[Negative aspect 2]]]]</situation>
+            <situation>3. [[Inverse the following into a positive aspect of the same magnitude: [[Negative aspect 3]]]]</situation>
+            <prompt>In your opinion, which aspects of the [[this instance]] have more weight?</prompt>  
+            <option>Definitely positive aspects</option>
+            <option>Most likely positive aspects</option>
+            <option>Probably positive aspects</option>
+            <option>Neither negative nor positive aspects</option>
+            <option>Probably negative aspects</option>
+            <option>Most likely negative aspects</option>
+            <option>Definitely negative aspects</option>
         </template>
     </variant>
 </config>

@@ -41,7 +41,7 @@ class NegativityBiasTestGenerator(TestGenerator):
         treatment: Template = self.config.get_treatment_template()
 
         # Populate the templates using the model and the scenario (note that we first populate treatment and then control here)
-        treatment, control = super().populate(model, treatment, control, scenario)
+        control, treatment = super().populate(model, control, treatment, scenario)
 
         # Create a test case object
         test_case = TestCase(
