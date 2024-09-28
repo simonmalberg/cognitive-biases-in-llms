@@ -19,11 +19,13 @@ class FundamentalAttributionErrorTestGenerator(TestGenerator):
     def generate_all(
         self, model: LLM, scenarios: list[str], seed: int = 42
     ) -> list[TestCase]:
+        # Load the custom values from the test config
+        custom_values = self.config.get_custom_values()
         # Create test cases for all scenarios
         test_cases: list[TestCase] = []
         for scenario in scenarios:
             try:
-                test_case = self.generate(model, scenario, None, seed)
+                test_case = self.generate(model, scenario, custom_values, seed)
                 test_cases.append(test_case)
             except Exception as e:
                 print(
@@ -39,6 +41,20 @@ class FundamentalAttributionErrorTestGenerator(TestGenerator):
         # Load the control and treatment templates
         control: Template = self.config.get_control_template()
         treatment: Template = self.config.get_treatment_template()
+        
+        # Populate the templates with custom values
+        np.random.seed(seed)
+        reason_control, reason_treatment = (
+            custom_values['reason_control'],
+            custom_values['reason_treatment']
+        )
+        # Sampling the order of the reasons
+        index = np.random.choice(range(len(reason_control)))
+        for template in [control, treatment]:
+            template.insert("control_reason", reason_control[index], origin="user")
+            template.insert("other_control_reason", reason_control[1 - index], origin="user")
+            template.insert("treatment_reason", reason_treatment[index], origin="user")
+            template.insert("other_treatment_reason", reason_treatment[1 - index], origin="user")
 
         # Populate the templates using the model and the scenario
         control, treatment = super().populate(model, control, treatment, scenario)
