@@ -9,13 +9,24 @@
         <value name='min'>2</value>
         <value name='max'>100</value>
     </custom_values>
+    <custom_values name="treatment_choice">
+        <value>[[Provide a description of a choice with a guaranteed profit for you of total amount {{base_amount}}. The profit is yours personally. Choose amount magnitude (e.g., thousands or millions) and currency accordingly.]]</value>
+        <value>[[Provide a description of another choice that is equally likely to lead to a profit of total amount {{lambda_amount}} and loss of total amount {{base_amount}}. Either profit or loss is yours personally. Choose amount magnitude (e.g., thousands or millions) and currency accordingly.]]</value>
+    </custom_values>
     <variant name="default">
         <template type="treatment">
             <situation>Suppose you are a [[type]] manager at [[organization]].</situation>
             <situation>You are presented with two choices.</situation>
+            <situation>Choice A: {{treatment_choice}}</situation>
+            <situation>Choice B: {{other_treatment_choice}}</situation>
             <prompt>Which choice would you choose?</prompt>
-            <option>[[Provide a description of a choice with a guaranteed profit for you of total amount {{base_amount}}. The profit is yours personally. Choose amount magnitude (e.g., thousands or millions) and currency accordingly.]]</option>
-            <option>[[Provide a description of another choice that is equally likely to lead to a profit of total amount {{lambda_amount}} and loss of total amount {{base_amount}}. Either profit or loss is yours personally. Choose amount magnitude (e.g., thousands or millions) and currency accordingly.]]</option>
+            <option>Definitely Choice A</option>
+            <option>Most likely Choice A</option>
+            <option>Probably Choice A</option>
+            <option>Equally likely</option>
+            <option>Probably Choice B</option>
+            <option>Most likely Choice B</option>
+            <option>Definitely Choice B</option>
         </template>
     </variant>
 </config>

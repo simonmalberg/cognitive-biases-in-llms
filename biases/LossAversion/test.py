@@ -82,6 +82,15 @@ class LossAversionTestGenerator(TestGenerator):
     ) -> TestCase:
         # Load the treatment template
         treatment: Template = self.config.get_treatment_template()
+        # Set the ordering of choices
+        np.random.seed(seed)
+        choice_treatment = custom_values['treatment_choice']
+        # Sampling the order of the schemes
+        index = np.random.choice(range(len(choice_treatment)))
+        # Inserting the values into the template
+        treatment.insert("treatment_choice", choice_treatment[index], origin="user")
+        treatment.insert("other_treatment_choice", choice_treatment[1 - index], origin="user")
+            
         # Populate the templates with custom values
         self._custom_population(treatment, custom_values, seed)
         # Get dictionary of inserted values
