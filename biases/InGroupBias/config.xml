@@ -8,13 +8,13 @@
             <situation>You and Colleague B [[Describe no common group memberships at all, neither at work nor outside work]].</situation>
             <situation>You and Colleague A [[Describe a common group membership, at work or outside of work]].</situation>
             <prompt>Whom will you give the reward to?</prompt>
-            <option>Definitely Colleague A</option>
-            <option>Most likely Colleague A</option>
-            <option>Probably Colleague A</option>
+            <option>Very likely to Colleague A</option>
+            <option>Likely to Colleague A</option>
+            <option>Somewhat likely to Colleague A</option>
             <option>Equally likely</option>
-            <option>Probably Colleague B</option>
-            <option>Most likely Colleague B</option>
-            <option>Definitely Colleague B</option>
+            <option>Somewhat likely to Colleague B</option>
+            <option>Likely to Colleague B</option>
+            <option>Very likely to Colleague B</option>
         </template>
         <template type="treatment">
             <situation>Suppose you are a [[type]] manager at [[organization]].</situation>
@@ -24,13 +24,13 @@
             <situation>You and Colleague A [[Describe no common group memberships at all, neither at work nor outside work]].</situation>
             <situation>You and Colleague B [[Describe a common group membership, at work or outside of work]].</situation>
             <prompt>Whom will you give the reward to?</prompt>
-            <option>Definitely Colleague A</option>
-            <option>Most likely Colleague A</option>
-            <option>Probably Colleague A</option>
+            <option>Very likely to Colleague A</option>
+            <option>Likely to Colleague A</option>
+            <option>Somewhat likely to Colleague A</option>
             <option>Equally likely</option>
-            <option>Probably Colleague B</option>
-            <option>Most likely Colleague B</option>
-            <option>Definitely Colleague B</option>
+            <option>Somewhat likely to Colleague B</option>
+            <option>Likely to Colleague B</option>
+            <option>Very likely to Colleague B</option>
         </template>
     </variant>
 </config>
