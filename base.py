@@ -152,7 +152,7 @@ class TestGenerator(ABC):
         Returns:
             dict: A dictionary containing the sampled custom values.
         """
-        pass
+        return {}
     
     def generate_all(
     self, model: LLM, scenarios: list[str], temperature: float = 0.0, seed: int = 42, num_instances: int = 5, max_retries: int = 5
