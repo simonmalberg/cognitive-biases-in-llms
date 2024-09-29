@@ -1,7 +1,6 @@
 from abc import ABC, abstractmethod
 from tests import TestCase, Template, TestConfig, DecisionResult
 import numpy as np
-import random
 import re
 
 
@@ -278,8 +277,8 @@ class TestGenerator(ABC):
         test_cases: list[TestCase] = []
         sampled_values: dict = {}
         for scenario in scenarios:
-            # creating a seed for each scenario
-            iteration_seed = hash(scenario + str(seed))
+            # creating a seed for each scenario, which fits the range of valid seeds for NumPy
+            iteration_seed = hash(scenario + str(seed)) % (2**32)
             # get the custom values for the scenario
             sampled_values = self.sample_custom_values(num_instances, iteration_seed)
             for step in range(num_instances):
@@ -418,7 +417,7 @@ class RatioScaleMetric:
         self.test_results = test_results
         self.k = k
         self.x = x
-        self.test_weights = test_weights
+        self.test_weights = np.repeat(test_weights, len(test_results))[:, None]
         
     def _compute(self, control_answer: np.array, treatment_answer: np.array) -> np.array:
         """
@@ -433,7 +432,7 @@ class RatioScaleMetric:
             np.array: The metric value for each test case.
         """
         delta_control_abs, delta_treatment_abs = np.abs(control_answer - self.x), np.abs(treatment_answer - self.x)
-        metric_value = self.k * (delta_control_abs - delta_treatment_abs) / np.maximum(delta_control_abs, delta_treatment_abs)
+        metric_value = self.k * (delta_control_abs - delta_treatment_abs) / (np.maximum(delta_control_abs, delta_treatment_abs) + 1e-8)
         
         return metric_value
     
@@ -463,6 +462,7 @@ class RatioScaleMetric:
                 ]
             )
             # also account for the case when the control is not present in the test: e.g., Illusion of Control.
+            # TODO: remove hardcoding
             if not np.any(control_answer):
                 control_answer = np.array([5]) # corresponds to the middle option in the 0%-100% scale with 10% increments
             biasedness_scores = self._compute(control_answer, treatment_answer)
@@ -512,7 +512,7 @@ class NominalScaleMetric:
         self.k = k
         self.b = b
         self.f = f
-        self.test_weights = test_weights
+        self.test_weights = np.repeat(test_weights, len(test_results))[:, None]
         
     def _compute(self, control_answer: np.array, treatment_answer: np.array) -> np.array:
         """
