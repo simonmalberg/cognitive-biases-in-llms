@@ -209,7 +209,7 @@ def get_metric(bias: str) -> Metric:
         # Get the class from the module
         MetricClass = getattr(module, class_name)
 
-        return MetricClass()
+        return MetricClass
     except (ModuleNotFoundError, AttributeError) as e:
         raise ImportError(f"Could not find the metric for bias '{bias}': {e}")
 

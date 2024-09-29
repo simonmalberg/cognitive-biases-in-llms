@@ -1,4 +1,4 @@
-from base import TestGenerator, LLM, Metric, MetricCalculationError
+from base import TestGenerator, LLM, Metric, MetricCalculationError, RatioScaleMetric
 from tests import TestCase, Template, TestConfig, DecisionResult
 import re
 import numpy as np
@@ -81,10 +81,10 @@ class AnchoringTestGenerator(TestGenerator):
         return test_case
 
 
-class AnchoringMetric(Metric):
+class AnchoringMetric(RatioScaleMetric):
     """
     A class that describes the quantitative evaluation of the anchoring in a model.
-
+    
     Metric:
     𝔅 = (‖ â₁ − a' ‖₁ − ‖ â₂ − a' ‖₁) / a ∈ [-1, 1];
 
@@ -93,66 +93,18 @@ class AnchoringMetric(Metric):
     a' is the answer option closest to the anchor value;
     a = max[‖ â₁ − a' ‖₁, ‖ â₂ − a' ‖₁].
     """
-
-    def _compute(
-        self,
-        control_answer: np.array,
-        treatment_answer: np.array,
-        anchor: np.array,
-    ) -> np.array:
-        """
-        Compute the metric for the anchoring.
-
-        Args:
-            control_answer (np.array): The answer chosen in the control version.
-            treatment_answer (np.array): The answer chosen in the treatment version.
-            anchor (np.array): The option closest to the anchor value for the test case.
-
-        Returns:
-            np.array: The metric value for the test case.
-        """
-        # Calculate the metric value
-        delta_control = np.abs(control_answer - anchor)
-        delta_treatment = np.abs(treatment_answer - anchor)
-        metric_value = (delta_control - delta_treatment) / (np.maximum(
-            delta_control, delta_treatment
-        ) + 1e-6)
-
-        return metric_value
-
-    def compute(self, test_results: list[tuple[TestCase, DecisionResult]]) -> float:
-        # make sure all pairs are not None
-        test_results = [
-            pair for pair in test_results if pair[0] is not None and pair[1] is not None
-        ]
-        try:
-            # extract indices of the chosen answers
-            control_answer = np.array(
-                [
-                    [decision_result.CONTROL_DECISION]
-                    for (_, decision_result) in test_results
-                ]
-            )
-            treatment_answer = np.array(
-                [
-                    [decision_result.TREATMENT_DECISION]
-                    for (_, decision_result) in test_results
-                ]
-            )
-            # extract the anchor values
-            anchor = [
+    
+    def __init__(self, test_results: list[tuple[TestCase, DecisionResult]]):
+        super().__init__(test_results)
+        # set the coefficient in the metric
+        self.k = 1
+        # set the anchor values as the parameter x in the metric
+        self.x = [
                 [
                     insertion.text
                     for insertion in test_case.TREATMENT.get_insertions()
                     if insertion.pattern == "anchor"
                 ]
-                for (test_case, _) in test_results
+                for (test_case, _) in self.test_results
             ]
-            anchor = np.array([[round(int(a[0]) / 10)] for a in anchor])
-            biasedness_scores = np.mean(
-                self._compute(control_answer, treatment_answer, anchor)
-            )
-        except Exception as e:
-            print(e)
-            raise MetricCalculationError(f"Error filtering test results: {e}")
-        return round(biasedness_scores, 2)
+        self.x = np.array([[round(int(anchor[0]) / 10)] for anchor in self.x])

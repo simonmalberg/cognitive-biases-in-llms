@@ -37,7 +37,10 @@ if __name__ == "__main__":
         print(test_cases)
         decision_results = decision_model.decide_all(test_cases, temperature, seed)
         print(decision_results)
-        computed_metric = metric.compute(list(zip(test_cases, decision_results)))
-        print(f'Bias metric: {computed_metric}')
+        metric = metric(test_results=list(zip(test_cases, decision_results)))
+        computed_metric = metric.compute()
+        print(f'Bias metric per each case: {computed_metric}')
+        aggregated_metric = metric.aggregate(computed_metric)
+        print(f'Aggregated bias metric: {aggregated_metric}')
     except (DecisionError, MetricCalculationError, AssertionError) as e:
         print(e)

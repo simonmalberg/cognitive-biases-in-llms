@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
 from tests import TestCase, Template, TestConfig, DecisionResult
+import numpy as np
 import random
 
 
@@ -245,7 +246,7 @@ class TestGenerator(ABC):
 
         return control, treatment
 
-
+# TODO: This class is to be removed
 class Metric(ABC):
     """
     Abstract base class for metrics. A metric is responsible for measuring the presence and strength of a cognitive bias in a Large Language Model (LLM).
@@ -260,3 +261,225 @@ class Metric(ABC):
     @abstractmethod
     def compute(self, test_results: list[tuple[TestCase, DecisionResult]]) -> float:
         pass
+    
+class AggregationMetric:
+    """
+    A metric that aggregates the evaluations of individual cognitive bias tests and computes a single bias metric value.
+    
+    𝔅 = (∑ wᵢ𝔅ᵢ) \ (∑ wᵢ)
+    
+    where: 
+    - 𝔅ᵢ is bias of the individual test i
+    - wᵢ is the weight of the individual test i (parameter). Default value is 1; for Loss Aversion, it is the test hyperparameter.
+    
+    Attributes:
+        bias_results (np.array): The array of bias metric values for the individual tests.
+        weights (np.array): The array of weights for the individual tests.
+    """
+    def __init__(self, bias_results: np.array, weights: np.array = np.array([1])):
+        self.bias_results = bias_results
+        self.weights = weights
+    
+    def compute(self) -> float:
+        """
+        Compute the aggregated metric value.
+        
+        Returns:
+            float: The aggregated metric value.
+        """
+        return round(np.sum(self.weights * self.bias_results) / np.sum(self.weights), 2)
+    
+
+class RatioScaleMetric:
+    """
+    A metric that measures the presence and strength of a cognitive bias test equipped with a ratio scale.
+    
+    𝔅(â₁,â₂,x) = k ⋅ Δ(|Δ[â₁,x]|, |Δ[â₂,x]|) / max(|Δ[â1,x]|, |Δ[â₂,x]|) 
+    
+    where: 
+    - â₁ and â₂ are the control and treatment answers, respectively
+    - x is the test parameter (e.g., present in the Anchoring test and Hindsight Bias test)
+    - k := ±1 (a constant factor)
+    - Δ[â,x] := â - x
+    
+    Attributes:
+        test_results (list[tuple[TestCase, DecisionResult]]): A list of test results to be used for the metric calculation.
+        k (np.array): The constant factor for the metric calculation.
+        x (np.array): The test parameter.
+        test_weights (np.array): The array of weights for the individual tests. Required for the metric aggregation.
+    """
+    def __init__(self, test_results: list[tuple[TestCase, DecisionResult]], k: np.array = np.array([-1]), x: np.array = np.array([0]), test_weights: np.array = np.array([1])):
+        self.test_results = test_results
+        self.k = k
+        self.x = x
+        self.test_weights = test_weights
+        
+    def _compute(self, control_answer: np.array, treatment_answer: np.array) -> np.array:
+        """
+        Calculation of the ratio scale metric according to the formula above.
+        
+        Args:
+            control_answer (np.array): The answer chosen in the control version.
+            treatment_answer (np.array): The answer chosen in the treatment version.
+            x (int): The test parameter.
+        
+        Returns:
+            np.array: The metric value for each test case.
+        """
+        delta_control_abs, delta_treatment_abs = np.abs(control_answer - self.x), np.abs(treatment_answer - self.x)
+        metric_value = self.k * (delta_control_abs - delta_treatment_abs) / np.maximum(delta_control_abs, delta_treatment_abs)
+        
+        return metric_value
+    
+    def compute(self) -> np.array:
+        """
+        Compute the ratio scale metric for the all provided tests.
+        
+        Returns:
+            np.array: The metric value for each test case.
+        """
+        # make sure all pairs are not None
+        self.test_results = [
+            pair for pair in self.test_results if pair[0] is not None and pair[1] is not None
+        ]
+        try:
+            # extract indices of the chosen answers
+            control_answer = np.array(
+                [
+                    [decision_result.CONTROL_DECISION]
+                    for (_, decision_result) in self.test_results
+                ]
+            )
+            treatment_answer = np.array(
+                [
+                    [decision_result.TREATMENT_DECISION]
+                    for (_, decision_result) in self.test_results
+                ]
+            )
+            # also account for the case when the control is not present in the test: e.g., Illusion of Control.
+            if not np.any(control_answer):
+                control_answer = np.array([5]) # corresponds to the middle option in the 0%-100% scale with 10% increments
+            biasedness_scores = self._compute(control_answer, treatment_answer)
+        except Exception as e:
+            print(e)
+            raise MetricCalculationError(f"Error filtering test results: {e}")
+        return biasedness_scores
+    
+    def aggregate(self, biasedness_scores: np.array) -> float:
+        """
+        Aggregate the ratio scale metric values for the all provided tests.
+        
+        Args:
+            biasedness_scores (np.array): The metric value for each test case.
+        
+        Returns:
+            float: The aggregated metric value.
+        """
+        return AggregationMetric(biasedness_scores, self.test_weights).compute()
+
+
+class NominalScaleMetric:
+    """
+    A metric that measures the presence and strength of a cognitive bias test equipped with a nominal scale.
+    
+    𝔅(â₁,â₂) = (k ⋅ f(â₂ − â₁) + b) ⋅ (1 - 2|â₁ - x|)
+    
+    where: 
+    - â₁ ∈ {0,1} and â₂ ∈ {0,1} are the control and treatment answers, respectively
+    - x ∈ {0,1} is the test parameter (e.g., present in Bandwagon Effect test)
+    - k := ±1, b := 0,1 (constant factors)
+    - f(⋅) ∈ {|⋅|, id} (a function)
+    
+    Attributes:
+        test_results (list[tuple[TestCase, DecisionResult]]): A list of test results to be used for the metric calculation.
+        options_labels (np.array): The array describing a map from options to labels {0,1}. Required to extract the type of the chosen answers.
+        x (np.array): The test parameter.
+        k (int): The constant for the metric calculation.
+        b (int): The constant for the metric calculation.
+        f (str): The function for the metric calculation.
+        test_weights (np.array): The array of weights for the individual tests. Required for the metric aggregation.
+    """
+    def __init__(self, test_results: list[tuple[TestCase, DecisionResult]], options_labels: np.array = np.empty(0), x: np.array = np.empty(0), k: int = 1, b: int = 0, f: str = "id", test_weights: np.array = np.array([1])):
+        self.test_results = test_results
+        self.options_labels = options_labels
+        self.x = x
+        self.k = k
+        self.b = b
+        self.f = f
+        self.test_weights = test_weights
+        
+    def _compute(self, control_answer: np.array, treatment_answer: np.array) -> np.array:
+        """
+        Calculation of the nominal scale metric according to the formula above.
+        
+        Args:
+            control_answer (np.array): The answer chosen in the control version.
+            treatment_answer (np.array): The answer chosen in the treatment version.
+        
+        Returns:
+            np.array: The metric value for each test case.
+        """
+        factor = 1
+        if np.any(self.x):
+            factor -= 2 * np.abs(control_answer - self.x)
+        if self.f == "abs":
+            f = np.abs
+        elif self.f == "id":
+            f = lambda x: x
+        else:
+            raise MetricCalculationError(f"Unknown function '{self.f}' in the metric calculation.")
+        
+        return (self.k * f(treatment_answer - control_answer) + self.b) * factor
+        
+    def compute(self) -> np.array:
+        """
+        Compute the nominal scale metric for the all provided tests.
+        
+        Returns:
+            np.array: The metric value for each test case.
+        """
+        try:
+            # make sure all pairs are not None
+            self.test_results = [
+                pair
+                for pair in self.test_results
+                if pair[0] is not None and pair[1] is not None
+            ]
+            # extract chosen answers
+            control_answer = np.array(
+                [
+                    decision_result.CONTROL_DECISION
+                    for (_, decision_result) in self.test_results
+                ]
+            )
+            treatment_answer = np.array(
+                [
+                    decision_result.TREATMENT_DECISION
+                    for (_, decision_result) in self.test_results
+                ]
+            )
+            # extract the type of the chosen answers
+            # also account for the case when the control is not present in the test
+            if np.any(control_answer):
+                control_answer = self.options_labels[control_answer]
+            else:
+                control_answer = np.array([0])
+            treatment_answer = self.options_labels[treatment_answer]
+            # compute the biasedness scores
+            biasedness_scores = np.mean(self._compute(control_answer, treatment_answer))
+        except Exception as e:
+            print(e)
+            raise MetricCalculationError(f"Error computing the metric: {e}")
+        return biasedness_scores
+    
+    def aggregate(self, biasedness_scores: np.array) -> float:
+        """
+        Aggregate the nominal scale metric values for the all provided tests.
+        
+        Args:
+            biasedness_scores (np.array): The metric value for each test case.
+        
+        Returns:
+            float: The aggregated metric value.
+        """
+        return AggregationMetric(biasedness_scores, self.test_weights).compute()
