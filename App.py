@@ -18,7 +18,7 @@ if __name__ == "__main__":
     scenario = random.choice(scenarios)
 
     # Define a cognitive bias to test
-    bias = 'InGroupBias'
+    bias = 'FramingEffect'
     # Define seed and temperature
     seed = random.randint(0, 1000)
     temperature = 0.7
@@ -33,7 +33,7 @@ if __name__ == "__main__":
     
     # Generate test cases and decide for all given scenarios and compute the metric
     try:
-        test_cases = generator.generate_all(population_model, [scenario], seed)
+        test_cases = generator.generate_all(population_model, [scenario], temperature, seed, num_instances=1, max_retries=5)
         print(test_cases)
         decision_results = decision_model.decide_all(test_cases, temperature, seed)
         print(decision_results)
