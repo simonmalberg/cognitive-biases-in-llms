@@ -39,7 +39,7 @@ if __name__ == "__main__":
         print(decision_results)
         metric = metric(test_results=list(zip(test_cases, decision_results)))
         computed_metric = metric.compute()
-        print(f'Bias metric per each case: {computed_metric}')
+        print(f'Bias metric per each case:\n{computed_metric}')
         aggregated_metric = metric.aggregate(computed_metric)
         print(f'Aggregated bias metric: {aggregated_metric}')
     except (DecisionError, MetricCalculationError, AssertionError) as e:
