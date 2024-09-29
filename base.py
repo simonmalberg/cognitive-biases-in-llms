@@ -1,5 +1,7 @@
 from abc import ABC, abstractmethod
 from tests import TestCase, Template, TestConfig, DecisionResult
+import numpy as np
+import random
 import re
 
 
