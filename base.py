@@ -260,6 +260,22 @@ class TestGenerator(ABC):
         """
         return {}
     
+    def select_custom_values_for_step(self, custom_values: dict, step: int) -> dict:
+        """
+        Selects the custom values for the given step from the dictionary of custom values.
+        
+        Args:
+            custom_values (dict): A dictionary containing the custom values for all steps.
+            step (int): The step for which to select the custom values.
+            
+        Returns:
+            dict: A dictionary containing the custom values for the given step."""
+        refined_dict = {}
+        for key, values in custom_values.items():
+            refined_dict[key] = values[step]
+            
+        return refined_dict
+    
     def generate_all(
     self, model: LLM, scenarios: list[str], temperature: float = 0.0, seed: int = 42, num_instances: int = 5, max_retries: int = 5
 ) -> list[TestCase]:
@@ -282,9 +298,11 @@ class TestGenerator(ABC):
             # get the custom values for the scenario
             sampled_values = self.sample_custom_values(num_instances, iteration_seed)
             for step in range(num_instances):
+                # taking the subdictionary of custom values for the current step only
+                sampled_values_step = self.select_custom_values_for_step(sampled_values, step)
                 for _ in range(max_retries):
                     try:
-                        test_case = self.generate(model, scenario, sampled_values, step, temperature, iteration_seed)
+                        test_case = self.generate(model, scenario, sampled_values_step, temperature, iteration_seed)
                         # if the test case is generated successfully, increment the seed to not collide with potential retries and break the retry loop
                         iteration_seed += max_retries + 1
                         break
