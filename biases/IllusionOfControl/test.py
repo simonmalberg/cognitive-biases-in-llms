@@ -1,6 +1,7 @@
-from base import TestGenerator, LLM, Metric
+from base import TestGenerator, LLM, RatioScaleMetric
 from tests import TestCase, Template, TestConfig, DecisionResult
 import numpy as np
+import random
 
 
 class IllusionOfControlTestGenerator(TestGenerator):
@@ -16,69 +17,64 @@ class IllusionOfControlTestGenerator(TestGenerator):
         self.BIAS = "Illusion of Control"
         self.config = super().load_config(self.BIAS)
 
-    def generate_all(self, model: LLM, scenarios: list[str], seed: int = 42) -> list[TestCase]:
+    def sample_custom_values(self, num_instances: int, iteration_seed: int) -> dict:
+        """
+        Sample custom values for the test case generation.
+
+        Args:
+            num_instances (int): The number of instances expected to be generated for each scenario.
+            iteration_seed (int): The seed to use for sampling the custom values.
+
+        Returns:
+            dict: A dictionary containing the sampled custom values.
+        """
+
         # Load the custom values from the test config
         config_values = self.config.get_custom_values()
+        treatment_variants = config_values["treatment_variants"]
 
-        # Get a list of all variants in the test config
-        variants = self.config.get_variants()
+        # Sample treatment variants
+        random.seed(iteration_seed)
+        random.shuffle(treatment_variants)
+        sampled_values = {
+            "treatment_variant": [treatment_variants[i % len(treatment_variants)] for i in range(num_instances)]
+        }
 
-        # Create test cases for all variants and scenarios
-        test_cases: list[TestCase] = []
-        for variant in variants:
-            for scenario in scenarios:
-                try:
-                    instance_values = {
-                        "variant": variant
-                    }
+        return sampled_values
 
-                    test_case = self.generate(model, scenario, instance_values, seed)
-                    test_cases.append(test_case)
-                except Exception as e:
-                    print("Generating the test case failed.")
-                    print(f"Variant: {variant}")
-                    print(f"Scenario: {scenario}")
-                    print(f"Seed: {seed}")
-                    print(e)
+    def generate(self, model: LLM, scenario: str, custom_values: dict = {}, temperature: float = 0.0, seed: int = 42) -> TestCase:
+        # Load the control and treatment templates
+        control: Template = self.config.get_control_template()
+        treatment: Template = self.config.get_treatment_template()
 
-        return test_cases
-
-    def generate(self, model: LLM, scenario: str, config_values: dict = {}, seed: int = 42) -> TestCase:
-        # Load the treatment template for the selected test variant
-        variant = config_values["variant"]
-        treatment: Template = self.config.get_treatment_template(variant)
+        # Apply the chosen treatment variant
+        treatment.insert("treatment_variant", custom_values["treatment_variant"])
 
         # Populate the templates using the model and the scenario
-        _, treatment = super().populate(model, None, treatment, scenario)
+        control, treatment = super().populate(model, control, treatment, scenario)
 
         # Create a test case object
         test_case = TestCase(
             bias=self.BIAS,
-            control=None,
+            control=control,
             treatment=treatment,
             generator=model.NAME,
-            variant=variant,
+            temperature=temperature,
+            seed=seed,
+            variant=custom_values["treatment_variant"],
             scenario=scenario
         )
 
         return test_case
 
 
-class IllusionOfControlMetric(Metric):
+class IllusionOfControlMetric(RatioScaleMetric):
+    """
+    A metric that measures the presence and strength of the Illusion of Control based on a set of test results.
 
-    def __init__(self):
-        pass
+    Attributes:
+        test_results (list[tuple[TestCase, DecisionResult]]): The list of test results to be used for the metric calculation.
+    """
 
-    def _compute(self, test_result: tuple[TestCase, DecisionResult]) -> float:
-        # Extract the decision result from the tuple
-        decision_result: DecisionResult = test_result[1]
-
-        # Extract the chosen option (in percentage, e.g., '90')
-        treatment_decision = int(decision_result.TREATMENT_OPTIONS[decision_result.TREATMENT_DECISION - 1].replace('%', ''))
-
-        # Calculate the biasedness
-        return (treatment_decision - 50) / 50
-
-    def compute(self, test_results: list[tuple[TestCase, DecisionResult]]) -> float:
-        biasedness_scores = [self._compute(test_result) for test_result in test_results]
-        return np.mean(biasedness_scores)
+    def __init__(self, test_results: list[tuple[TestCase, DecisionResult]]):
+        super().__init__(test_results)
