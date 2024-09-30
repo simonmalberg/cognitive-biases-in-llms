@@ -1,6 +1,5 @@
-from base import TestGenerator, LLM, Metric, MetricCalculationError
-from tests import TestCase, Template, TestConfig, DecisionResult
-import random
+from base import TestGenerator, LLM, RatioScaleMetric
+from tests import TestCase, Template, DecisionResult
 import numpy as np
 
 
@@ -16,124 +15,88 @@ class HaloEffectTestGenerator(TestGenerator):
     def __init__(self):
         self.BIAS = "Halo Effect"
         self.config = super().load_config(self.BIAS)
+        
+    def sample_custom_values(self, num_instances: int, iteration_seed: int) -> dict:
+        """
+        Sample custom values for the test case generation.
 
-    def generate_all(
-        self, model: LLM, scenarios: list[str], seed: int = 42
-    ) -> list[TestCase]:
-        # Load the custom values from the test config
+        Args:
+            num_instances (int): The number of instances expected to be generated for each scenario.
+            iteration_seed (int): The seed to use for sampling the custom values.
+
+        Returns:
+            dict: A dictionary containing the sampled custom values.
+        """
+        sampled_values = {}
+        np.random.seed(iteration_seed)
+        # load the custom values for this test
         custom_values = self.config.get_custom_values()
-        # Create test cases for all provided scenarios
-        test_cases: list[TestCase] = []
-        for scenario in scenarios:
-            try:
-                test_case = self.generate(model, scenario, custom_values, seed)
-                test_cases.append(test_case)
-            except Exception as e:
-                print(
-                    f"Generating the test case failed.\nScenario: {scenario}\nSeed: {seed}"
-                )
-                print(e)
-
-        return test_cases
+        # randomly sample each custom value 'num_instances' number of times
+        # in this case, we are sampling the type of perception
+        for key, value in custom_values.items():
+            if key == "perception":
+                sampled_values[key] = [
+                    value[n] for n in range(num_instances)
+                ]
+        
+        return sampled_values
 
     def generate(
-        self, model: LLM, scenario: str, custom_values: dict = {}, seed: int = 42
+        self,
+        model: LLM,
+        scenario: str,
+        custom_values: dict = {},
+        temperature: float = 0.0,
+        seed: int = 42,
     ) -> TestCase:
+        
+        # Load the control and treatment templates
         control: Template = self.config.get_control_template()
         treatment: Template = self.config.get_treatment_template()
 
-        # custom values handling
-        random.seed(seed)
-        perception_values = custom_values["perception"]
-        # Sampling one of the values
-        perception = random.choice(perception_values)
+        # Insert the custom values into the template
         for template in [control, treatment]:
-            template.insert("perception", perception, origin="user")
+            template.insert("perception", custom_values['perception'], origin="user")
 
+        # Populate the templates using the model and the scenario
         # first populate the treatment template, then the control template
-        treatment, control = super().populate(model, treatment, control, scenario)
+        treatment, control = super().populate(
+            model, treatment, control, scenario, temperature, seed
+        )
 
+        # Create a test case object
         test_case = TestCase(
             bias=self.BIAS,
             control=control,
             treatment=treatment,
             generator=model.NAME,
+            temperature=temperature,
+            seed=seed,
             scenario=scenario,
+            variant=None,
+            remarks=None,
         )
 
         return test_case
 
 
-class HaloEffectMetric(Metric):
+class HaloEffectMetric(RatioScaleMetric):
     """
-    A class that describes the quantitative evaluation of the halo effect in a model.
+    A class that describes the quantitative evaluation of the Halo effect in a model.
 
     Metric:
-    𝔅 = k * (â₂ - â₁) / a
-
+    𝔅(â₁, â₂) = k ⋅ (â₁ - â₂) / max(â₁, â₂) ∈ [-1, 1]
     where:
-    â₁, â₂ are the chosen answers for the control and treatment versions, respectively;
-    a = â₁ - â (if â₂ - â₁ < 0) or else a = ã - â₁, where ã is the maximum option, â - the minimum option (= 0).
-    k is the halo type and is 1 for positive and -1 for negative.
+    â₂, â₁ are the chosen answers for the treatment and control versions, respectively.
+    k is the parameter that reflects the type of halo (k = 1 for a positive one, k = -1 otherwise).
 
+    Attributes:
+        test_results (list[tuple[TestCase, DecisionResult]]): The list of test results to be used for the metric calculation.
     """
 
-    def _compute(
-        self,
-        control_answer: np.array,
-        treatment_answer: np.array,
-        halo: np.array,
-        max_option: np.array,
-    ) -> np.array:
-        """
-        Compute the metric for the Negativity bias.
-
-        Args:
-            control_answer (np.array): The answer chosen in the control version.
-            treatment_answer (np.array): The answer chosen in the treatment version.
-
-            max_option (np.array): The maximum answer option.
-
-        Returns:
-            np.array: The metric value for the test case.
-        """
-        delta = treatment_answer - control_answer
-        metric_value = (
-            halo
-            * delta
-            / (
-                (delta >= 0) * (max_option - control_answer)
-                + (delta < 0) * control_answer
-                + 10e-8
-            )
-        )
-
-        return metric_value
-
-    def compute(self, test_results: list[tuple[TestCase, DecisionResult]]) -> float:
-        try:
-            # make sure all pairs are not None
-            test_results = [
-                pair
-                for pair in test_results
-                if pair[0] is not None and pair[1] is not None
-            ]
-            # extract the max option
-            max_option = len(test_results[0][1].CONTROL_OPTIONS) - 1
-            # extract answers
-            control_answer = np.array(
-                [
-                    [decision_result.CONTROL_DECISION]
-                    for (_, decision_result) in test_results
-                ]
-            )
-            treatment_answer = np.array(
-                [
-                    [decision_result.TREATMENT_DECISION]
-                    for (_, decision_result) in test_results
-                ]
-            )
-            halo = [
+    def __init__(self, test_results: list[tuple[TestCase, DecisionResult]]):
+        super().__init__(test_results)
+        self.k = [
                 [
                     insertion.text
                     for insertion in test_case.TREATMENT.get_insertions()
@@ -141,11 +104,4 @@ class HaloEffectMetric(Metric):
                 ]
                 for (test_case, _) in test_results
             ]
-            halo = np.array([[1] if p == ["positively"] else [-1] for p in halo])
-            biasedness_scores = np.mean(
-                self._compute(control_answer, treatment_answer, halo, max_option)
-            )
-        except Exception as e:
-            print(e)
-            raise MetricCalculationError(f"Error computing the metric: {e}")
-        return round(biasedness_scores, 2)
+        self.k = np.array([[1] if k == ["positively"] else [-1] for k in self.k])

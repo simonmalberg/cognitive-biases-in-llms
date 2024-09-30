@@ -8,34 +8,28 @@
             <situation>Suppose you are a [[type]] manager at [[organization]].</situation>
             <situation>You plan to purchase [[a product relevant for your task]].</situation>
             <situation>One of the brands that [[offer or produce]] such a product is brand A.</situation>
-            <prompt>In your opinion, on a scale from 1 (very bad) to 10 (very good), how would you expect [[feature B, which is completely independent from the feature A]] to be in this product?</prompt>
-            <option>1</option>
-            <option>2</option>
-            <option>3</option>
-            <option>4</option>
-            <option>5</option>
-            <option>6</option>
-            <option>7</option>
-            <option>8</option>
-            <option>9</option>
-            <option>10</option>
+            <prompt>In your opinion, how would you expect [[feature B, which is completely independent from the feature A]] to be in this product?</prompt>
+            <option>Very good</option>
+            <option>Good</option>
+            <option>Somewhat good</option>
+            <option>Neither good nor bad</option>
+            <option>Somewhat bad</option>
+            <option>Bad</option>
+            <option>Very bad</option>
         </template>
         <template type="treatment">
             <situation>Suppose you are a [[type]] manager at [[organization]].</situation>
             <situation>You plan to purchase [[a product relevant for your task]].</situation>
             <situation>One of the brands that [[offer or produce]] such a product is brand A.</situation>
             <situation>This product by brand A [[describe a feature A of this product you view very {{perception}}]].</situation>
-            <prompt>In your opinion, on a scale from 1 (very bad) to 10 (very good), how would you expect [[feature B, which is completely independent from the feature A]] to be in this product?</prompt>
-            <option>1</option>
-            <option>2</option>
-            <option>3</option>
-            <option>4</option>
-            <option>5</option>
-            <option>6</option>
-            <option>7</option>
-            <option>8</option>
-            <option>9</option>
-            <option>10</option>
+            <prompt>In your opinion, how would you expect [[feature B, which is completely independent from the feature A]] to be in this product?</prompt>
+            <option>Very good</option>
+            <option>Good</option>
+            <option>Somewhat good</option>
+            <option>Neither good nor bad</option>
+            <option>Somewhat bad</option>
+            <option>Bad</option>
+            <option>Very bad</option>
         </template>
     </variant>
 </config>
