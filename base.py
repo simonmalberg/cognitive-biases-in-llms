@@ -430,12 +430,16 @@ class RatioScaleMetric:
         k (np.array): The constant factor for the metric calculation.
         x (np.array): The test parameter.
         test_weights (np.array): The array of weights for the individual tests. Required for the metric aggregation.
+        flip_control (bool): Whether to flip the control answer w.r.t. the centre of the scale.
+        flip_treatment (bool): Whether to flip the treatment answer w.r.t. the centre of the scale.
     """
-    def __init__(self, test_results: list[tuple[TestCase, DecisionResult]], k: np.array = np.array([-1]), x: np.array = np.array([0]), test_weights: np.array = np.array([1])):
+    def __init__(self, test_results: list[tuple[TestCase, DecisionResult]], k: np.array = np.array([-1]), x: np.array = np.array([0]), test_weights: np.array = np.array([1]), flip_control: bool = False, flip_treatment: bool = False):
         self.test_results = test_results
         self.k = k
         self.x = x
         self.test_weights = np.repeat(test_weights, len(test_results))[:, None]
+        self.flip_control = flip_control
+        self.flip_treatment = flip_treatment
         
     def _compute(self, control_answer: np.array, treatment_answer: np.array) -> np.array:
         """
@@ -479,10 +483,22 @@ class RatioScaleMetric:
                     for (_, decision_result) in self.test_results
                 ]
             )
+            # if the control answer should be flipped
+            if self.flip_control:
+                # extract the length of the scale
+                scale_length = len(self.test_results[0][1].CONTROL_OPTIONS)
+                # flip the control answer
+                control_answer = scale_length - 1 - control_answer
+            # if the treatment answer should be flipped
+            if self.flip_treatment:
+                # extract the length of the scale
+                scale_length = len(self.test_results[0][1].TREATMENT_OPTIONS)
+                # flip the treatment answer
+                treatment_answer = scale_length - 1 - treatment_answer
             # also account for the case when the control is not present in the test: e.g., Illusion of Control.
-            # TODO: remove hardcoding
-            if not np.any(control_answer):
-                control_answer = np.array([5]) # corresponds to the middle option in the 0%-100% scale with 10% increments
+            # assume for these cases we have strictly odd number of options (central element is well-defined)
+            if not control_answer.size:
+                control_answer = np.array(len(self.test_results) * [[(len(self.test_results[0][1].CONTROL_OPTIONS) - 1) // 2]])
             biasedness_scores = self._compute(control_answer, treatment_answer)
         except Exception as e:
             print(e)
