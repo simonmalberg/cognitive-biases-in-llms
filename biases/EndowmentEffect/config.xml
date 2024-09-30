@@ -4,7 +4,7 @@
             <situation>Suppose you are a [[type]] manager at [[organization]].</situation>
             <situation>One important asset in [[your industry]] is [[provide a description for a saleable personal asset which is involved in tasks at positions like yours]].</situation>
             <situation>You purchased it for [[provide a price for this asset]].</situation>
-            <prompt>At which minimum price (in percent of its change) are you willing to sell this asset?</prompt>
+            <prompt>At which minimum price (relative to the original purchase price of [[provide a price for this asset]]) are you willing to sell this asset?</prompt>
             <option>-50%</option>
             <option>-40%</option>
             <option>-30%</option>
@@ -22,7 +22,7 @@
             <situation>One important asset in [[your industry]] is [[provide a description for a saleable personal asset which is involved in tasks at positions like yours]].</situation>
             <situation>You do not possess such asset.</situation>
             <situation>Another company is open to selling it. You know that they purchased it for [[provide a price for this asset]].</situation>
-            <prompt>At which maximum price (in percent of its change) are you willing to buy this asset?</prompt>
+            <prompt>At which maximum price (relative to the original purchase price of [[provide a price for this asset]]) are you willing to buy this asset?</prompt>
             <option>-50%</option>
             <option>-40%</option>
             <option>-30%</option>

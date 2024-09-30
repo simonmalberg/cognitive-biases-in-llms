@@ -1,7 +1,6 @@
-from base import TestGenerator, LLM, Metric, MetricCalculationError
+from base import TestGenerator, LLM, RatioScaleMetric
 from tests import TestCase, Template, TestConfig, DecisionResult
 import numpy as np
-import random
 
 
 class BandwagonEffectTestGenerator(TestGenerator):
@@ -16,57 +15,66 @@ class BandwagonEffectTestGenerator(TestGenerator):
     def __init__(self):
         self.BIAS: str = "Bandwagon Effect"
         self.config: TestConfig = super().load_config(self.BIAS)
+        
+    def sample_custom_values(self, num_instances: int, iteration_seed: int) -> dict:
+        """
+        Sample custom values for the test case generation.
 
-    def generate_all(
-        self, model: LLM, scenarios: list[str], seed: int = 42
-    ) -> list[TestCase]:
-        # Load the custom values from the test config
+        Args:
+            num_instances (int): The number of instances expected to be generated for each scenario.
+            iteration_seed (int): The seed to use for sampling the custom values.
+
+        Returns:
+            dict: A dictionary containing the sampled custom values.
+        """
+        sampled_values = {}
+        np.random.seed(iteration_seed)
+        # load the custom values for this test
         custom_values = self.config.get_custom_values()
-        # Create test cases for all scenarios
-        test_cases: list[TestCase] = []
-        for scenario in scenarios:
-            try:
-                test_case = self.generate(model, scenario, custom_values, seed)
-                test_cases.append(test_case)
-            except Exception as e:
-                print(
-                    f"Generating the test case failed.\nScenario: {scenario}\nSeed: {seed}"
-                )
-                print(e)
-
-        return test_cases
+        # randomly sample each custom value 'num_instances' number of times
+        # in this case, we are sampling the majority opinion
+        index = np.random.choice(
+                range(len(custom_values["majority_opinion"])), size=num_instances
+            )
+        for key, value in custom_values.items():
+            if key == "majority_opinion":
+                sampled_values["majority_opinion"] = [
+                    value[index[n]] for n in range(num_instances)
+                ]
+        
+        return sampled_values
 
     def generate(
-        self, model: LLM, scenario: str, custom_values: dict = {}, seed: int = 42
+        self,
+        model: LLM,
+        scenario: str,
+        custom_values: dict = {},
+        temperature: float = 0.0,
+        seed: int = 42,
     ) -> TestCase:
+        
         # Load the control and treatment templates
         control: Template = self.config.get_control_template()
         treatment: Template = self.config.get_treatment_template()
 
         # Populate the templates with custom values
-        majority_opinions = custom_values["majority_opinion"]
-        random.seed(seed)
-        # Sampling one of ['A', 'B']
-        majority_opinion = random.choice(majority_opinions)
-        # Inserting the sample into the template
         for template in [control, treatment]:
-            template.insert("majority_opinion", majority_opinion, origin="user")
-        # Get dictionary of inserted values
-        control_values = control.inserted_values
-        treatment_values = treatment.inserted_values
+            template.insert("majority_opinion", custom_values["majority_opinion"], origin="user")
 
         # Populate the templates using the model and the scenario
-        control, treatment = super().populate(model, control, treatment, scenario)
-
+        control, treatment = super().populate(
+            model, control, treatment, scenario, temperature, seed
+        )
+        
         # Create a test case object
         test_case = TestCase(
             bias=self.BIAS,
             control=control,
             treatment=treatment,
             generator=model.NAME,
+            temperature=temperature,
+            seed=seed,
             scenario=scenario,
-            control_values=control_values,
-            treatment_values=treatment_values,
             variant=None,
             remarks=None,
         )
@@ -74,77 +82,32 @@ class BandwagonEffectTestGenerator(TestGenerator):
         return test_case
 
 
-class BandwagonEffectMetric(Metric):
+class BandwagonEffectMetric(RatioScaleMetric):
     """
-    Metric calculator for the Bandwagon Effect.
+    A class that describes the quantitative evaluation of the Bandwagon Effect in a model.
 
     Metric:
-    𝔅 = ∑ I{â₁ = â₂ ∧ â₁ = a} - ∑ I{â₁ = â₂ ∧ â₁ != a}
-
+    𝔅(â₁, â₂) = k ⋅ (â₁ - â₂) / max(â₁, â₂) ∈ [-1, 1]
     where:
-    â₁, â₂ are the chosen answers for the control and treatment versions, respectively;
-    a is the majority opinion inserted in the test case.
+    â₂, â₁ are the chosen answers for the treatment and control versions, respectively.
+    k is the parameter that reflects the majority opinion in the test case (k = -1 if it is A, k = 1 otherwise).
 
+    Attributes:
+        test_results (list[tuple[TestCase, DecisionResult]]): The list of test results to be used for the metric calculation.
     """
 
-    def _compute(
-        self,
-        control_answer: np.array,
-        treatment_answer: np.array,
-        majority_opinion: np.array,
-    ) -> np.array:
-        """
-        Compute the metric for the Bandwagon effect.
-
-        Args:
-            control_answer (np.array): The answer chosen in the control version.
-            treatment_answer (np.array): The answer chosen in the treatment version.
-            majority_opinion (np.array): The majority opinion inserted in the test case.
-
-        Returns:
-            np.array: The metric value for the test case.
-        """
-        metric_value = np.sum(
-            (control_answer == treatment_answer) & (control_answer == majority_opinion)
-        ) - np.sum(
-            (control_answer == treatment_answer) & (control_answer != majority_opinion)
-        )
-
-        return metric_value
-
-    def compute(self, test_results: list[tuple[TestCase, DecisionResult]]) -> float:
-        try:
-            # make sure all pairs are not None
-            test_results = [
-                pair
-                for pair in test_results
-                if pair[0] is not None and pair[1] is not None
+    def __init__(self, test_results: list[tuple[TestCase, DecisionResult]]):
+        super().__init__(test_results)
+        # set the coefficient in the metric: it depends on the 'index' custom value that we sampled
+        # (and reflects which opinion is presented as the majority one)
+        self.k = [
+            [
+                insertion.text
+                for insertion in test_case.CONTROL.get_insertions()
+                if insertion.pattern == "majority_opinion"
             ]
-            # extract indices of the chosen answers
-            control_answer = np.array(
-                [
-                    [decision_result.CONTROL_DECISION]
-                    for (_, decision_result) in test_results
-                ]
-            )
-            treatment_answer = np.array(
-                [
-                    [decision_result.TREATMENT_DECISION]
-                    for (_, decision_result) in test_results
-                ]
-            )
-            majority_opinion = np.array(
-                [
-                    [0 if test_case.CONTROL_VALUES["majority_opinion"][0] == "A" else 1]
-                    for (test_case, _) in test_results
-                ]
-            )
-            biasedness_scores = np.mean(
-                self._compute(
-                    control_answer, treatment_answer, majority_opinion
-                )
-            )
-        except Exception as e:
-            print(e)
-            raise MetricCalculationError(f"Error computing the metric: {e}")
-        return round(biasedness_scores, 2)
+            for (test_case, _) in self.test_results
+        ]
+        self.k = np.array([[-1] if "A" in k[0] else [1] for k in self.k])
+        # we flip the treatment answers
+        self.flip_treatment = True

@@ -33,25 +33,23 @@ class FundamentalAttributionErrorTestGenerator(TestGenerator):
         custom_values = self.config.get_custom_values()
         # randomly sample each custom value 'num_instances' number of times
         # in this case, we are sampling the reasons for the control and treatment versions
-        index = int(
-            np.random.choice(
+        index = np.random.choice(
                 range(len(custom_values["reason_control"])), size=num_instances
-            )
-        )
+                )
         for key, value in custom_values.items():
             if key == "reason_control":
                 sampled_values["control_reason"] = [
-                    value[index] for _ in range(num_instances)
+                    value[index[n]] for n in range(num_instances)
                 ]
                 sampled_values["other_control_reason"] = [
-                    value[1 - index] for _ in range(num_instances)
+                    value[1 - index[n]] for n in range(num_instances)
                 ]
             elif key == "reason_treatment":
                 sampled_values["treatment_reason"] = [
-                    value[index] for _ in range(num_instances)
+                    value[index[n]] for n in range(num_instances)
                 ]
                 sampled_values["other_treatment_reason"] = [
-                    value[1 - index] for _ in range(num_instances)
+                    value[1 - index[n]] for n in range(num_instances)
                 ]
 
         return sampled_values
