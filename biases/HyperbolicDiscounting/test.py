@@ -27,18 +27,32 @@ class HyperbolicDiscountingTestGenerator(TestGenerator):
         Returns:
             dict: A dictionary containing the sampled custom values.
         """
+        sampled_values = {}
         np.random.seed(iteration_seed)
         # load the custom values for this test
         custom_values = self.config.get_custom_values()
         # randomly sample each custom value 'num_instances' number of times
         # in this case, we are sampling the earlier_reward, later_coef, months_delay and the schemes' order
-        index = np.random.choice(
-            range(len(custom_values["scheme_control"])), size=num_instances
+        index = int(
+            np.random.choice(
+                range(len(custom_values["scheme_control"])), size=num_instances
+            )
         )
-        sampled_values = {"index": index}
         for key, value in custom_values.items():
-            if key == "scheme_control" or key == "scheme_treatment":
-                sampled_values[key] = value
+            if key == "scheme_control":
+                sampled_values["control_scheme"] = [
+                    value[index] for _ in range(num_instances)
+                ]
+                sampled_values["other_control_scheme"] = [
+                    value[1 - index] for _ in range(num_instances)
+                ]
+            elif key == "scheme_treatment":
+                sampled_values["treatment_scheme"] = [
+                    value[index] for _ in range(num_instances)
+                ]
+                sampled_values["other_treatment_scheme"] = [
+                    value[1 - index] for _ in range(num_instances)
+                ]
             else:
                 sampled_values[key] = getattr(np.random, value[0])(
                     int(value[1]), int(value[2]), size=num_instances
@@ -56,7 +70,6 @@ class HyperbolicDiscountingTestGenerator(TestGenerator):
         model: LLM,
         scenario: str,
         custom_values: dict = {},
-        step: int = 0,
         temperature: float = 0.0,
         seed: int = 42,
     ) -> TestCase:
@@ -64,41 +77,33 @@ class HyperbolicDiscountingTestGenerator(TestGenerator):
         control: Template = self.config.get_control_template()
         treatment: Template = self.config.get_treatment_template()
 
-        # Load the custom values sampled in the sample_custom_values method
-        (
-            earlier_reward,
-            later_reward,
-            months_delay,
-            scheme_control,
-            scheme_treatment,
-            index,
-        ) = (
-            custom_values["earlier_reward"],
-            custom_values["later_reward"],
-            custom_values["months_delay"],
-            custom_values["scheme_control"],
-            custom_values["scheme_treatment"],
-            custom_values["index"],
-        )
-        # Insert the custom values that correspond to the current step into the template
+        # Insert the custom values into the template
         for template in [control, treatment]:
             template.insert(
-                "control_scheme", scheme_control[index[step]], origin="user"
+                "control_scheme", custom_values["control_scheme"], origin="user"
             )
             template.insert(
-                "other_control_scheme", scheme_control[1 - index[step]], origin="user"
+                "other_control_scheme",
+                custom_values["other_control_scheme"],
+                origin="user",
             )
             template.insert(
-                "treatment_scheme", scheme_treatment[index[step]], origin="user"
+                "treatment_scheme", custom_values["treatment_scheme"], origin="user"
             )
             template.insert(
                 "other_treatment_scheme",
-                scheme_treatment[1 - index[step]],
+                custom_values["other_treatment_scheme"],
                 origin="user",
             )
-            template.insert("earlier_reward", str(earlier_reward[step]), origin="user")
-            template.insert("later_reward", str(later_reward[step]), origin="user")
-            template.insert("months_delay", str(months_delay[step]), origin="user")
+            template.insert(
+                "earlier_reward", str(custom_values["earlier_reward"]), origin="user"
+            )
+            template.insert(
+                "later_reward", str(custom_values["later_reward"]), origin="user"
+            )
+            template.insert(
+                "months_delay", str(custom_values["months_delay"]), origin="user"
+            )
 
         # Populate the templates using the model and the scenario
         control, treatment = super().populate(
