@@ -1,6 +1,5 @@
-from base import TestGenerator, LLM, RatioScaleMetric, MetricCalculationError
+from base import TestGenerator, LLM, RatioScaleMetric
 from tests import TestCase, Template, TestConfig, DecisionResult
-import numpy as np
 
 
 class NegativityBiasTestGenerator(TestGenerator):
@@ -21,7 +20,6 @@ class NegativityBiasTestGenerator(TestGenerator):
         model: LLM,
         scenario: str,
         custom_values: dict = {},
-        step: int = 0,
         temperature: float = 0.0,
         seed: int = 42,
     ) -> TestCase:
@@ -66,3 +64,5 @@ class NegativityBiasMetric(RatioScaleMetric):
 
     def __init__(self, test_results: list[tuple[TestCase, DecisionResult]]):
         super().__init__(test_results)
+        # Reflect the treatment options w.r.t. the central option 
+        self.flip_treatment = True

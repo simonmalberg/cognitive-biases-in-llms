@@ -32,13 +32,13 @@
             <situation>2. [[Inverse the following into a positive aspect of the same magnitude: [[Negative aspect 2]]]]</situation>
             <situation>3. [[Inverse the following into a positive aspect of the same magnitude: [[Negative aspect 3]]]]</situation>
             <prompt>In your opinion, which aspects of the [[this instance]] have more weight?</prompt>  
-            <option>Very likely positive aspects</option>
-            <option>Likely positive aspects</option>
-            <option>Somewhat likely positive aspects</option>
-            <option>Neither negative nor positive aspects</option>
-            <option>Somewhat likely negative aspects</option>
-            <option>Likely negative aspects</option>
             <option>Very likely negative aspects</option>
+            <option>Likely negative aspects</option>
+            <option>Somewhat likely negative aspects</option>
+            <option>Neither negative nor positive aspects</option>
+            <option>Somewhat likely positive aspects</option>
+            <option>Likely positive aspects</option>
+            <option>Very likely positive aspects</option>
         </template>
     </variant>
 </config>
