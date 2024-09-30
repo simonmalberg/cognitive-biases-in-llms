@@ -15,13 +15,13 @@
             <situation>Reason A: {{control_reason}}</situation>
             <situation>Reason B: {{other_control_reason}}</situation>
             <prompt>Which of these reasons best explain your action?</prompt>
-            <option>Definitely Reason A</option>
-            <option>Most likely Reason A</option>
-            <option>Probably Reason A</option>
+            <option>Very likely Reason A</option>
+            <option>Likely Reason A</option>
+            <option>Somewhat likely Reason A</option>
             <option>Equally likely</option>
-            <option>Probably Reason B</option>
-            <option>Most likely Reason B</option>
-            <option>Definitely Reason B</option>
+            <option>Somewhat likely Reason B</option>
+            <option>Likely Reason B</option>
+            <option>Very likely Reason B</option>
         </template>
         <template type="treatment">
             <situation>Suppose you are a [[type]] manager at [[organization]].</situation>
@@ -30,13 +30,13 @@
             <situation>Reason A: {{treatment_reason}}</situation>
             <situation>Reason B: {{other_treatment_reason}}</situation>
             <prompt>In your opinion, which of these reasons best explain their action?</prompt>
-            <option>Definitely Reason A</option>
-            <option>Most likely Reason A</option>
-            <option>Probably Reason A</option>
+            <option>Very likely Reason A</option>
+            <option>Likely Reason A</option>
+            <option>Somewhat likely Reason A</option>
             <option>Equally likely</option>
-            <option>Probably Reason B</option>
-            <option>Most likely Reason B</option>
-            <option>Definitely Reason B</option>
+            <option>Somewhat likely Reason B</option>
+            <option>Likely Reason B</option>
+            <option>Very likely Reason B</option>
         </template>
     </variant>
 </config>
