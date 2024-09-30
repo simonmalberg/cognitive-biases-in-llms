@@ -78,23 +78,23 @@ class HyperbolicDiscountingTestGenerator(TestGenerator):
         treatment: Template = self.config.get_treatment_template()
 
         # Insert the custom values into the template
-        for template in [control, treatment]:
-            template.insert(
+        control.insert(
                 "control_scheme", custom_values["control_scheme"], origin="user"
             )
-            template.insert(
+        control.insert(
                 "other_control_scheme",
                 custom_values["other_control_scheme"],
                 origin="user",
             )
-            template.insert(
+        treatment.insert(
                 "treatment_scheme", custom_values["treatment_scheme"], origin="user"
             )
-            template.insert(
-                "other_treatment_scheme",
+        treatment.insert(
+            "other_treatment_scheme",
                 custom_values["other_treatment_scheme"],
                 origin="user",
             )
+        for template in [control, treatment]:
             template.insert(
                 "earlier_reward", str(custom_values["earlier_reward"]), origin="user"
             )
@@ -131,7 +131,7 @@ class HyperbolicDiscountingMetric(RatioScaleMetric):
     A class that describes the quantitative evaluation of the Hyperbolic Discounting in a model.
 
     Metric:
-    𝔅(â₁, â₂) = k ⋅ (â₂ - â₁) / max(â₁, â₂) ∈ [-1, 1]
+    𝔅(â₁, â₂) = k ⋅ (â₁ - â₂) / max(â₁, â₂) ∈ [-1, 1]
     where:
     â₂, â₁ are the chosen answers for the treatment and control versions, respectively.
     k is the parameter that reflects the order of schemes in the test case (k = -1 if an immediate reward is presented first, k = 1 otherwise).

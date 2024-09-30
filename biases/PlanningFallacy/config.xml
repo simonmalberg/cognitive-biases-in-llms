@@ -1,9 +1,4 @@
 <config bias="Planning Fallacy">
-    <custom_values name="percentage">
-        <value name='distribution'>randint</value>
-        <value name='min'>10</value>
-        <value name='max'>50</value>
-    </custom_values>
     <variant name="default">
         <template type="control">
             <situation>Suppose you are a [[type]] manager at [[organization]].</situation>

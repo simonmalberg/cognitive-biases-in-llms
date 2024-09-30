@@ -1,6 +1,5 @@
-from base import TestGenerator, LLM, Metric, MetricCalculationError
+from base import TestGenerator, LLM, RatioScaleMetric
 from tests import TestCase, Template, TestConfig, DecisionResult
-import numpy as np
 
 
 class PlanningFallacyTestGenerator(TestGenerator):
@@ -16,47 +15,22 @@ class PlanningFallacyTestGenerator(TestGenerator):
         self.BIAS: str = "Planning Fallacy"
         self.config: TestConfig = super().load_config(self.BIAS)
 
-    def generate_all(
-        self, model: LLM, scenarios: list[str], seed: int = 42
-    ) -> list[TestCase]:
-        # Load the custom values from the test config
-        custom_values = self.config.get_custom_values()
-
-        # Create test cases for all scenarios
-        test_cases: list[TestCase] = []
-        for scenario in scenarios:
-            try:
-                test_case = self.generate(model, scenario, custom_values, seed)
-                test_cases.append(test_case)
-            except Exception as e:
-                print(
-                    f"Generating the test case failed.\nScenario: {scenario}\nSeed: {seed}"
-                )
-                print(e)
-
-        return test_cases
-
     def generate(
-        self, model: LLM, scenario: str, custom_values: dict = {}, seed: int = 42
+        self,
+        model: LLM,
+        scenario: str,
+        custom_values: dict = {},
+        temperature: float = 0.0,
+        seed: int = 42,
     ) -> TestCase:
         # Load the control and treatment templates
         control: Template = self.config.get_control_template()
         treatment: Template = self.config.get_treatment_template()
 
-        # Populate the treatment template with custom values
-        np.random.seed(seed)
-        percentage_values = custom_values["percentage"]
-        percentage_min, percentage_max = float(percentage_values[1]), float(
-            percentage_values[2]
-        )
-        # Loading the required distribution (should be a np.random method)
-        percentage_distribution = getattr(np.random, percentage_values[0])
-        # Sampling a numerical value for the percentage
-        percentage = str(percentage_distribution(percentage_min, percentage_max))
-        # Inserting the sampled value into the template
-        treatment.insert("percentage", percentage, origin="user")
         # Populate the templates using the model and the scenario
-        control, treatment = super().populate(model, control, treatment, scenario)
+        control, treatment = super().populate(
+            model, control, treatment, scenario, temperature, seed
+        )
 
         # Create a test case object
         test_case = TestCase(
@@ -64,6 +38,8 @@ class PlanningFallacyTestGenerator(TestGenerator):
             control=control,
             treatment=treatment,
             generator=model.NAME,
+            temperature=temperature,
+            seed=seed,
             scenario=scenario,
             variant=None,
             remarks=None,
@@ -72,57 +48,25 @@ class PlanningFallacyTestGenerator(TestGenerator):
         return test_case
 
 
-class PlanningFallacyMetric(Metric):
+class PlanningFallacyMetric(RatioScaleMetric):
     """
-    A class that describes the quantitative evaluation of the Planning Fallacy in a model.
+    A class that describes the quantitative evaluation of the Planning fallacy in a model.
 
     Metric:
-    𝔅 = I[â₂ - â₁ <= 0]) ∈ {0, 1}
+    𝔅(â₁, â₂) = (â₁ - â₂) / max(â₁, â₂) ∈ [-1, 1]
+
     where:
-    â₁, â₂ are the chosen answers for the control and treatment versions, respectively;
+    â₁, â₂ are the chosen answers for the control and treatment versions, respectively (control is shifted by 1: â₁ := â₁ + 1).;
+
+    Attributes:
+        test_results (list[tuple[TestCase, DecisionResult]]): A list of test results to be used for the metric calculation.
     """
-
-    def _compute(
-        self, control_answer: np.array, treatment_answer: np.array
-    ) -> np.array:
-        """
-        Compute the metric for the Planning Fallacy.
-
-        Args:
-            control_answer (np.array): The answer chosen in the control version.
-            treatment_answer (np.array): The answer chosen in the treatment version.
-
-        Returns:
-            np.array: The metric value for the test case.
-        """
-        metric_value = control_answer >= treatment_answer
-
-        return metric_value
-
-    def compute(self, test_results: list[tuple[TestCase, DecisionResult]]) -> float:
-        try:
-            # make sure all pairs are not None
-            test_results = [
-                pair
-                for pair in test_results
-                if pair[0] is not None and pair[1] is not None
-            ]
-            # extract chosen answers
-            control_answer = np.array(
-                [
-                    decision_result.CONTROL_DECISION
-                    for (_, decision_result) in test_results
-                ]
-            )
-            treatment_answer = np.array(
-                [
-                    decision_result.TREATMENT_DECISION
-                    for (_, decision_result) in test_results
-                ]
-            )
-            # compute the biasedness scores
-            biasedness_scores = np.mean(self._compute(control_answer, treatment_answer))
-        except Exception as e:
-            print(e)
-            raise MetricCalculationError(f"Error filtering test results: {e}")
-        return biasedness_scores
+    def __init__(self, test_results: list[tuple[TestCase, DecisionResult]]):
+        # since no shift between the cotrol and treatment indicate the planning fallacy,
+        # we shift the control decision by 1 scale point to the right (if it is not already at the maximum)
+        max_option = len(test_results[0][1].CONTROL_OPTIONS)
+        for idx, _ in enumerate(test_results):
+            test_results[idx][1].CONTROL_DECISION += 1
+            test_results[idx][1].CONTROL_DECISION = min(test_results[idx][1].CONTROL_DECISION, max_option - 1)
+        super().__init__(test_results)
+        self.k = 1
