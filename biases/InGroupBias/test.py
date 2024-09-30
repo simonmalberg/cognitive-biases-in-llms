@@ -21,7 +21,6 @@ class InGroupBiasTestGenerator(TestGenerator):
         model: LLM,
         scenario: str,
         custom_values: dict = {},
-        step: int = 0,
         temperature: float = 0.0,
         seed: int = 42,
     ) -> TestCase:
