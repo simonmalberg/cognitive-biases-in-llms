@@ -104,17 +104,18 @@ class Experiment:
         run_name = f"Decision {test_case.BIAS}"
         self._start(run_name)
 
-        # Load the metric for the bias
-        metric = get_metric(self.bias)        
-
         # Instantiate the decision LLM
         decision_model = get_model(model, shuffle_answer_options)
 
         # Obtain a decision for the test case
         decision_result = decision_model.decide(test_case=test_case, seed=seed)
 
+        # Load the metric for the bias
+        metric = get_metric(self.bias)
+
         # Calculate the biasedness
-        biasedness = metric.compute([(test_case, decision_result)])
+        metric = metric(test_results=[(test_case, decision_result)])
+        biasedness = float(metric.aggregate(metric.compute()))
 
         # Track the run results and finish the run
         logs = self._create_decision_logs(test_case=test_case, decision_result=decision_result, biasedness=biasedness, shuffled_answer_options=shuffle_answer_options)
