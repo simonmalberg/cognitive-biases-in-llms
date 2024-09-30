@@ -1,5 +1,6 @@
 <config bias="Framing Effect">
     <custom_values name="first_percentage">
+        <value name='distribution'>randint</value>
         <value name='min'>51</value>
         <value name='max'>90</value>
     </custom_values>
