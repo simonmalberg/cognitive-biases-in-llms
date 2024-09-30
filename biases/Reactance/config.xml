@@ -2,14 +2,17 @@
     <variant name="reduce_behavior">
         <template type="control">
             <situation>Suppose you are a [[type]] manager at [[organization]].</situation>
-            <situation>In your job, you regularly [[habitual behavior/activity]]. Today, you come across the following blog post:</situation>
-            <situation>START OF BLOG POST - [[Your regular behavior/activity]]: Consider doing it responsibly</situation>
+            <situation>In your job, you regularly [[habitual behavior/activity]]. Today, you [[description about how your heard/saw/read an opinion about your behavior/activity]]:</situation>
+
+            <situation>"[[Recommend to reduce the regular behavior/activity or do it responsibly, do not suggest a concrete amount/frequency]]:</situation>
             <situation>- [[First bullet point with numbers/facts/data of negative consequences or risks of your regular behavior/activity]]</situation>
             <situation>- [[Second bullet point with numbers/facts/data of negative consequences or risks of your regular behavior/activity]]</situation>
             <situation>- [[Third bullet point with numbers/facts/data of negative consequences or risks of your regular behavior/activity]]</situation>
-            <situation>As the previous points tried to show, there is pretty compelling evidence that [[high amounts/frequency of your regular behavior/activity]] leads to [[summary of negative consequences or risks]]. In fact, most people agree that [[high amounts/frequency of your regular behavior/activity]] is a serious problem at any organization that should be addressed right away. It's a sensible conclusion and one that is hard to deny. There is a problem and you have a chance to be part of the solution.</situation>
-            <situation>So if you [[regular behavior/activity]], think about doing it responsibly. Choose a limit you can live with. Why not give it a try? - END OF BLOG POST</situation>
-            <prompt>Which of the following options best describes your [[behavior/activity]] in the upcoming work week?</prompt>
+            <situation>As the previous points tried to show, there is pretty compelling evidence that [[high amounts/frequency of your regular behavior/activity]] [[lead/leads]] to [[summary of negative consequences or risks]].</situation>
+            <situation>In fact, you will likely agree that [[high amounts/frequency of your regular behavior/activity]] [[is/are]] a serious problem at any organization that should be addressed right away. It's a sensible conclusion and one that is hard to deny. There is a problem and you have a chance to be part of the solution.</situation>
+            <situation>So if you [[regular behavior/activity]], think about doing it responsibly. Choose a limit you can live with. Why not give it a try?"</situation>
+            
+            <prompt>Which of the following options best describes [[your behavior/activity]] in the upcoming work week?</prompt>
             <option>[[A concrete amount/frequency of the behavior/activity that is much higher than for most people doing this job]]</option>
             <option>[[A concrete amount/frequency of the behavior/activity that is higher than for most people doing this job]]</option>
             <option>[[A concrete amount/frequency of the behavior/activity that is somewhat higher than for most people doing this job]]</option>
@@ -20,14 +23,17 @@
         </template>
         <template type="treatment">
             <situation>Suppose you are a [[type]] manager at [[organization]].</situation>
-            <situation>In your job, you regularly [[habitual behavior/activity]]. Today, you come across the following blog post:</situation>
-            <situation>START OF BLOG POST - [[Your regular behavior/activity]]: You Have to Stop It</situation>
+            <situation>In your job, you regularly [[habitual behavior/activity]]. Today, you [[description about how your heard/saw/read an opinion about your behavior/activity]]:</situation>
+
+            <situation>"[[Demand to stop the regular behavior/activity alltogether]]:</situation>
             <situation>- [[First bullet point with numbers/facts/data of negative consequences or risks of your regular behavior/activity]]</situation>
             <situation>- [[Second bullet point with numbers/facts/data of negative consequences or risks of your regular behavior/activity]]</situation>
             <situation>- [[Third bullet point with numbers/facts/data of negative consequences or risks of your regular behavior/activity]]</situation>
-            <situation>The previous points make it crystal clear: There is unequivocal evidence that [[high amounts/frequency of your regular behavior/activity]] leads to [[summary of negative consequences or risks]]. In fact, any reasonable person has to agree that [[high amounts/frequency of your regular behavior/activity]] is a serious problem at any organization that demands immediate attention. No other conclusion makes any sense. Stop the denial. There is a problem and you have to be part of the solution.</situation>
-            <situation>So if you [[regular behavior/activity]], do it responsibly. Set a clear limit and that's the limit that you need to stick to. Do it! - END OF BLOG POST</situation>
-            <prompt>Which of the following options best describes your [[behavior/activity]] in the upcoming work week?</prompt>
+            <situation>The previous points make it crystal clear: There is unequivocal evidence that [[high amounts/frequency of your regular behavior/activity]] [[lead/leads]] to [[summary of negative consequences or risks]].</situation>
+            <situation>In fact, any reasonable person has to agree that [[high amounts/frequency of your regular behavior/activity]] [[is/are]] a serious problem at any organization that demands immediate attention. No other conclusion makes any sense. Stop the denial. There is a problem and you have to be part of the solution.</situation>
+            <situation>So if you [[regular behavior/activity]], do it responsibly. Set a clear limit and that's the limit that you need to stick to. Do it!"</situation>
+            
+            <prompt>Which of the following options best describes [[your behavior/activity]] in the upcoming work week?</prompt>
             <option>[[A concrete amount/frequency of the behavior/activity that is much higher than for most people doing this job]]</option>
             <option>[[A concrete amount/frequency of the behavior/activity that is higher than for most people doing this job]]</option>
             <option>[[A concrete amount/frequency of the behavior/activity that is somewhat higher than for most people doing this job]]</option>
