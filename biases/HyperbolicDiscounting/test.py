@@ -33,25 +33,23 @@ class HyperbolicDiscountingTestGenerator(TestGenerator):
         custom_values = self.config.get_custom_values()
         # randomly sample each custom value 'num_instances' number of times
         # in this case, we are sampling the earlier_reward, later_coef, months_delay and the schemes' order
-        index = int(
-            np.random.choice(
+        index = np.random.choice(
                 range(len(custom_values["scheme_control"])), size=num_instances
             )
-        )
         for key, value in custom_values.items():
             if key == "scheme_control":
                 sampled_values["control_scheme"] = [
-                    value[index] for _ in range(num_instances)
+                    value[index[n]] for n in range(num_instances)
                 ]
                 sampled_values["other_control_scheme"] = [
-                    value[1 - index] for _ in range(num_instances)
+                    value[1 - index[n]] for n in range(num_instances)
                 ]
             elif key == "scheme_treatment":
                 sampled_values["treatment_scheme"] = [
-                    value[index] for _ in range(num_instances)
+                    value[index[n]] for n in range(num_instances)
                 ]
                 sampled_values["other_treatment_scheme"] = [
-                    value[1 - index] for _ in range(num_instances)
+                    value[1 - index[n]] for n in range(num_instances)
                 ]
             else:
                 sampled_values[key] = getattr(np.random, value[0])(
