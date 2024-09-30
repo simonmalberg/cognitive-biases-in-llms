@@ -1,6 +1,5 @@
-from base import TestGenerator, LLM, RatioScaleMetric, MetricCalculationError
+from base import TestGenerator, LLM, RatioScaleMetric
 from tests import TestCase, Template, TestConfig, DecisionResult
-import numpy as np
 
 
 class InGroupBiasTestGenerator(TestGenerator):
