@@ -42,17 +42,15 @@ class FramingEffectTestGenerator(TestGenerator):
     
 
     def generate(
-        self, model: LLM, scenario: str, custom_values: dict = {}, step: int = 0, temperature: float = 0.0, seed: int = 42
+        self, model: LLM, scenario: str, custom_values: dict = {}, temperature: float = 0.0, seed: int = 42
     ) -> TestCase:
         # Load the control and treatment templates
         control: Template = self.config.get_control_template()
         treatment: Template = self.config.get_treatment_template()
 
-        # Populate the templates with the custom values sampled in the sample_custom_values method
-        # We retrive the value that was generated for the current step
-        first_percentage = custom_values["first_percentage"][step]
-        control.insert("first_percentage", str(first_percentage), origin='user')
-        treatment.insert("second_percentage", str(100 - first_percentage), origin='user')
+        # Populate the templates with the custom values
+        control.insert("first_percentage", str(custom_values["first_percentage"]), origin='user')
+        treatment.insert("second_percentage", str(100 - custom_values["first_percentage"]), origin='user')
 
         # Populate the templates using the model and the scenario
         control, treatment = super().populate(model, control, treatment, scenario, temperature, seed)

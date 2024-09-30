@@ -31,13 +31,13 @@
             <situation>Scheme A: {{control_scheme}}</situation>
             <situation>Scheme B: {{other_control_scheme}}</situation>
             <prompt>Which scheme for the funding schedule do you choose?</prompt>
-            <option>Definitely Scheme A</option>
-            <option>Most likely Scheme A</option>
-            <option>Probably Scheme A</option>
+            <option>Very likely Scheme A</option>
+            <option>Likely Scheme A</option>
+            <option>Somewhat likely Scheme A</option>
             <option>Equally likely</option>
-            <option>Probably Scheme B</option>
-            <option>Most likely Scheme B</option>
-            <option>Definitely Scheme B</option>
+            <option>Somewhat likely Scheme B</option>
+            <option>Likely Scheme B</option>
+            <option>Very likely Scheme B</option>
         </template>
         <template type="treatment">
             <situation>Suppose you are a [[type]] manager at [[organization]].</situation>
@@ -47,13 +47,13 @@
             <situation>Scheme A: {{treatment_scheme}}</situation>
             <situation>Scheme B: {{other_treatment_scheme}}</situation>
             <prompt>Which scheme for the funding schedule do you choose?</prompt>
-            <option>Definitely Scheme A</option>
-            <option>Most likely Scheme A</option>
-            <option>Probably Scheme A</option>
+            <option>Very likely Scheme A</option>
+            <option>Likely Scheme A</option>
+            <option>Somewhat likely Scheme A</option>
             <option>Equally likely</option>
-            <option>Probably Scheme B</option>
-            <option>Most likely Scheme B</option>
-            <option>Definitely Scheme B</option>
+            <option>Somewhat likely Scheme B</option>
+            <option>Likely Scheme B</option>
+            <option>Very likely Scheme B</option>
         </template>
     </variant>
 </config>

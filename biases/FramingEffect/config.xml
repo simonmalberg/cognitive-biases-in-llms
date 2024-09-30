@@ -10,26 +10,26 @@
             <situation>You are tasked with evaluating the performance of [[Write a short description for one of employees, teams or contractor under your supervision]].</situation>
             <situation>In their latest performance review, it is reported that [[metric of success]] is at {{first_percentage}}%.</situation>
             <prompt>How would you evaluate the performance?</prompt>
-            <option>Excellent</option>
+            <option>Very good</option>
             <option>Good</option>
-            <option>Above average</option>
-            <option>Average</option>
-            <option>Below average</option>
-            <option>Poor</option>
+            <option>Somewhat good</option>
+            <option>Neither good nor bad</option>
+            <option>Somewhat bad</option>
             <option>Bad</option>
+            <option>Very bad</option>
         </template>
         <template type="treatment">
             <situation>Suppose you are a [[type]] manager at [[organization]].</situation>
             <situation>You are tasked with evaluating the performance of [[Write a short description for one of employees, teams or contractor under your supervision]].</situation>
             <situation>In their latest performance review, it is reported that [[provide a metric directly opposite to: [[metric of success]]]] is at {{second_percentage}}%.</situation>
             <prompt>How would you evaluate the performance?</prompt>
-            <option>Excellent</option>
+            <option>Very good</option>
             <option>Good</option>
-            <option>Above average</option>
-            <option>Average</option>
-            <option>Below average</option>
-            <option>Poor</option>
+            <option>Somewhat good</option>
+            <option>Neither good nor bad</option>
+            <option>Somewhat bad</option>
             <option>Bad</option>
+            <option>Very bad</option>
         </template>
     </variant>
 </config>
