@@ -1,6 +1,7 @@
-from base import TestGenerator, LLM, Metric, PopulationError, MetricCalculationError
+from base import TestGenerator, LLM, RatioScaleMetric, MetricCalculationError
 from tests import TestCase, Template, TestConfig, DecisionResult
 import numpy as np
+import random
 
 
 class NotInventedHereTestGenerator(TestGenerator):
@@ -16,57 +17,53 @@ class NotInventedHereTestGenerator(TestGenerator):
         self.BIAS: str = "Not Invented Here"
         self.config: TestConfig = super().load_config(self.BIAS)
 
-    def generate_all(self, model: LLM, scenarios: list[str], seed: int = 42) -> list[TestCase]:
 
-        # Get a list of all variants in the test config
-        variants = self.config.get_variants()
+    def sample_custom_values(self, num_instances: int, iteration_seed: int) -> dict:
+        """
+        Sample custom values for the test case generation.
+
+        Args:
+            num_instances (int): The number of instances expected to be generated for each scenario.
+            iteration_seed (int): The seed to use for sampling the custom values.
+
+        Returns:
+            dict: A dictionary containing the sampled custom values.
+        """
+        random.seed(iteration_seed)
+        # load the custom values for this test
         custom_values = self.config.get_custom_values()
+        # randomly sample each custom value 'num_instances' number of times
+        # sample exernality type for not invented here bias, and a country in case the type is spatial
+        sampled_values = {"externality":[random.choice(custom_values["externality"]) for _ in range(num_instances)]}
+        sampled_values["externality"] = [[externality, random.choice(custom_values["country"])] if externality == "spatial" else [externality] for externality in sampled_values["externality"]]
 
-        # Create test cases for all variants and scenarios
-        test_cases: list[TestCase] = []
-        for variant in variants:
-            for scenario in scenarios:
-                try:
-                    instance_values = {
-                        "variant": variant,
-                        "countries": custom_values["country"],
-                    }
+        return sampled_values
 
-                    test_case = self.generate(model, scenario, instance_values, seed)
-                    test_cases.append(test_case)
-                except Exception as e:
-                    print("Generating the test case failed.")
-                    print(f"Variant: {variant}")
-                    print(f"Scenario: {scenario}")
-                    print(f"Seed: {seed}")
-                    print(e)
+    def generate(
+        self, model: LLM, scenario: str, custom_values: dict = {}, step: int = 0, temperature: float = 0.0, seed: int = 42
+    ) -> TestCase:
+        
+        # Load the control and treatment templates
+        control: Template = self.config.get_control_template()
+        treatment: Template = self.config.get_treatment_template()
 
-        return test_cases
+        # Get type of knowledge externality
+        externality = custom_values["externality"][step][0]
+            
+        # Insert the externality statement into the templates
+        if externality == "organizational":
+            treatment.insert("externality_statement", "[[Short statement that this was proposed by an employee of an external organization. Do not indicate their level of experience or expertise.]]", origin='user')
+            
+        elif externality == "contextual":
+            treatment.insert("externality_statement", "[[Short statement that this was proposed by a colleague with a different disciplinary background. Do not indicate their level of experience or expertise.]]", origin='user')
 
-    def generate(self, model: LLM, scenario: str, config_values: dict = {}, seed: int = 42) -> TestCase:
+        elif externality == "spatial":
+            country = custom_values["externality"][step][1]
+            treatment.insert("externality_statement", f"[[Short statement that this was proposed by a colleague from {country}. Do not indicate their level of experience or expertise.]]", origin='user')
 
-
-        # Load the control and treatment templates for the selected variant
-        variant = config_values["variant"]
-        control: Template = self.config.get_control_template(variant)
-        treatment: Template = self.config.get_treatment_template(variant)
-
-        if variant == "spatial":
-            country = np.random.choice(config_values["countries"])
-            control.insert("country", country)
-            treatment.insert("country", country)
-
-        # Generate two decision alternatives the manager could choose from
-        alternatives = self._create_alternatives(model, scenario, seed)
-
-        # Insert the alternatives into the templates
-        control.insert("proposal A", alternatives[0])
-        control.insert("proposal B", alternatives[1])
-        treatment.insert("proposal A", alternatives[0])
-        treatment.insert("proposal B", alternatives[1])
 
         # Populate the templates using the model and the scenario
-        control, treatment = super().populate(model, control, treatment, scenario)
+        control, treatment = super().populate(model, control, treatment, scenario, temperature, seed)
 
         # Create a test case object
         test_case = TestCase(
@@ -74,72 +71,29 @@ class NotInventedHereTestGenerator(TestGenerator):
             control=control,
             treatment=treatment,
             generator=model.NAME,
+            temperature=temperature,
+            seed=seed,
             scenario=scenario,
-            control_values=None,
-            treatment_values=None,
-            variant=variant,
-            remarks=None
+            variant=None,
+            remarks=None,
         )
 
         return test_case
 
-    def _create_alternatives(self, model: LLM, scenario: str, seed: int = 42) -> tuple[str, str]:
-        """
-        Creates two decision alternatives for the given scenario.
 
-        Args:
-            model (LLM): The language model to use for generating the alternatives.
-            scenario (str): The scenario for which the alternatives are to be generated.
-            seed (int, optional): The random seed to use for generating the alternatives. Defaults to 42.
+class NotInventedHereMetric(RatioScaleMetric):
+    """
+    A class that describes the quantitative evaluation of the Not invented here bias in a model.
 
-        Returns:
-            tuple[str, str]: A tuple containing the two generated alternatives.
-        """
-        
-        # Define the prompt for generating the alternatives
-        prompt = f"Scenario: {scenario}\n\nFor the given scenario, describe two alternative proposals for the manager to consider. \
-            Ensure both proposals provide equal value to the organization. Respond with two short lines of text, one for each proposal, separated by a line break. Do not enumerate the two states."
+    Metric:
+    𝔅(â₁, â₂) = (â₁ - â₂) / max(â₁, â₂) ∈ [-1, 1]
 
-        # Generate the alternatives using the model
-        response = model.prompt(prompt=prompt, seed=seed)
+    where:
+    â₁, â₂ are the chosen answers for the control and treatment versions, respectively;
 
-        # Split the response into the two alternatives and remove any empty alternatives
-        alternatives = response.split("\n")
-        alternatives = [a.strip() for a in alternatives if a.strip() != ""]
+    Attributes:
+        test_results (list[tuple[TestCase, DecisionResult]]): A list of test results to be used for the metric calculation.
+    """
 
-        # Check that the model generated exactly two alternatives
-        if len(alternatives) != 2:
-            raise PopulationError(f"Model was supposed to generate two alternatives, but generated {len(alternatives)} alternatives.", model_output=response)
-
-        return alternatives[0], alternatives[1]
-
-
-class NotInventedHereMetric(Metric):
-
-    def __init__(self):
-        pass
-
-    def _compute(self, test_result: tuple[TestCase, DecisionResult]) -> float:
-
-        # Extract the decision result from the tuple
-        decision_result: DecisionResult = test_result[1]
-        
-        # Check if always the option of the own team was selected
-        if decision_result.CONTROL_DECISION == 1 and decision_result.TREATMENT_DECISION == 0:
-            biasedness = 1.0
-
-        # Check if always the other option was selected
-        elif decision_result.CONTROL_DECISION == 0 and decision_result.TREATMENT_DECISION == 1:
-            biasedness = -1.0
-
-        else:
-            biasedness = 0.0
-
-
-        return biasedness
-
-
-    def compute(self, test_results: list[tuple[TestCase, DecisionResult]]) -> float:
-        # Calculate the average biasedness score across all tests
-        biasedness_scores = [self._compute(test_result) for test_result in test_results]
-        return np.mean(biasedness_scores)
+    def __init__(self, test_results: list[tuple[TestCase, DecisionResult]]):
+        super().__init__(test_results)

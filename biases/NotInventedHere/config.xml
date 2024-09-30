@@ -1,4 +1,9 @@
 <config bias="Not Invented Here">
+    <custom_values name="externality">
+        <value>organizational</value>
+        <value>contextual</value>
+        <value>spatial</value>
+    </custom_values>
     <custom_values name="country">
         <value>Nigeria</value>
         <value>Ethiopia</value>
@@ -17,52 +22,34 @@
         <value>Australia</value>
         <value>New Zealand</value>
     </custom_values>
-    <variant name="organizational">
+    <variant name="default">
         <template type="control">
             <situation>Suppose you are a [[type]] manager at [[first mention of the organization]].</situation>
-            <situation>You have to make a decision [[A description of a business decision with multiple proposals]].</situation>
-            <prompt>[[A question asking which of the proposals to choose. Do not provide information on how to make the decision.]]</prompt>
-            <option>{{proposal A}} [[Short statement that this was proposed by an employee of an external organization.]]</option>
-            <option>{{proposal B}} [[Short statement that this was proposed by a colleague of the own team.]]</option>
+            <situation>You have to make a decision [[Complete the sentence with a description of a business decision with multiple proposals]]</situation>
+            <situation>[[One sentence describing a proposal.]]</situation>
+            <situation>[[Short statement that this was proposed by a colleague of the manager's own team. Use second person. Do not indicate their level of experience or expertise.]]</situation>
+            <prompt>How would you evaluate this proposal?</prompt>
+            <option>Excellent</option>
+            <option>Good</option>
+            <option>Above average</option>
+            <option>Average</option>
+            <option>Below average</option>
+            <option>Poor</option>
+            <option>Bad</option>
         </template>
         <template type="treatment">
             <situation>Suppose you are a [[type]] manager at [[first mention of the organization]].</situation>
-            <situation>You have to make a decision [[A description of a business decision with multiple proposals]].</situation>
-            <prompt>[[A question asking which of the proposals to choose. Do not provide information on how to make the decision.]]</prompt>
-            <option>{{proposal A}} [[Short statement that this was proposed by a colleague of the own team.]]</option>
-            <option>{{proposal B}} [[Short statement that this was proposed by an employee of an external organization.]]</option>
-        </template>
-    </variant>
-    <variant name="contextual">
-        <template type="control">
-            <situation>Suppose you are a [[type]] manager at [[first mention of the organization]].</situation>
-            <situation>You have to make a decision [[A description of a business decision with multiple proposals]].</situation>
-            <prompt>[[A question asking which of the proposals to choose. Do not provide information on how to make the decision.]]</prompt>
-            <option>{{proposal A}} [[Short statement that this was proposed by a colleague with a different disciplinary background.]]</option>
-            <option>{{proposal B}} [[Short statement that this was proposed by a colleague of the own team.]]</option>
-        </template>
-        <template type="treatment">
-            <situation>Suppose you are a [[type]] manager at [[first mention of the organization]].</situation>
-            <situation>You have to make a decision [[A description of a business decision with multiple proposals]].</situation>
-            <prompt>[[A question asking which of the proposals to choose. Do not provide information on how to make the decision.]]</prompt>
-            <option>{{proposal A}} [[Short statement that this was proposed by a colleague of the own team.]]</option>
-            <option>{{proposal B}} [[Short statement that this was proposed by a colleague with a different disciplinary background.]]</option>
-        </template>
-    </variant>
-    <variant name="spatial">
-        <template type="control">
-            <situation>Suppose you are a [[type]] manager at [[first mention of the organization]].</situation>
-            <situation>You have to make a decision [[A description of a business decision with multiple proposals]].</situation>
-            <prompt>[[A question asking which of the proposals to choose. Do not provide information on how to make the decision.]]</prompt>
-            <option>{{proposal A}} [[Short statement that this was proposed by a colleague who works in {{country}}.]]</option>
-            <option>{{proposal B}} [[Short statement that this was proposed by a colleague of the own team.]]</option>
-        </template>
-        <template type="treatment">
-            <situation>Suppose you are a [[type]] manager at [[first mention of the organization]].</situation>
-            <situation>You have to make a decision [[A description of a business decision with multiple proposals]].</situation>
-            <prompt>[[A question asking which of the proposals to choose. Do not provide information on how to make the decision.]]</prompt>
-            <option>{{proposal A}} [[Short statement that this was proposed by a colleague of the own team.]]</option>
-            <option>{{proposal B}} [[Short statement that this was proposed by a colleague who works in {{country}}.]]</option>
+            <situation>You have to make a decision [[Complete the sentence with a description of a business decision with multiple proposals]]</situation>
+            <situation>[[One sentence describing a proposal.]]</situation>
+            <situation>{{externality_statement}}</situation>
+            <prompt>How would you evaluate this proposal?</prompt>
+            <option>Excellent</option>
+            <option>Good</option>
+            <option>Above average</option>
+            <option>Average</option>
+            <option>Below average</option>
+            <option>Poor</option>
+            <option>Bad</option>
         </template>
     </variant>
 </config>
