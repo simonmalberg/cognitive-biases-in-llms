@@ -129,7 +129,7 @@ class HyperbolicDiscountingMetric(RatioScaleMetric):
     𝔅(â₁, â₂) = k ⋅ (â₂ - â₁) / max(â₁, â₂) ∈ [-1, 1]
     where:
     â₂, â₁ are the chosen answers for the treatment and control versions, respectively.
-    k is the parameter that reflects the order of schemes in the test case ()
+    k is the parameter that reflects the order of schemes in the test case (k = -1 if an immediate reward is presented first, k = 1 otherwise).
 
     Attributes:
         test_results (list[tuple[TestCase, DecisionResult]]): The list of test results to be used for the metric calculation.
