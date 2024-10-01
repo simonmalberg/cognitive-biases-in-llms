@@ -83,7 +83,7 @@ def get_scenarios(positions: dict, temperature: float = 0.7, seed: int = 42) -> 
         # converting {industry_group: [positions]} to a required sentence format
         scenarios.append(
             [
-                f"A {manager} at a company from the {industry} industry deciding {{decision}}."
+                f"{{A/An}} {manager.lower()} at a company from the {industry.lower()} industry deciding {{decision}}."
                 for manager in managers
             ]
         )
@@ -103,8 +103,8 @@ def get_scenarios(positions: dict, temperature: float = 0.7, seed: int = 42) -> 
 
 if __name__ == "__main__":
 
-    positions = get_positions([INDUSTRY_GROUPS[0]], n=8, temperature=0.7, seed=42)
-    scenarios = get_scenarios(positions, temperature=0.7, seed=42)
+    positions = get_positions([INDUSTRY_GROUPS[0]], n=8, temperature=1, seed=42)
+    scenarios = get_scenarios(positions, temperature=1, seed=42)
     # write the scenarios to a file
     with open("scenarios_new.txt", "w") as f:
         for scenario in scenarios[:-1]:
