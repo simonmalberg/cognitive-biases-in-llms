@@ -767,6 +767,7 @@ class TestCase:
         GENERATOR (str): The name of the LLM generator used to populate the templates.
         SEED (int): The seed used to generate the test case.
         TEMPERATURE (float): The temperature used for sampling from the LLM generator.
+        TIMESTAMP (str): The timestamp when the test case was created.
         SCENARIO (str): The scenario in which the test case is being conducted.
         VARIANT (str, optional): The variant of the test case.
         REMARKS (str, optional): Any additional remarks about the test case.
@@ -779,6 +780,7 @@ class TestCase:
         self.GENERATOR: str = generator
         self.SEED: int = seed
         self.TEMPERATURE: float = temperature
+        self.TIMESTAMP: str = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         self.SCENARIO: str = scenario
         self.VARIANT: str = variant
         self.REMARKS: str = remarks
@@ -788,7 +790,7 @@ class TestCase:
             setattr(self, key.upper(), value)
 
     def __str__(self) -> str:
-        return f'---TestCase---\n\nBIAS: {self.BIAS}\nVARIANT: {self.VARIANT}\nSCENARIO: {self.SCENARIO}\nGENERATOR: {self.GENERATOR}\nTEMPERATURE: {self.TEMPERATURE}\nSEED: {self.SEED}\n\nCONTROL:\n{self.CONTROL}\n\nTREATMENT:\n{self.TREATMENT}\n\nREMARKS:\n{self.REMARKS}\n\n------'
+        return f'---TestCase---\n\nBIAS: {self.BIAS}\nVARIANT: {self.VARIANT}\nSCENARIO: {self.SCENARIO}\nGENERATOR: {self.GENERATOR}\nTEMPERATURE: {self.TEMPERATURE}\nTIMESTAMP: {self.TIMESTAMP}\nSEED: {self.SEED}\n\nCONTROL:\n{self.CONTROL}\n\nTREATMENT:\n{self.TREATMENT}\n\nREMARKS:\n{self.REMARKS}\n\n------'
 
     def __repr__(self) -> str:
         return self.__str__()
