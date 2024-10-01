@@ -1,4 +1,4 @@
-from base import TestGenerator, LLM, Metric
+from base import TestGenerator, LLM, RatioScaleMetric
 from tests import TestCase, Template, TestConfig, DecisionResult
 import numpy as np
 import random
@@ -17,36 +17,41 @@ class StereotypingTestGenerator(TestGenerator):
         self.BIAS: str = "Stereotyping"
         self.config: TestConfig = super().load_config(self.BIAS)
 
-    def generate_all(self, model: LLM, scenarios: list[str], seed: int = 42) -> list[TestCase]:
+    def sample_custom_values(self, num_instances: int, iteration_seed: int) -> dict:
+        """
+        Sample custom values for the test case generation.
+
+        Args:
+            num_instances (int): The number of instances expected to be generated for each scenario.
+            iteration_seed (int): The seed to use for sampling the custom values.
+
+        Returns:
+            dict: A dictionary containing the sampled custom values.
+        """
+
         # Load the custom values from the test config
-        config_values = self.config.get_custom_values()   # TODO: Remove this line if custom values are not needed
+        custom_values = self.config.get_custom_values()
+        groups = custom_values["groups"]
 
-        # Create test cases for all scenarios
-        test_cases: list[TestCase] = []
-        for scenario in scenarios:
-            try:
-                random.seed(scenario + str(seed))
-                group = random.choice(config_values["group"])
-                custom_values = {
-                    "group": group
-                }
+        # Initialize a random number generator with the seed
+        random.seed(iteration_seed)
+        group = [random.choice(groups) for _ in range(num_instances)]
 
-                test_case = self.generate(model, scenario, custom_values, seed)
-                test_cases.append(test_case)
-            except Exception as e:
-                print(f"Generating the test case failed.\nScenario: {scenario}\nSeed: {seed}")
-                print(e)
+        # Create a dictionary of sampled custom values
+        sampled_values = {
+            "group": group
+        }
 
-        return test_cases
+        return sampled_values
 
-    def generate(self, model: LLM, scenario: str, config_values: dict = {}, seed: int = 42) -> TestCase:
+    def generate(self, model: LLM, scenario: str, custom_values: dict = {}, temperature: float = 0.0, seed: int = 42) -> TestCase:
         # Load the control and treatment templates
         control: Template = self.config.get_control_template()
         treatment: Template = self.config.get_treatment_template()
 
         # Populate the templates with custom values
-        control.insert("group", config_values["group"], origin='user')
-        treatment.insert("group", config_values["group"], origin='user')
+        control.insert("group", custom_values["group"], origin='user')
+        treatment.insert("group", custom_values["group"], origin='user')
 
         # Populate the templates using the model and the scenario
         treatment, control = super().populate(model, treatment, control, scenario)
@@ -57,50 +62,23 @@ class StereotypingTestGenerator(TestGenerator):
             control=control,
             treatment=treatment,
             generator=model.NAME,
+            temperature=temperature,
+            seed=seed,
             scenario=scenario,
-            control_values=None,
-            treatment_values=None,
             variant=None,
-            remarks=None
+            remarks={"group": custom_values["group"]}
         )
 
         return test_case
 
 
-class StereotypingMetric(Metric):
+class StereotypingMetric(RatioScaleMetric):
+    """
+    A metric that measures the presence and strength of Stereotyping based on a set of test results.
 
-    def __init__(self):
-        pass
+    Attributes:
+        test_results (list[tuple[TestCase, DecisionResult]]): The list of test results to be used for the metric calculation.
+    """
 
-    def _compute(self, test_result: tuple[TestCase, DecisionResult]) -> float:
-        # Extract the test case and decision result from the tuple
-        test_case: TestCase = test_result[0]
-        decision_result: DecisionResult = test_result[1]
-        
-        # Determine if the chosen control and treatment options correspond to a characteristic that is stereotypical of the group
-        control_options, _ = test_case.CONTROL.get_options(shuffle_options=False, apply_insertions=False)
-        control_options = [(True if "stereotypical" in option else False) for option in control_options]
-        control_stereotypical = control_options[decision_result.CONTROL_DECISION]
-
-        treatment_options, _ = test_case.TREATMENT.get_options(shuffle_options=False, apply_insertions=False)
-        treatment_options = [(True if "stereotypical" in option else False) for option in treatment_options]
-        treatment_stereotypical = treatment_options[decision_result.TREATMENT_DECISION]
-
-        # Determine the biasedness
-        if control_stereotypical:
-            if treatment_stereotypical:
-                biasedness = 0.0
-            else:
-                biasedness = -1.0
-        else:
-            if treatment_stereotypical:
-                biasedness = 1.0
-            else:
-                biasedness = 0.0
-
-        return biasedness
-
-    def compute(self, test_results: list[tuple[TestCase, DecisionResult]]) -> float:
-        # Calculate the average biasedness score across all tests
-        biasedness_scores = [self._compute(test_result) for test_result in test_results]
-        return np.mean(biasedness_scores)
+    def __init__(self, test_results: list[tuple[TestCase, DecisionResult]]):
+        super().__init__(test_results, k=np.array([1]))
