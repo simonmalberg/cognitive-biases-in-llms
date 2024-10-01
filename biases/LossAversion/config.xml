@@ -9,11 +9,29 @@
         <value name='min'>2</value>
         <value name='max'>100</value>
     </custom_values>
+    <custom_values name="control_choice">
+        <value>[[Provide a description of a choice. Do not include any positive or negative consequences or suggestions for potential gains and losses]]. It guarantees a [[personal profit]] of total amount [[{{base_amount}}. Choose amount magnitude (e.g., thousands or millions) and currency accordingly.]].</value>
+        <value>[[Provide a description of another choice. Do not include any positive or negative consequences or suggestions for potential gains and losses]]. It is equally likely to lead to a [[personal profit]] of total amount [[{{lambda_amount}}. Choose amount magnitude (e.g., thousands or millions) and currency accordingly.]] and a [[personal loss]] of total amount [[{{base_amount}}. Choose amount magnitude (e.g., thousands or millions) and currency accordingly.]].</value>
+    </custom_values>
     <custom_values name="treatment_choice">
-        <value>[[Provide a description of a choice with a guaranteed profit for you of total amount {{base_amount}}. The profit is yours personally. Choose amount magnitude (e.g., thousands or millions) and currency accordingly.]]</value>
-        <value>[[Provide a description of another choice that is equally likely to lead to a profit of total amount {{lambda_amount}} and loss of total amount {{base_amount}}. Either profit or loss is yours personally. Choose amount magnitude (e.g., thousands or millions) and currency accordingly.]]</value>
+        <value>[[Provide a description of another choice. Do not include any positive or negative consequences or suggestions for potential gains and losses]]. It guarantees a [[personal profit]] of total amount [[{{base_amount}}. Choose amount magnitude (e.g., thousands or millions) and currency accordingly.]].</value>
+        <value>[[Provide a description of a choice. Do not include any positive or negative consequences or suggestions for potential gains and losses]]. It is equally likely to lead to a [[personal profit]] of total amount [[{{lambda_amount}}. Choose amount magnitude (e.g., thousands or millions) and currency accordingly.]] and a [[personal loss]] of total amount [[{{base_amount}}. Choose amount magnitude (e.g., thousands or millions) and currency accordingly.]].</value>
     </custom_values>
     <variant name="default">
+        <template type="control">
+            <situation>Suppose you are a [[type]] manager at [[organization]].</situation>
+            <situation>You are presented with two choices.</situation>
+            <situation>Choice A: {{control_choice}}</situation>
+            <situation>Choice B: {{other_control_choice}}</situation>
+            <prompt>Which choice would you choose?</prompt>
+            <option>Very likely Choice A</option>
+            <option>Likely Choice A</option>
+            <option>Somewhat likely Choice A</option>
+            <option>Equally likely</option>
+            <option>Somewhat likely Choice B</option>
+            <option>Likely Choice B</option>
+            <option>Very likely Choice B</option>
+        </template>
         <template type="treatment">
             <situation>Suppose you are a [[type]] manager at [[organization]].</situation>
             <situation>You are presented with two choices.</situation>
