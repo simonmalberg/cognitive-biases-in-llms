@@ -20,13 +20,13 @@
             <situation>Choice A: {{treatment_choice}}</situation>
             <situation>Choice B: {{other_treatment_choice}}</situation>
             <prompt>Which choice would you choose?</prompt>
-            <option>Definitely Choice A</option>
-            <option>Most likely Choice A</option>
-            <option>Probably Choice A</option>
+            <option>Very likely Choice A</option>
+            <option>Likely Choice A</option>
+            <option>Somewhat likely Choice A</option>
             <option>Equally likely</option>
-            <option>Probably Choice B</option>
-            <option>Most likely Choice B</option>
-            <option>Definitely Choice B</option>
+            <option>Somewhat likely Choice B</option>
+            <option>Likely Choice B</option>
+            <option>Very likely Choice B</option>
         </template>
     </variant>
 </config>
