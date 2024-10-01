@@ -1,7 +1,6 @@
-from base import TestGenerator, LLM, Metric, MetricCalculationError
+from base import TestGenerator, LLM, RatioScaleMetric
 from tests import TestCase, Template, TestConfig, DecisionResult
 import numpy as np
-import random
 
 
 class AnthropomorphismTestGenerator(TestGenerator):
@@ -17,44 +16,67 @@ class AnthropomorphismTestGenerator(TestGenerator):
         self.BIAS: str = "Anthropomorphism"
         self.config: TestConfig = super().load_config(self.BIAS)
 
-    def generate_all(
-        self, model: LLM, scenarios: list[str], seed: int = 42
-    ) -> list[TestCase]:
-        # Create test cases for all scenarios
-        test_cases: list[TestCase] = []
-        # Load the custom values from the test config
-        custom_values = self.config.get_custom_values()
-        for scenario in scenarios:
-            try:
-                test_case = self.generate(model, scenario, custom_values, seed)
-                test_cases.append(test_case)
-            except Exception as e:
-                print(
-                    f"Generating the test case failed.\nScenario: {scenario}\nSeed: {seed}"
-                )
-                print(e)
+    def sample_custom_values(self, num_instances: int, iteration_seed: int) -> dict:
+        """
+        Sample custom values for the test case generation.
 
-        return test_cases
+        Args:
+            num_instances (int): The number of instances expected to be generated for each scenario.
+            iteration_seed (int): The seed to use for sampling the custom values.
+
+        Returns:
+            dict: A dictionary containing the sampled custom values.
+        """
+        sampled_values = {}
+        np.random.seed(iteration_seed)
+        # load the custom values for this test
+        custom_values = self.config.get_custom_values()
+        # randomly sample each custom value 'num_instances' number of times
+        # in this case, we are sampling the reasons for the control and treatment versions
+        index = np.random.choice(
+                range(len(custom_values["reasons"])), size=num_instances
+                )
+        for key, value in custom_values.items():
+            if key == "reasons":
+                sampled_values["reason"] = [
+                    value[index[n]] for n in range(num_instances)
+                ]
+                sampled_values["other_reason"] = [
+                    value[1 - index[n]] for n in range(num_instances)
+                ]
+                
+        return sampled_values
 
     def generate(
-        self, model: LLM, scenario: str, custom_values: dict = {}, seed: int = 42
+        self,
+        model: LLM,
+        scenario: str,
+        custom_values: dict = {},
+        temperature: float = 0.0,
+        seed: int = 42,
     ) -> TestCase:
-        
-        # Load the treatment templates
+        # Load the control and treatment templates
+        control: Template = self.config.get_control_template()
         treatment: Template = self.config.get_treatment_template()
+        
         # Populate the template with custom values
-        adjective = custom_values["human_adjective"]
-        random.seed(seed)
-        treatment.insert("adjective", random.choice(adjective), origin="user")
-        # Populate the template using the model and the scenario
-        _, _ = super().populate(model, None, treatment, scenario)
+        for template in [control, treatment]:
+            template.insert("reason", custom_values["reason"], origin='user')
+            template.insert("other_reason", custom_values["other_reason"], origin='user')
+            
+        # Populate the templates using the model and the scenario
+        control, treatment = super().populate(
+            model, control, treatment, scenario, temperature, seed
+        )
 
         # Create a test case object
         test_case = TestCase(
             bias=self.BIAS,
-            control=None,
+            control=control,
             treatment=treatment,
             generator=model.NAME,
+            temperature=temperature,
+            seed=seed,
             scenario=scenario,
             variant=None,
             remarks=None,
@@ -63,48 +85,29 @@ class AnthropomorphismTestGenerator(TestGenerator):
         return test_case
 
 
-class AnthropomorphismMetric(Metric):
+class AnthropomorphismMetric(RatioScaleMetric):
     """
     A class that describes the quantitative evaluation of the Anthropomorphism in a model.
 
     Metric:
-    𝔅 = I[â ∈ A] ∈ {0, 1}
+    𝔅(â₁, â₂) = k ⋅ (â₁ - â₂) / max(â₁, â₂) ∈ [-1, 1]
     where:
-    â is the chosen answer for the treatment version, A is the set of answers that are anthropomorphic (0 and 1 in the current test).
+    â₂, â₁ are the chosen answers for the treatment and control versions, respectively.
+    k is the parameter that reflects the order of reasons in the test case (k = 1 if the anthropomorphic reason is presented first, k = -1 otherwise).
+
+    Attributes:
+        test_results (list[tuple[TestCase, DecisionResult]]): The list of test results to be used for the metric calculation.
     """
-
-    def _compute(self, treatment_answer: np.array) -> np.array:
-        """
-        Compute the metric for the Anthropomorphism.
-
-        Args:
-            treatment_answer (np.array): The answer chosen in the treatment version.
-
-        Returns:
-            np.array: The metric value for the test case.
-        """
-        metric_value = treatment_answer == 0 or treatment_answer == 1
-
-        return metric_value
-
-    def compute(self, test_results: list[tuple[TestCase, DecisionResult]]) -> float:
-        try:
-            # make sure all pairs are not None
-            test_results = [
-                pair
-                for pair in test_results
-                if pair[0] is not None and pair[1] is not None
+    def __init__(self, test_results: list[tuple[TestCase, DecisionResult]]):
+        super().__init__(test_results)
+        # set the coefficient in the metric: it depends on the 'index' custom value that we sampled
+        # (and reflects which reason was presented first)
+        self.k = [
+            [
+                insertion.text
+                for insertion in test_case.CONTROL.get_insertions()
+                if insertion.pattern == "reason"
             ]
-            # extract chosen answers
-            treatment_answer = np.array(
-                [
-                    decision_result.TREATMENT_DECISION
-                    for (_, decision_result) in test_results
-                ]
-            )
-            # compute the biasedness scores
-            biasedness_scores = np.mean(self._compute(treatment_answer))
-        except Exception as e:
-            print(e)
-            raise MetricCalculationError(f"Error filtering test results: {e}")
-        return round(biasedness_scores, 2)
+            for (test_case, _) in self.test_results
+        ]
+        self.k = np.array([[1] if "not a machine" in k[0] else [-1] for k in self.k])

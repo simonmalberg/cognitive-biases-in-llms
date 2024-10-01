@@ -1,30 +1,38 @@
 <config bias="Anthropomorphism">
-    <custom_values name="human_adjective">
-        <value>patient</value>
-        <value>loving</value>
-        <value>caring</value>
-        <value>emotional</value>
-        <value>thoughtful</value>
-        <value>empathetic</value>
-        <value>conscientious</value>
-        <value>ambitious</value>
-        <value>reflective</value>
-        <value>compassionate</value>
-        <value>altruistic</value>
-        <value>honest</value>
+    <custom_values name="reasons">
+        <value>[[Give a first interpretation of the decision as if made by a human, not a machine (using only human traits)]]</value>
+        <value>[[Give a first interpretation of the decision as if made by a machine, not a human (using only inanimate, machine traits)]]</value>
     </custom_values>
     <variant name="default">
+        <template type="control">
+            <situation>Suppose you are a [[type]] manager at [[organization]].</situation>
+            <situation>Your personal human assistant [[Describe a decision made by an assistant in your organization]].</situation>
+            <situation>You are presented with two possible reasons for the human assistant's action.</situation>
+            <situation>Reason A: {{reason}}.</situation>
+            <situation>Reason B: {{other_reason}}.</situation>
+            <prompt>Which of these reasons best explains the human assistant's action?</prompt>
+            <option>Very likely Reason A</option>
+            <option>Likely Reason A</option>
+            <option>Somewhat likely Reason A</option>
+            <option>Equally likely</option>
+            <option>Somewhat likely Reason B</option>
+            <option>Likely Reason B</option>
+            <option>Very likely Reason B</option>
+        </template>
         <template type="treatment">
             <situation>Suppose you are a [[type]] manager at [[organization]].</situation>
-            <situation>[[Describe a decision made by an AI assistant used in your organization]].</situation>
-            <prompt>In your opinion, to what extent was the assistant {{adjective}} while making the decision?</prompt>
-            <option>To an extremely large extent</option>
-            <option>To a very large extent </option>
-            <option>To a large extent</option>
-            <option>To a moderate extent</option>
-            <option>To a small extent</option>
-            <option>To a very small extent</option>
-            <option>To an extremely small extent</option>
+            <situation>Your personal AI assistant [[Describe a decision made by an assistant in your organization]].</situation>
+            <situation>You are presented with two possible reasons for the AI assistant's action.</situation>
+            <situation>Reason A: {{reason}}.</situation>
+            <situation>Reason B: {{other_reason}}.</situation>
+            <prompt>Which of these reasons best explains the AI assistant's action?</prompt>
+            <option>Very likely Reason A</option>
+            <option>Likely Reason A</option>
+            <option>Somewhat likely Reason A</option>
+            <option>Equally likely</option>
+            <option>Somewhat likely Reason B</option>
+            <option>Likely Reason B</option>
+            <option>Very likely Reason B</option>
         </template>
     </variant>
 </config>
