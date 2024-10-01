@@ -67,10 +67,10 @@ class FundamentalAttributionErrorTestGenerator(TestGenerator):
         treatment: Template = self.config.get_treatment_template()
         
         # Populate the templates with custom values
-        control.insert("control_reason", custom_values["control_reason"])
-        control.insert("other_control_reason", custom_values["other_control_reason"])
-        treatment.insert("treatment_reason", custom_values["treatment_reason"])
-        treatment.insert("other_treatment_reason", custom_values["other_treatment_reason"])
+        control.insert("control_reason", custom_values["control_reason"], origin='user')
+        control.insert("other_control_reason", custom_values["other_control_reason"], origin='user')
+        treatment.insert("treatment_reason", custom_values["treatment_reason"], origin='user')
+        treatment.insert("other_treatment_reason", custom_values["other_treatment_reason"], origin='user')
             
 
         # Populate the templates using the model and the scenario
