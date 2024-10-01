@@ -1,4 +1,4 @@
-from base import TestGenerator, Metric, LLM
+from base import TestGenerator, LLM, RatioScaleMetric
 import importlib
 import os
 
@@ -186,7 +186,7 @@ def get_generator(bias: str) -> TestGenerator:
         raise ImportError(f"Could not find the generator for bias '{bias}': {e}")
     
 
-def get_metric(bias: str) -> Metric:
+def get_metric(bias: str) -> RatioScaleMetric:
     """
     Returns a metric for the specified cognitive bias.
 

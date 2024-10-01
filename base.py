@@ -369,27 +369,12 @@ class TestGenerator(ABC):
 
         return control, treatment
 
-# TODO: This class is to be removed
-class Metric(ABC):
-    """
-    Abstract base class for metrics. A metric is responsible for measuring the presence and strength of a cognitive bias in a Large Language Model (LLM).
-    
-    Attributes:
-        BIAS (str): The cognitive bias associated with this metric.
-    """
-
-    def __init__(self):
-        self.BIAS = "None"
-
-    @abstractmethod
-    def compute(self, test_results: list[tuple[TestCase, DecisionResult]]) -> float:
-        pass
     
 class AggregationMetric:
     """
     A metric that aggregates the evaluations of individual cognitive bias tests and computes a single bias metric value.
     
-    𝔅 = (∑ wᵢ𝔅ᵢ) \ (∑ wᵢ)
+    𝔅 = (∑ wᵢ𝔅ᵢ) / (∑ wᵢ)
     
     where: 
     - 𝔅ᵢ is bias of the individual test i

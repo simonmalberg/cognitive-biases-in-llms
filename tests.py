@@ -309,29 +309,6 @@ class Template:
         # If the pattern cannot be found, return an empty list
         return []
 
-    def insert_values(self, pairs: list[tuple[str, str]], kind: str) -> None:
-        """
-        This function is deprecated. Use insert instead.
-        
-        Inserts custom or generated values into the template.
-        
-        Args:
-            pairs (list[tuple[str, str]]): A list of tuples, where each tuple contains a pattern and a value.
-            kind (str): The kind of generation for the values being inserted: "manual" or "LLM".   
-        """
-
-        warnings.warn("insert_values is deprecated. Use insert instead.", DeprecationWarning)
-
-        if kind == 'manual':
-            kind = 'user'
-        elif kind == 'LLM':
-            kind = 'model'
-        else:
-            raise ValueError(f"Invalid kind {kind}.")
-
-        for pattern, value in pairs:
-            self.insert(pattern, value, kind)
-
     def get_gaps(self, include_filled: bool = False, include_duplicates: bool = False, origin: str = None) -> list[str]:
         """
         Returns a list of all gaps in this template. Gaps are indicated by either {{...}}, to be filled by the user, or [[...]], to be filled by a model.
@@ -405,19 +382,6 @@ class Template:
             return insertions
         else:
             return [insertion for insertion in insertions if insertion.origin == origin]
-
-    @property
-    def inserted_values(self):
-        warnings.warn("inserted_values is deprecated. Use the get_insertions function instead.", DeprecationWarning)
-        
-        insertions = self.get_insertions()
-        inserted_values = {}
-
-        for insertion in insertions:
-            kind = 'manual' if insertion.origin == 'user' else 'LLM'
-            inserted_values[insertion.pattern] = (insertion.text, kind)
-
-        return inserted_values
     
     def format(self, insert_headings: bool = True, show_type: bool = False, drop_user_brackets: bool = True, drop_model_brackets: bool = True, shuffle_options: bool = False, seed: int = 42) -> str:
         """
@@ -819,11 +783,8 @@ class TestCase:
         self.VARIANT: str = variant
         self.REMARKS: str = remarks
 
-        # Issue a deprecation warning for fields that are no longer supported
+        # Add additional fields that are passed but not natively supported
         for key, value in kwargs.items():
-            if key in ['control_values', 'treatment_values']:
-                warnings.warn("'control_values' and 'treatment_values' are deprecated and should not be used anymore. All inserted values are automatically stored inside the Template objects, which in turn are stored in TestCase.CONTROL and TestCase.Treatment. If these values are important for understanding which test was run, consider using the TestCase.VARIANT attribute to keep track of these values.", DeprecationWarning)
-
             setattr(self, key.upper(), value)
 
     def __str__(self) -> str:
