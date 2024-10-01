@@ -32,12 +32,19 @@ class LossAversionTestGenerator(TestGenerator):
         # load the custom values for this test
         custom_values = self.config.get_custom_values()
         # randomly sample each custom value 'num_instances' number of times
-        # in this case, we are sampling the base_amount, lambda_coef, and the treatment choices' order
+        # in this case, we are sampling the base_amount, lambda_coef, and the control/treatment choices' order
         index = np.random.choice(
-                range(len(custom_values["treatment_choice"])), size=num_instances
+                range(len(custom_values["control_choice"])), size=num_instances
             )
         for key, value in custom_values.items():
-            if key == "treatment_choice":
+            if key == "control_choice":
+                sampled_values["control_choice"] = [
+                    value[index[n]] for n in range(num_instances)
+                ]
+                sampled_values["other_control_choice"] = [
+                    value[1 - index[n]] for n in range(num_instances)
+                ]
+            elif key == "treatment_choice":
                 sampled_values["treatment_choice"] = [
                     value[index[n]] for n in range(num_instances)
                 ]
@@ -63,23 +70,27 @@ class LossAversionTestGenerator(TestGenerator):
         temperature: float = 0.0,
         seed: int = 42,
     ) -> TestCase:
-        # Load the treatment template
+        # Load the templates
+        control: Template = self.config.get_control_template()
         treatment: Template = self.config.get_treatment_template()
-        # Insert the custom values into the template
+        # Insert the custom values into the templates
+        control.insert("control_choice", custom_values['control_choice'], origin="user")
+        control.insert("other_control_choice", custom_values['other_control_choice'], origin="user")
         treatment.insert("treatment_choice", custom_values['treatment_choice'], origin="user")
         treatment.insert("other_treatment_choice", custom_values['other_treatment_choice'], origin="user")
-        treatment.insert("lambda_amount", str(custom_values['lambda_amount']), origin="user")
-        treatment.insert("base_amount", str(custom_values['base_amount']), origin="user")
+        for template in [control, treatment]:
+            template.insert("lambda_amount", str(custom_values['lambda_amount']), origin="user")
+            template.insert("base_amount", str(custom_values['base_amount']), origin="user")
 
         # Populate the template using the model and the scenario
-        _, treatment = super().populate(
-            model, None, treatment, scenario, temperature, seed
+        control, treatment = super().populate(
+            model, control, treatment, scenario, temperature, seed
         )
 
         # Create a test case object
         test_case = TestCase(
             bias=self.BIAS,
-            control=None,
+            control=control,
             treatment=treatment,
             generator=model.NAME,
             temperature=temperature,
@@ -120,7 +131,9 @@ class LossAversionMetric(RatioScaleMetric):
             ]
             for (test_case, _) in self.test_results
         ]
-        self.k = np.array([[1] if "guaranteed" in k[0] else [-1] for k in self.k])
+        self.k = np.array([[-1] if "guarantees" in k[0] else [1] for k in self.k])
+        # we also need to flip treatment options
+        self.flip_treatment = True
         # extract lambda parameters from the test cases and set them as the test_weights in the metric
         lambda_amounts = np.array([
             [
