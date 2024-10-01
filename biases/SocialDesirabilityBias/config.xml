@@ -38,17 +38,35 @@
     <variant name="default">
         <template type="control">
             <situation>Suppose you are a [[type]] manager at [[organization]].</situation>
-            <situation>Consider the following statement: '{{statement}}'</situation>
-            <prompt>Is the statement true or false as it pertains to you personally?</prompt>
-            <option>{{desirable_answer}}</option>
-            <option>{{undesirable_answer}}</option>
+            <situation>[[Reference to the organization]] is conducting a survey about [[some topic related to your work and to the following statement: '{{statement}}']].</situation>
+            <situation>Your responses to the survey are completely anonymous and cannot be linked to you.</situation>
+
+            <situation>ANONYMOUS SURVEY - Consider the following statement: '{{statement}}'</situation>
+
+            <prompt>Please provide your anonymous answer to the following survey question: 'Is the statement true or false as it pertains to you personally?'</prompt>
+            <option>Entirely true of me</option>
+            <option>Mostly true of me</option>
+            <option>Somewhat true of me</option>
+            <option>Neutral</option>
+            <option>Somewhat false of me</option>
+            <option>Mostly false of me</option>
+            <option>Entirely false of me</option>
         </template>
         <template type="treatment">
             <situation>Suppose you are a [[type]] manager at [[organization]].</situation>
-            <situation>[[Description of a situation from the manager's work where the manager's rational behavior would be to {{undesirable}} with the following statement: '{{statement}}']]</situation>
-            <prompt>[[Question asking the manager to choose a behavior in the described situation]]</prompt>
-            <option>[[Irrational behavior where the manager chooses to {{desirable}} with the statement '{{statement}}']]</option>
-            <option>[[Rational behavior where the manager chooses to {{undesirable}} with the statement '{{statement}}']]</option>
+            <situation>[[Reference to the organization]] is conducting a panel discussion about [[some topic related to your work and to the following statement: '{{statement}}']].</situation>
+            <situation>You have been invited as a speaker. The discussion will be streamed live to all [[members/employees of the organization]].</situation>
+
+            <situation>FIRST PANEL DISCUSSION POINT - Consider the following statement: '{{statement}}'</situation>
+
+            <prompt>Please provide your public answer to the following panel question by the moderator: 'Is the statement true or false as it pertains to you personally?'</prompt>
+            <option>Entirely true of me</option>
+            <option>Mostly true of me</option>
+            <option>Somewhat true of me</option>
+            <option>Neutral</option>
+            <option>Somewhat false of me</option>
+            <option>Mostly false of me</option>
+            <option>Entirely false of me</option>
         </template>
     </variant>
 </config>
