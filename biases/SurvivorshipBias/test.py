@@ -68,7 +68,7 @@ class SurvivorshipBiasTestGenerator(TestGenerator):
             seed=seed,
             scenario=scenario,
             variant=None,
-            remarks=None
+            remarks={"survivor_percentage": custom_values["survivor_percentage"], "non_survivor_percentage": custom_values["non_survivor_percentage"]}
         )
 
         return test_case
