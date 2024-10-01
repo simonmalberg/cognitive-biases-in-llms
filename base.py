@@ -300,11 +300,11 @@ class TestGenerator(ABC):
             for step in range(num_instances):
                 # taking the subdictionary of custom values for the current step only
                 sampled_values_step = self.select_custom_values_for_step(sampled_values, step)
-                for _ in range(max_retries):
+                for retry in range(max_retries):
                     try:
                         test_case = self.generate(model, scenario, sampled_values_step, temperature, iteration_seed)
-                        # if the test case is generated successfully, increment the seed to not collide with potential retries and break the retry loop
-                        iteration_seed += max_retries + 1
+                        # if the test case is generated successfully, break the retry loop and increment the seed to the next position
+                        iteration_seed += (max_retries - retry)
                         break
                     except Exception as e:
                         test_case = None
