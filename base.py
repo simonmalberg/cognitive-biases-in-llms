@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod
 from tests import TestCase, Template, TestConfig, DecisionResult
 import numpy as np
+import hashlib
 import re
 
 
@@ -293,8 +294,8 @@ class TestGenerator(ABC):
         test_cases: list[TestCase] = []
         sampled_values: dict = {}
         for scenario in scenarios:
-            # creating a seed for each scenario, which fits the range of valid seeds for NumPy
-            iteration_seed = hash(scenario + str(seed)) % (2**32)
+            # creating a reproducible seed for each scenario, which fits the range of valid seeds for NumPy
+            iteration_seed = int(hashlib.md5(scenario.encode()).hexdigest(), 16) % (2**32)
             # get the custom values for the scenario
             sampled_values = self.sample_custom_values(num_instances, iteration_seed)
             for step in range(num_instances):

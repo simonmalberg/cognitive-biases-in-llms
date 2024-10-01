@@ -1,6 +1,6 @@
 from utils import get_generator, get_model
 from base import TestCase, Template
-import random
+import hashlib
 import os
 import xml.etree.ElementTree as ET
 from collections import defaultdict
@@ -67,6 +67,7 @@ def write_to_xml(test_cases: list[TestCase], dir_name: str, file_name: str) -> i
                     "<temperature>" + str(test_case.TEMPERATURE) + "</temperature>\n"
                 ).encode()
             )
+            output.write(("<timestamp>" + str(test_case.TIMESTAMP) + "</timestamp>\n").encode())
             output.write(("<seed>" + str(test_case.SEED) + "</seed>\n").encode())
             ET.ElementTree(test_case.CONTROL._data).write(output, encoding="utf-8")
             ET.ElementTree(test_case.TREATMENT._data).write(output, encoding="utf-8")
@@ -179,7 +180,7 @@ def generate_dataset(
             _ = write_to_xml(
                 test_cases,
                 "generated_tests",
-                f"{bias}_{hash(scenario)}_{num_instances}.xml",
+                f"{bias}_{int(hashlib.md5(scenario.encode()).hexdigest(), 16)}_{num_instances}.xml",
             )
     # Assemble the dataset from the generated tests
     _ = assemble_dataset()
@@ -200,7 +201,7 @@ if __name__ == "__main__":
     generate_dataset(
         biases=["EndowmentEffect", "FramingEffect"],
         population_model=model,
-        scenarios=random.sample(scenarios, 3),
+        scenarios=scenarios[:2],
         temperature=0.7,
         num_instances=2,
         max_retries=5,
