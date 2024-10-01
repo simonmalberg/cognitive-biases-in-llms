@@ -234,7 +234,7 @@ class Template:
             origin (str): The origin of the text, either 'user' or 'model'. If specified, only patterns matching the specified origin will be replaced. Otherwise, all matching patterns will be replaced.
             insertion (Insertion): The Insertion object to insert into the template.
             insertions (list[Insertion]): A list of Insertion objects to be inserted into the template.
-            trim_full_stop (bool): Whether or not to remove fullstops at the end of the text.
+            trim_full_stop (bool): Whether or not to remove fullstops, question marks, and exclamation marks (. ? !) at the end of the text.
 
         Returns:
             list[Insertion]: A list of insertions made into the template.
@@ -274,8 +274,9 @@ class Template:
                 print("Template.insert: A pattern was provided that is wrapped in {{{{...}}}} but origin is 'model'. Did you mean 'user' instead?")
 
         # Trim fullstops at the end of the text, if requested
-        if trim_full_stop and text.endswith('.'):
-            text = text[:-1]
+        if trim_full_stop:
+            if text.endswith('.') or text.endswith('?') or text.endswith('!'):
+                text = text[:-1]
 
         # Check that a valid origin is provided
         if origin not in ['user', 'model', None]:
