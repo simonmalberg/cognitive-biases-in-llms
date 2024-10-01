@@ -29,13 +29,13 @@
             <situation>[[One sentence describing a proposal.]]</situation>
             <situation>[[Short statement that this was proposed by a colleague of the manager's own team. Use second person. Do not indicate their level of experience or expertise.]]</situation>
             <prompt>How would you evaluate this proposal?</prompt>
-            <option>Excellent</option>
+            <option>Very good</option>
             <option>Good</option>
-            <option>Above average</option>
-            <option>Average</option>
-            <option>Below average</option>
-            <option>Poor</option>
+            <option>Somewhat good</option>
+            <option>Neither good nor bad</option>
+            <option>Somewhat bad</option>
             <option>Bad</option>
+            <option>Very bad</option>
         </template>
         <template type="treatment">
             <situation>Suppose you are a [[type]] manager at [[first mention of the organization]].</situation>
@@ -43,13 +43,13 @@
             <situation>[[One sentence describing a proposal.]]</situation>
             <situation>{{externality_statement}}</situation>
             <prompt>How would you evaluate this proposal?</prompt>
-            <option>Excellent</option>
+            <option>Very good</option>
             <option>Good</option>
-            <option>Above average</option>
-            <option>Average</option>
-            <option>Below average</option>
-            <option>Poor</option>
+            <option>Somewhat good</option>
+            <option>Neither good nor bad</option>
+            <option>Somewhat bad</option>
             <option>Bad</option>
+            <option>Very bad</option>
         </template>
     </variant>
 </config>

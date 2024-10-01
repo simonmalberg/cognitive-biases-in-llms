@@ -21,7 +21,7 @@
             <option>Alternative A is much better than alternative B</option>
             <option>Alternative A is better than alternative B</option>
             <option>Alternative A is somewhat better than alternative B</option>
-            <option>Alternative A and alternative B are equally good</option>
+            <option>Alternative A and alternative B are equally good or bad</option>
             <option>Alternative B is somewhat better than alternative A</option>
             <option>Alternative B is better than alternative A</option>
             <option>Alternative B is much better than alternative A</option>
@@ -47,7 +47,7 @@
             <option>Alternative A is much better than alternative B</option>
             <option>Alternative A is better than alternative B</option>
             <option>Alternative A is somewhat better than alternative B</option>
-            <option>Alternative A and alternative B are equally good</option>
+            <option>Alternative A and alternative B are equally good or bad</option>
             <option>Alternative B is somewhat better than alternative A</option>
             <option>Alternative B is better than alternative A</option>
             <option>Alternative B is much better than alternative A</option>

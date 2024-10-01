@@ -11,7 +11,7 @@
             <option>The current course of action is much better than the alternative course of action</option>
             <option>The current course of action is better than the alternative course of action</option>
             <option>The current course of action is somewhat better than the alternative course of action</option>
-            <option>The current course of action and the alternative course of action are equally good</option>
+            <option>The current course of action and the alternative course of action are equally good or bad</option>
             <option>The alternative course of action is somewhat better than the current course of action</option>
             <option>The alternative course of action is better than the current course of action</option>
             <option>The alternative course of action is much better than the current course of action</option>
@@ -27,7 +27,7 @@
             <option>The current course of action is much better than the alternative course of action</option>
             <option>The current course of action is better than the alternative course of action</option>
             <option>The current course of action is somewhat better than the alternative course of action</option>
-            <option>The current course of action and the alternative course of action are equally good</option>
+            <option>The current course of action and the alternative course of action are equally good or bad</option>
             <option>The alternative course of action is somewhat better than the current course of action</option>
             <option>The alternative course of action is better than the current course of action</option>
             <option>The alternative course of action is much better than the current course of action</option>

@@ -45,13 +45,13 @@
             <situation>'{{statement}}'</situation>
 
             <prompt>Is the statement true or false as it pertains to you personally?</prompt>
-            <option>Entirely true of me</option>
-            <option>Mostly true of me</option>
+            <option>Very true of me</option>
+            <option>True of me</option>
             <option>Somewhat true of me</option>
             <option>Neutral</option>
             <option>Somewhat false of me</option>
-            <option>Mostly false of me</option>
-            <option>Entirely false of me</option>
+            <option>False of me</option>
+            <option>Very false of me</option>
         </template>
         <template type="treatment">
             <situation>Suppose you are a [[type]] manager at [[organization]].</situation>
@@ -62,13 +62,13 @@
             <situation>'{{statement}}'</situation>
 
             <prompt>Is the statement true or false as it pertains to you personally?</prompt>
-            <option>Entirely true of me</option>
-            <option>Mostly true of me</option>
+            <option>Very true of me</option>
+            <option>True of me</option>
             <option>Somewhat true of me</option>
             <option>Neutral</option>
             <option>Somewhat false of me</option>
-            <option>Mostly false of me</option>
-            <option>Entirely false of me</option>
+            <option>False of me</option>
+            <option>Very false of me</option>
         </template>
     </variant>
 </config>

@@ -11,13 +11,13 @@
             <situation>Reason A: {{reason}}.</situation>
             <situation>Reason B: {{other_reason}}.</situation>
             <prompt>Which of these reasons best explains the human assistant's action?</prompt>
-            <option>Very likely Reason A</option>
-            <option>Likely Reason A</option>
-            <option>Somewhat likely Reason A</option>
-            <option>Equally likely</option>
-            <option>Somewhat likely Reason B</option>
-            <option>Likely Reason B</option>
-            <option>Very likely Reason B</option>
+            <option>Very likely reason A</option>
+            <option>Likely reason A</option>
+            <option>Somewhat likely reason A</option>
+            <option>Equally likely reason A and reason B</option>
+            <option>Somewhat likely reason B</option>
+            <option>Likely reason B</option>
+            <option>Very likely reason B</option>
         </template>
         <template type="treatment">
             <situation>Suppose you are a [[type]] manager at [[organization]].</situation>
@@ -26,13 +26,13 @@
             <situation>Reason A: {{reason}}.</situation>
             <situation>Reason B: {{other_reason}}.</situation>
             <prompt>Which of these reasons best explains the AI assistant's action?</prompt>
-            <option>Very likely Reason A</option>
-            <option>Likely Reason A</option>
-            <option>Somewhat likely Reason A</option>
-            <option>Equally likely</option>
-            <option>Somewhat likely Reason B</option>
-            <option>Likely Reason B</option>
-            <option>Very likely Reason B</option>
+            <option>Very likely reason A</option>
+            <option>Likely reason A</option>
+            <option>Somewhat likely reason A</option>
+            <option>Equally likely reason A and reason B</option>
+            <option>Somewhat likely reason B</option>
+            <option>Likely reason B</option>
+            <option>Very likely reason B</option>
         </template>
     </variant>
 </config>

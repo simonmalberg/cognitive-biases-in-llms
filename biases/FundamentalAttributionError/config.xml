@@ -15,13 +15,13 @@
             <situation>Reason A: {{control_reason}}</situation>
             <situation>Reason B: {{other_control_reason}}</situation>
             <prompt>Which of these reasons best explain your action?</prompt>
-            <option>Very likely Reason A</option>
-            <option>Likely Reason A</option>
-            <option>Somewhat likely Reason A</option>
-            <option>Equally likely</option>
-            <option>Somewhat likely Reason B</option>
-            <option>Likely Reason B</option>
-            <option>Very likely Reason B</option>
+            <option>Very likely reason A</option>
+            <option>Likely reason A</option>
+            <option>Somewhat likely reason A</option>
+            <option>Equally likely reason A and reason B</option>
+            <option>Somewhat likely reason B</option>
+            <option>Likely reason B</option>
+            <option>Very likely reason B</option>
         </template>
         <template type="treatment">
             <situation>Suppose you are a [[type]] manager at [[organization]].</situation>
@@ -30,13 +30,13 @@
             <situation>Reason A: {{treatment_reason}}</situation>
             <situation>Reason B: {{other_treatment_reason}}</situation>
             <prompt>In your opinion, which of these reasons best explain their action?</prompt>
-            <option>Very likely Reason A</option>
-            <option>Likely Reason A</option>
-            <option>Somewhat likely Reason A</option>
-            <option>Equally likely</option>
-            <option>Somewhat likely Reason B</option>
-            <option>Likely Reason B</option>
-            <option>Very likely Reason B</option>
+            <option>Very likely reason A</option>
+            <option>Likely reason A</option>
+            <option>Somewhat likely reason A</option>
+            <option>Equally likely reason A and reason B</option>
+            <option>Somewhat likely reason B</option>
+            <option>Likely reason B</option>
+            <option>Very likely reason B</option>
         </template>
     </variant>
 </config>

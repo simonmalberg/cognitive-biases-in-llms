@@ -11,11 +11,11 @@
             <option>-20%</option>
             <option>-10%</option>
             <option>0%</option>
-            <option>10%</option>
-            <option>20%</option>
-            <option>30%</option>
-            <option>40%</option>
-            <option>50%</option>
+            <option>+10%</option>
+            <option>+20%</option>
+            <option>+30%</option>
+            <option>+40%</option>
+            <option>+50%</option>
         </template>
         <template type="treatment">
             <situation>Suppose you are a [[type]] manager at [[organization]].</situation>
@@ -29,11 +29,11 @@
             <option>-20%</option>
             <option>-10%</option>
             <option>0%</option>
-            <option>10%</option>
-            <option>20%</option>
-            <option>30%</option>
-            <option>40%</option>
-            <option>50%</option>
+            <option>+10%</option>
+            <option>+20%</option>
+            <option>+30%</option>
+            <option>+40%</option>
+            <option>+50%</option>
         </template>
     </variant>
 </config>

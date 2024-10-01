@@ -15,7 +15,7 @@
             <option>Very likely negative aspects</option>
             <option>Likely negative aspects</option>
             <option>Somewhat likely negative aspects</option>
-            <option>Neither negative nor positive aspects</option>
+            <option>Equally likely negative aspects and positive aspects</option>
             <option>Somewhat likely positive aspects</option>
             <option>Likely positive aspects</option>
             <option>Very likely positive aspects</option>
@@ -35,7 +35,7 @@
             <option>Very likely negative aspects</option>
             <option>Likely negative aspects</option>
             <option>Somewhat likely negative aspects</option>
-            <option>Neither negative nor positive aspects</option>
+            <option>Equally likely negative aspects and positive aspects</option>
             <option>Somewhat likely positive aspects</option>
             <option>Likely positive aspects</option>
             <option>Very likely positive aspects</option>

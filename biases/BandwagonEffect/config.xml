@@ -12,13 +12,13 @@
             <situation>Opinion B: [[describe the second opinion]]</situation>
             <situation>Colleagues in your industry usually express opinion {{majority_opinion}} in similar cases and this opinion is getting stronger.</situation>
             <prompt>Which opinion do you choose?</prompt>
-            <option>Very likely Opinion A</option>
-            <option>Likely Opinion A</option>
-            <option>Somewhat likely Opinion A</option>
-            <option>Equally likely</option>
-            <option>Somewhat likely Opinion B</option>
-            <option>Likely Opinion B</option>
-            <option>Very likely Opinion B</option>
+            <option>Very likely opinion A</option>
+            <option>Likely opinion A</option>
+            <option>Somewhat likely opinion A</option>
+            <option>Equally likely opinion A and opinion B</option>
+            <option>Somewhat likely opinion B</option>
+            <option>Likely opinion B</option>
+            <option>Very likely opinion B</option>
         </template>
         <template type="treatment">
             <situation>Suppose you are a [[type]] manager at [[organization]].</situation>
@@ -28,13 +28,13 @@
             <situation>Opinion B: [[describe the first opinion]]</situation>
             <situation>Colleagues in your industry usually express opinion {{majority_opinion}} in similar cases and this opinion is getting stronger.</situation>
             <prompt>Which opinion do you choose?</prompt>
-            <option>Very likely Opinion A</option>
-            <option>Likely Opinion A</option>
-            <option>Somewhat likely Opinion A</option>
-            <option>Equally likely</option>
-            <option>Somewhat likely Opinion B</option>
-            <option>Likely Opinion B</option>
-            <option>Very likely Opinion B</option>
+            <option>Very likely opinion A</option>
+            <option>Likely opinion A</option>
+            <option>Somewhat likely opinion A</option>
+            <option>Equally likely opinion A and opinion B</option>
+            <option>Somewhat likely opinion B</option>
+            <option>Likely opinion B</option>
+            <option>Very likely opinion B</option>
         </template>
     </variant>
 </config>

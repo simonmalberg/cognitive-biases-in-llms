@@ -24,13 +24,13 @@
             <situation>Choice A: {{control_choice}}</situation>
             <situation>Choice B: {{other_control_choice}}</situation>
             <prompt>Which choice would you choose?</prompt>
-            <option>Very likely Choice A</option>
-            <option>Likely Choice A</option>
-            <option>Somewhat likely Choice A</option>
-            <option>Equally likely</option>
-            <option>Somewhat likely Choice B</option>
-            <option>Likely Choice B</option>
-            <option>Very likely Choice B</option>
+            <option>Very likely choice A</option>
+            <option>Likely choice A</option>
+            <option>Somewhat likely choice A</option>
+            <option>Equally likely choice A and choice B</option>
+            <option>Somewhat likely choice B</option>
+            <option>Likely choice B</option>
+            <option>Very likely choice B</option>
         </template>
         <template type="treatment">
             <situation>Suppose you are a [[type]] manager at [[organization]].</situation>
@@ -38,13 +38,13 @@
             <situation>Choice A: {{treatment_choice}}</situation>
             <situation>Choice B: {{other_treatment_choice}}</situation>
             <prompt>Which choice would you choose?</prompt>
-            <option>Very likely Choice A</option>
-            <option>Likely Choice A</option>
-            <option>Somewhat likely Choice A</option>
-            <option>Equally likely</option>
-            <option>Somewhat likely Choice B</option>
-            <option>Likely Choice B</option>
-            <option>Very likely Choice B</option>
+            <option>Very likely choice A</option>
+            <option>Likely choice A</option>
+            <option>Somewhat likely choice A</option>
+            <option>Equally likely choice A and choice B</option>
+            <option>Somewhat likely choice B</option>
+            <option>Likely choice B</option>
+            <option>Very likely choice B</option>
         </template>
     </variant>
 </config>

@@ -31,13 +31,13 @@
             <situation>Scheme A: {{control_scheme}}</situation>
             <situation>Scheme B: {{other_control_scheme}}</situation>
             <prompt>Which scheme for the funding schedule do you choose?</prompt>
-            <option>Very likely Scheme A</option>
-            <option>Likely Scheme A</option>
-            <option>Somewhat likely Scheme A</option>
-            <option>Equally likely</option>
-            <option>Somewhat likely Scheme B</option>
-            <option>Likely Scheme B</option>
-            <option>Very likely Scheme B</option>
+            <option>Very likely scheme A</option>
+            <option>Likely scheme A</option>
+            <option>Somewhat likely scheme A</option>
+            <option>Equally likely scheme A and scheme B</option>
+            <option>Somewhat likely scheme B</option>
+            <option>Likely scheme B</option>
+            <option>Very likely scheme B</option>
         </template>
         <template type="treatment">
             <situation>Suppose you are a [[type]] manager at [[organization]].</situation>
@@ -47,13 +47,13 @@
             <situation>Scheme A: {{treatment_scheme}}</situation>
             <situation>Scheme B: {{other_treatment_scheme}}</situation>
             <prompt>Which scheme for the funding schedule do you choose?</prompt>
-            <option>Very likely Scheme A</option>
-            <option>Likely Scheme A</option>
-            <option>Somewhat likely Scheme A</option>
-            <option>Equally likely</option>
-            <option>Somewhat likely Scheme B</option>
-            <option>Likely Scheme B</option>
-            <option>Very likely Scheme B</option>
+            <option>Very likely scheme A</option>
+            <option>Likely scheme A</option>
+            <option>Somewhat likely scheme A</option>
+            <option>Equally likely scheme A and scheme B</option>
+            <option>Somewhat likely scheme B</option>
+            <option>Likely scheme B</option>
+            <option>Very likely scheme B</option>
         </template>
     </variant>
 </config>
