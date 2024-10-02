@@ -58,7 +58,7 @@ def write_to_xml(test_cases: list[TestCase], dir_name: str, file_name: str) -> i
             output.write(
                 ("<variant>" + str(test_case.VARIANT) + "</variant>\n").encode()
             )
-            output.write(("<scenario>" + test_case.SCENARIO + "</scenario>\n").encode())
+            output.write(("<scenario>" + test_case.SCENARIO.replace("&", "&amp;") + "</scenario>\n").encode())
             output.write(
                 ("<generator>" + test_case.GENERATOR + "</generator>\n").encode()
             )
@@ -99,37 +99,39 @@ def assemble_dataset(dir: str = "generated_tests", save_as: str = "dataset.csv")
 
     dataset = pd.DataFrame()
 
-    for file in tqdm(os.listdir(dir)):
-        tree = ET.parse(os.path.join(dir, file))
-        root = tree.getroot()
+    for directory, _, files in tqdm(os.walk(dir)):
+        for file in files:
+            if file.endswith(".xml"):
+                tree = ET.parse(os.path.join(directory, file))
+                root = tree.getroot()
 
-        # a dictionary to store the tests
-        tests = defaultdict(list)
+                # a dictionary to store the tests
+                tests = defaultdict(list)
 
-        # iterating over tests
-        for test_case in root:
-            # saving the templates in the raw string to be easily loaded in the testing
-            control_template = test_case.find("./template[@type='control']")
-            treatment_template = test_case.find("./template[@type='treatment']")
-            tests["raw_control"].append(
-                ET.tostring(control_template, encoding="unicode", method="xml")
-            )
-            tests["raw_treatment"].append(
-                ET.tostring(treatment_template, encoding="unicode", method="xml")
-            )
-            # iterating over compotents of a test
-            for child in test_case:
-                # saving each component of the test to the dictionary
-                if child.tag != "template":
-                    tests[child.tag].append(child.text)
-                else:
-                    t = Template(from_element=child)
-                    tests[child.attrib["type"]].append(t.format())
+                # iterating over tests
+                for test_case in root:
+                    # saving the templates in the raw string to be easily loaded in the testing
+                    control_template = test_case.find("./template[@type='control']")
+                    treatment_template = test_case.find("./template[@type='treatment']")
+                    tests["raw_control"].append(
+                        ET.tostring(control_template, encoding="unicode", method="xml")
+                    )
+                    tests["raw_treatment"].append(
+                        ET.tostring(treatment_template, encoding="unicode", method="xml")
+                    )
+                    # iterating over components of a test
+                    for child in test_case:
+                        # saving each component of the test to the dictionary
+                        if child.tag != "template":
+                            tests[child.tag].append(child.text)
+                        else:
+                            t = Template(from_element=child)
+                            tests[child.attrib["type"]].append(t.format())
 
-        # creating a temporary DataFrame from the dictionary
-        temp_df = pd.DataFrame(tests)
-        # concating the temporary DataFrame to the dataset
-        dataset = pd.concat([dataset, temp_df], ignore_index=True)
+                # creating a temporary DataFrame from the dictionary
+                temp_df = pd.DataFrame(tests)
+                # concatenating the temporary DataFrame to the dataset
+                dataset = pd.concat([dataset, temp_df], ignore_index=True)
 
     # saving the dataset
     dataset.to_csv(save_as, index=False)
@@ -177,11 +179,18 @@ def generate_dataset(
                 max_retries,
             )
             # Save the generated test cases for given bias and scenario to an XML file
+            os.makedirs(f"generated_tests/{bias}", exist_ok=True)
             _ = write_to_xml(
                 test_cases,
-                "generated_tests",
-                f"{bias}_{int(hashlib.md5(scenario.encode()).hexdigest(), 16)}_{num_instances}.xml",
+                f"generated_tests/{bias}/",
+                f"{int(hashlib.md5(scenario.encode()).hexdigest(), 16)}_{num_instances}.xml",
             )
+            # additionally, write all the test cases to a single .txt file for easier tracking
+            os.makedirs(f"txt_logs/{bias}", exist_ok=True)
+            with open(f"txt_logs/{bias}/{int(hashlib.md5(scenario.encode()).hexdigest(), 16)}_{num_instances}.txt", "a+") as f:
+                for test_case in test_cases:
+                    f.write(f"{test_case}\n")
+    
     # Assemble the dataset from the generated tests
     _ = assemble_dataset()
 
@@ -195,14 +204,14 @@ if __name__ == "__main__":
         scenarios = f.readlines()
 
     # Format the scenario strings by removing any markdown
-    scenarios = [s.strip().replace("**", "") for s in scenarios]
+    scenarios = [s.strip() for s in scenarios]
     model = "GPT-4o"
 
     generate_dataset(
-        biases=["EndowmentEffect", "FramingEffect"],
+        biases=["Anchoring"],
         population_model=model,
-        scenarios=scenarios[:2],
+        scenarios=scenarios,
         temperature=0.7,
-        num_instances=2,
+        num_instances=5,
         max_retries=5,
     )
