@@ -192,7 +192,14 @@ def generate_dataset(
                     f.write(f"{test_case}\n")
     
     # Assemble the dataset from the generated tests
-    _ = assemble_dataset()
+    os.makedirs(f"datasets", exist_ok=True)
+    # If only one bias is provided, save the dataset with the bias name
+    if len(biases) == 1:
+        # Assemble the dataset from the generated tests only from this one bias
+        _ = assemble_dataset(dir=f'generated_tests/{biases[0]}', save_as=f"datasets/{biases[0]}_dataset.csv")
+    else:
+        # Assemble the dataset from all the generated tests
+        _ = assemble_dataset(save_as=f"datasets/dataset.csv")
 
     return 0
 
