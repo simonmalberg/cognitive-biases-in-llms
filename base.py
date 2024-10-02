@@ -457,17 +457,14 @@ class RatioScaleMetric:
         ]
         try:
             # extract indices of the chosen answers
-            # also account for the case when the control is not present in the test: e.g., Illusion of Control.
+            # TODO: also account for the case when the control is not present in the test
             # assume for these cases we have strictly odd number of options (central element is well-defined)
-            if self.test_results[0][0].CONTROL is None:
-                control_answer = np.array(len(self.test_results) * [[(len(self.test_results[0][1].TREATMENT_OPTIONS) - 1) // 2]])
-            else:
-                control_answer = np.array(
-                    [
-                        [decision_result.CONTROL_DECISION]
-                        for (_, decision_result) in self.test_results
-                    ]
-                )
+            control_answer = np.array(
+                [
+                    [decision_result.CONTROL_DECISION]
+                    for (_, decision_result) in self.test_results
+                ]
+            )
             treatment_answer = np.array(
                 [
                     [decision_result.TREATMENT_DECISION]

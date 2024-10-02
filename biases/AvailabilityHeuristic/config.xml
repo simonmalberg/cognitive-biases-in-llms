@@ -5,8 +5,8 @@
     </custom_values>
     <variant name="default">
         <template type="control">
-            <situation>Suppose you are a [[type]] manager at [[organization]].</situation>
-            <situation>A company in your industry [[Provide a one sentence description of a plan to release a particular product]].</situation>
+            <situation>Suppose you are [[a/an]] [[type]] manager at [[organization]].</situation>
+            <situation>A company in your industry [[provide a one-sentence description of a plan to release a particular product]].</situation>
             <prompt>How likely do you estimate the planned project to be a {{outcome}}?</prompt>
             <option>0%</option>
             <option>10%</option>
@@ -21,8 +21,8 @@
             <option>100%</option>
         </template>
         <template type="treatment">
-            <situation>Suppose you are a [[type]] manager at [[organization]].</situation>
-            <situation>A company in your industry [[Provide a one sentence description of a plan to release a particular product]].</situation>
+            <situation>Suppose you are [[a/an]] [[type]] manager at [[organization]].</situation>
+            <situation>A company in your industry [[provide a one-sentence description of a plan to release a particular product]].</situation>
             <situation>Recently, [[a one sentence {{outcome}} story of such product from another company in the industry]].</situation>
             <prompt>How likely do you estimate the planned project to be a {{outcome}}?</prompt>
             <option>0%</option>

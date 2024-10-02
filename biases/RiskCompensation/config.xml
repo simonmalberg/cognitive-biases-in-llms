@@ -12,11 +12,11 @@
 
     <variant name="default">
         <template type="control">
-            <situation>Suppose you are a [[type]] manager at [[organization]].</situation>
-            <situation>Regularly you [[Complete the sentence describing a risky decision that has to be made on a regular basis.]]</situation>
-            <situation>You could [[Description of a risky choice for this decision]] with a {{initial_risk}} risk of [[Complete the sentence describing a concrete negative outcome]].</situation>
-            <situation>This would mean you [[Complete the sentence describing how this would affect the manager personally. Use second person pronouns.]]</situation>
-            <prompt>[[Ask how likely to go for the above described risky choice.]]</prompt>
+            <situation>Suppose you are [[a/an]] [[type]] manager at [[organization]].</situation>
+            <situation>Regularly, you [[complete the sentence describing a risky decision that has to be made regularly]].</situation>
+            <situation>You could [[description of a risky choice for this decision]] with a {{initial_risk}} risk [[of/that]] [[complete the sentence describing a concrete negative outcome]].</situation>
+            <situation>This would mean you [[complete the sentence describing how this would affect the manager personally. Use second-person pronouns.]].</situation>
+            <prompt>[[Ask how likely to go for the above described risky choice.]]?</prompt>
             <option>0%</option>
             <option>10%</option>
             <option>20%</option>
@@ -30,12 +30,12 @@
             <option>100%</option>
         </template>
         <template type="treatment">
-            <situation>Suppose you are a [[type]] manager at [[organization]].</situation>
-            <situation>Regularly you [[Complete the sentence describing a risky decision that has to be made on a regular basis.]]</situation>
-            <situation>You could [[Description of a risky choice for this decision]] with a {{initial_risk}} risk of [[Complete the sentence describing a concrete negative outcome]].</situation>
-            <situation>This would mean you [[Complete the sentence describing how this would affect the manager personally. Use second person pronouns.]]</situation>
-            <situation>[[One short sentence describing a new regulation by the organization that decreases the overall risk involved in the decision.]] This decreases the risk of [[Mention of negative outcome]] by {{risk_reduction}}.</situation>  
-            <prompt>[[Ask how likely to go for the above described risky choice.]]</prompt>
+            <situation>Suppose you are [[a/an]] [[type]] manager at [[organization]].</situation>
+            <situation>Regularly, you [[complete the sentence describing a risky decision that has to be made regularly]].</situation>
+            <situation>You could [[description of a risky choice for this decision]] with a {{initial_risk}} risk [[of/that]] [[complete the sentence describing a concrete negative outcome]].</situation>
+            <situation>This would mean you [[complete the sentence describing how this would affect the manager personally. Use second-person pronouns.]].</situation>
+            <situation>[[One short sentence describing a new regulation by the organization that decreases the overall risk involved in the decision]]. This decreases the risk of [[mention of negative outcome]] by {{risk_reduction}}.</situation>  
+            <prompt>[[Ask how likely to go for the above described risky choice.]]?</prompt>
             <option>0%</option>
             <option>10%</option>
             <option>20%</option>
