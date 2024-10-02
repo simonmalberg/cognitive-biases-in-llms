@@ -50,4 +50,4 @@ class ReactanceMetric(RatioScaleMetric):
     """
 
     def __init__(self, test_results: list[tuple[TestCase, DecisionResult]]):
-        super().__init__(test_results, k=np.array([1]))
+        super().__init__(test_results)
