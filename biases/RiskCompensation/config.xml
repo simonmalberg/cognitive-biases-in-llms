@@ -12,7 +12,7 @@
 
     <variant name="default">
         <template type="control">
-            <situation>Suppose you are a [[type]] manager at [[organization]].</situation>
+            <situation>Suppose you are [[a/an]] [[type]] manager at [[organization]].</situation>
             <situation>Regularly, you [[complete the sentence describing a risky decision that has to be made regularly]].</situation>
             <situation>You could [[description of a risky choice for this decision]] with a {{initial_risk}} risk [[of/that]] [[complete the sentence describing a concrete negative outcome]].</situation>
             <situation>This would mean you [[complete the sentence describing how this would affect the manager personally. Use second-person pronouns.]].</situation>
@@ -30,7 +30,7 @@
             <option>100%</option>
         </template>
         <template type="treatment">
-            <situation>Suppose you are a [[type]] manager at [[organization]].</situation>
+            <situation>Suppose you are [[a/an]] [[type]] manager at [[organization]].</situation>
             <situation>Regularly, you [[complete the sentence describing a risky decision that has to be made regularly]].</situation>
             <situation>You could [[description of a risky choice for this decision]] with a {{initial_risk}} risk [[of/that]] [[complete the sentence describing a concrete negative outcome]].</situation>
             <situation>This would mean you [[complete the sentence describing how this would affect the manager personally. Use second-person pronouns.]].</situation>
