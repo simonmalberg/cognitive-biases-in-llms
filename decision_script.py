@@ -108,14 +108,10 @@ def decide_dataset(
         # storing the results in a new dataset
         decision_df = convert_decisions(ids, decision_results)
         # calculating the metrics
-        # metric = get_metric(bias)(test_results=list(zip(test_cases, decision_results)))
+        metric = get_metric(bias)(test_results=list(zip(test_cases, decision_results)))
         # compute individual and aggregated scores
-        # individual_scores = metric.compute()
-        # aggregated_score = metric.aggregate(individual_scores)
-        # TODO: change this to the actual metric calculation above when the metrics are merged:
-        metric = get_metric(bias.replace(" ", ""))
-        individual_scores = metric.compute(list(zip(test_cases, decision_results)))
-        aggregated_score = individual_scores
+        individual_scores = metric.compute()
+        aggregated_score = metric.aggregate(individual_scores)
         # store the results
         decision_df.loc[:, "individual_score"] = individual_scores
         decision_df.loc[:, "aggregated_score"] = aggregated_score
@@ -138,7 +134,7 @@ if __name__ == "__main__":
 
     _ = decide_dataset(
         model_name="GPT-3.5-Turbo",
-        biases=["FramingEffect", "EndowmentEffect"],
+        biases=["Anchoring"],
         path_to_dataset="dataset.csv",
         shuffle_answer_options=True,
         temperature=0.7,
