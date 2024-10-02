@@ -24,10 +24,10 @@
     </custom_values>
     <variant name="default">
         <template type="control">
-            <situation>Suppose you are a [[type]] manager at [[first mention of the organization]].</situation>
-            <situation>You have to make a decision [[Complete the sentence with a description of a business decision with multiple proposals]]</situation>
-            <situation>[[One sentence describing a proposal.]]</situation>
-            <situation>[[Short statement that this was proposed by a colleague of the manager's own team. Use second person. Do not indicate their level of experience or expertise.]]</situation>
+            <situation>Suppose you are [[a/an]] [[type]] manager at [[organization]].</situation>
+            <situation>You have to make a decision [[complete the sentence with a description of a business decision with multiple proposals]].</situation>
+            <situation>[[One sentence describing a proposal.]].</situation>
+            <situation>[[A short statement that this was proposed by a colleague of the manager's own team. Use second-person. Do not indicate their level of experience or expertise.]].</situation>
             <prompt>How would you evaluate this proposal?</prompt>
             <option>Very good</option>
             <option>Good</option>
@@ -38,9 +38,9 @@
             <option>Very bad</option>
         </template>
         <template type="treatment">
-            <situation>Suppose you are a [[type]] manager at [[first mention of the organization]].</situation>
-            <situation>You have to make a decision [[Complete the sentence with a description of a business decision with multiple proposals]]</situation>
-            <situation>[[One sentence describing a proposal.]]</situation>
+            <situation>Suppose you are [[a/an]] [[type]] manager at [[organization]].</situation>
+            <situation>You have to make a decision [[complete the sentence with a description of a business decision with multiple proposals]].</situation>
+            <situation>[[One sentence describing a proposal.]].</situation>
             <situation>{{externality_statement}}</situation>
             <prompt>How would you evaluate this proposal?</prompt>
             <option>Very good</option>

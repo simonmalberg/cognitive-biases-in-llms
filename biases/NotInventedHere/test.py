@@ -1,4 +1,4 @@
-from base import TestGenerator, LLM, RatioScaleMetric, MetricCalculationError
+from base import TestGenerator, LLM, RatioScaleMetric
 from tests import TestCase, Template, TestConfig, DecisionResult
 import numpy as np
 import random
@@ -33,14 +33,19 @@ class NotInventedHereTestGenerator(TestGenerator):
         # load the custom values for this test
         custom_values = self.config.get_custom_values()
         # randomly sample each custom value 'num_instances' number of times
-        # sample exernality type for not invented here bias, and a country in case the type is spatial
+        # sample exernality type for not invented here syndrome, and a country in case the type is spatial
         sampled_values = {"externality":[random.choice(custom_values["externality"]) for _ in range(num_instances)]}
         sampled_values["externality"] = [[externality, random.choice(custom_values["country"])] if externality == "spatial" else [externality] for externality in sampled_values["externality"]]
 
         return sampled_values
 
     def generate(
-        self, model: LLM, scenario: str, custom_values: dict = {}, step: int = 0, temperature: float = 0.0, seed: int = 42
+        self,
+        model: LLM,
+        scenario: str,
+        custom_values: dict = {},
+        temperature: float = 0.0,
+        seed: int = 42,
     ) -> TestCase:
         
         # Load the control and treatment templates
@@ -48,22 +53,24 @@ class NotInventedHereTestGenerator(TestGenerator):
         treatment: Template = self.config.get_treatment_template()
 
         # Get type of knowledge externality
-        externality = custom_values["externality"][step][0]
+        externality = custom_values["externality"][0]
             
         # Insert the externality statement into the templates
         if externality == "organizational":
-            treatment.insert("externality_statement", "[[Short statement that this was proposed by an employee of an external organization. Do not indicate their level of experience or expertise.]]", origin='user')
+            treatment.insert("externality_statement", "[[A short statement that this was proposed by an employee of an external organization. Do not indicate their level of experience or expertise.]].", origin='user')
             
         elif externality == "contextual":
-            treatment.insert("externality_statement", "[[Short statement that this was proposed by a colleague with a different disciplinary background. Do not indicate their level of experience or expertise.]]", origin='user')
+            treatment.insert("externality_statement", "[[A short statement that this was proposed by a colleague with a different disciplinary background. Do not indicate their level of experience or expertise.]].", origin='user')
 
         elif externality == "spatial":
-            country = custom_values["externality"][step][1]
-            treatment.insert("externality_statement", f"[[Short statement that this was proposed by a colleague from {country}. Do not indicate their level of experience or expertise.]]", origin='user')
+            country = custom_values["externality"][1]
+            treatment.insert("externality_statement", f"[[A short statement that this was proposed by a colleague from {country}. Do not indicate their level of experience or expertise.]].", origin='user')
 
 
         # Populate the templates using the model and the scenario
-        control, treatment = super().populate(model, control, treatment, scenario, temperature, seed)
+        control, treatment = super().populate(
+            model, control, treatment, scenario, temperature, seed
+        )
 
         # Create a test case object
         test_case = TestCase(
@@ -75,7 +82,7 @@ class NotInventedHereTestGenerator(TestGenerator):
             seed=seed,
             scenario=scenario,
             variant=None,
-            remarks=None,
+            remarks={"externality": custom_values["externality"][0]}
         )
 
         return test_case
@@ -97,3 +104,4 @@ class NotInventedHereMetric(RatioScaleMetric):
 
     def __init__(self, test_results: list[tuple[TestCase, DecisionResult]]):
         super().__init__(test_results)
+        self.k = -1
