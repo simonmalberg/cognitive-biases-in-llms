@@ -46,7 +46,7 @@ class RiskCompensationTestGenerator(TestGenerator):
 
             # Sample posteriors lower and higher than prior
             min, max, step = custom_values["risk_reduction"]
-            risk_reduction = random.choice(np.arange(int(min), int(initial_risk)-10, int(step)))
+            risk_reduction = random.choice(np.arange(int(min), int(initial_risk)-10+1, int(step)))
             sampled_values["risk_reduction"].append(risk_reduction)
 
         return sampled_values
