@@ -1,6 +1,7 @@
-from base import TestGenerator, LLM, Metric
+from base import TestGenerator, LLM, RatioScaleMetric
 from tests import TestCase, Template, TestConfig, DecisionResult
 import numpy as np
+import random
 
 
 class RiskCompensationTestGenerator(TestGenerator):
@@ -16,34 +17,57 @@ class RiskCompensationTestGenerator(TestGenerator):
         self.BIAS: str = "Risk Compensation"
         self.config: TestConfig = super().load_config(self.BIAS)
 
-    def generate_all(self, model: LLM, scenarios: list[str], seed: int = 42) -> list[TestCase]:
-        # Load the custom values from the test config
-        custom_values = self.config.get_custom_values()   # TODO: Remove this line if custom values are not needed
 
-        # Create test cases for all scenarios
-        test_cases: list[TestCase] = []
-        for scenario in scenarios:
-            try:
-                test_case = self.generate(model, scenario, custom_values, seed)
-                test_cases.append(test_case)
-            except Exception as e:
-                print(f"Generating the test case failed.\nScenario: {scenario}\nSeed: {seed}")
-                print(e)
+    def sample_custom_values(self, num_instances: int, iteration_seed: int) -> dict:
+        """
+        Sample custom values for the test case generation.
 
-        return test_cases
+        Args:
+            num_instances (int): The number of instances expected to be generated for each scenario.
+            iteration_seed (int): The seed to use for sampling the custom values.
 
-    def generate(self, model: LLM, scenario: str, config_values: dict = {}, seed: int = 42) -> TestCase:
+        Returns:
+            dict: A dictionary containing the sampled custom values.
+        """
+        sampled_values = {}
+        np.random.seed(iteration_seed)
+        # load the custom values for this test
+        custom_values = self.config.get_custom_values()
+        # randomly sample each custom value 'num_instances' number of times
+
+        sampled_values = {"initial_risk":[], "risk_reduction":[]}
+
+        for _ in range(num_instances):
+        
+            # Sample prior confidence in course of action
+            min, max, step = custom_values["initial_risk"]
+            initial_risk = random.choice(np.arange(int(min), int(max)+1, int(step)))
+            sampled_values["initial_risk"].append(initial_risk)
+
+            # Sample posteriors lower and higher than prior
+            min, max, step = custom_values["risk_reduction"]
+            risk_reduction = random.choice(np.arange(int(min), int(initial_risk)-10, int(step)))
+            sampled_values["risk_reduction"].append(risk_reduction)
+
+        return sampled_values
+    
+
+    def generate(
+        self,
+        model: LLM,
+        scenario: str,
+        custom_values: dict = {},
+        temperature: float = 0.0,
+        seed: int = 42,
+    ) -> TestCase:
+        
+        # retrieve the custom values
+        initial_risk = custom_values["initial_risk"]
+        risk_reduction = custom_values["risk_reduction"]
+
         # Load the control and treatment templates
         control: Template = self.config.get_control_template()      
         treatment: Template = self.config.get_treatment_template()  
-
-        # Sample prior confidence in course of action
-        min, max, step = config_values["initial_risk"]
-        initial_risk = np.random.choice(np.arange(int(min), int(max)+1, int(step)), size=1)[0]
-
-        # Sample posteriors lower and higher than prior
-        min, max, step = config_values["risk_reduction"]
-        risk_reduction = np.random.choice(np.arange(int(min), int(initial_risk)-10, int(step)), size=1)[0]
 
         # Insert the sampled values into the control template
         control.insert('initial_risk', str(initial_risk)+"%", origin='user')
@@ -53,7 +77,9 @@ class RiskCompensationTestGenerator(TestGenerator):
         treatment.insert('risk_reduction', str(risk_reduction)+"%", origin='user')
 
         # Populate the templates using the model and the scenario
-        control, treatment = super().populate(model, control, treatment, scenario)
+        control, treatment = super().populate(
+            model, control, treatment, scenario, temperature, seed
+        )
 
         # Create a test case object
         test_case = TestCase(
@@ -61,25 +87,31 @@ class RiskCompensationTestGenerator(TestGenerator):
             control=control,
             treatment=treatment,
             generator=model.NAME,
+            temperature=temperature,
+            seed=seed,
             scenario=scenario,
-            control_values=None,
-            treatment_values=None,
             variant=None,
-            remarks=None
+            remarks=None,
         )
+
 
         return test_case
 
 
-class RiskCompensationMetric(Metric):
+class RiskCompensationMetric(RatioScaleMetric):
+    """
+    A class that describes the quantitative evaluation of Risk Compensation in a model.
 
-    def __init__(self):
-        pass
+    Metric:
+    𝔅(â₁, â₂) = (â₁ - â₂) / max(â₁, â₂) ∈ [-1, 1]
 
-    def _compute(self, test_result: tuple[TestCase, DecisionResult]) -> float:
-        
-        pass
+    where:
+    â₁, â₂ are the chosen answers for the treatment and control versions, respectively;
 
-    def compute(self, test_results: list[tuple[TestCase, DecisionResult]]) -> float:
-        
-        pass
+    Attributes:
+        test_results (list[tuple[TestCase, DecisionResult]]): A list of test results to be used for the metric calculation.
+    """
+
+    def __init__(self, test_results: list[tuple[TestCase, DecisionResult]]):
+        super().__init__(test_results)
+        self.k = -1
