@@ -44,7 +44,7 @@ def check_manually(path_to_dataset_folder: str, biases: list[str], n: int = 10, 
 if __name__ == '__main__':
     
     check_manually(path_to_dataset_folder='datasets',
-                   # please, write the bias with a whitespace between words
-                   biases=['Bandwagon Effect'],
-                   n=1,
+                   # please, write the bias with a whitespace between words: e.g., 'Bandwagon Effect' instead of 'BandwagonEffect'
+                   biases=['Anchoring'],
+                   n=10,
                    seed=0)

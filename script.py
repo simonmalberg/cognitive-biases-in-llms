@@ -215,9 +215,9 @@ if __name__ == "__main__":
     model = "GPT-4o"
 
     generate_dataset(
-        biases=["BandwagonEffect"],
+        biases=["Anchoring"],
         population_model=model,
-        scenarios=scenarios[:2],
+        scenarios=scenarios,
         temperature=0.7,
         num_instances=5,
         max_retries=5,
