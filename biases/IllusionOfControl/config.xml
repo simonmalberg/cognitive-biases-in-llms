@@ -8,8 +8,8 @@
     </custom_values>
     <variant name="default">
         <template type="control">
-            <situation>Suppose you are a [[type]] manager at [[organization]].</situation>
-            <situation>In your role, you supervise [[regular business activity under your supervision]].</situation>
+            <situation>Suppose you are [[a/an]] [[type]] manager at [[organization]].</situation>
+            <situation>They recently hired you to supervise [[regular business activity under your supervision]].</situation>
 
             <prompt>What share of [[final reference to the business activity]] are typically successful in your industry when supervised by other [[type]] managers?</prompt>
             <option>0%</option>
@@ -25,7 +25,7 @@
             <option>100%</option>
         </template>
         <template type="treatment">
-            <situation>Suppose you are a [[type]] manager at [[organization]].</situation>
+            <situation>Suppose you are [[a/an]] [[type]] manager at [[organization]].</situation>
             <situation>They recently hired you to supervise [[regular business activity under your supervision]].</situation>
 
             <situation>{{treatment_variant}}</situation>

@@ -48,7 +48,7 @@ class IllusionOfControlTestGenerator(TestGenerator):
         treatment: Template = self.config.get_treatment_template()
 
         # Apply the chosen treatment variant
-        treatment.insert("treatment_variant", custom_values["treatment_variant"])
+        treatment.insert("treatment_variant", custom_values["treatment_variant"], origin='user', trim_full_stop=False)
 
         # Populate the templates using the model and the scenario
         control, treatment = super().populate(model, control, treatment, scenario)
@@ -61,8 +61,9 @@ class IllusionOfControlTestGenerator(TestGenerator):
             generator=model.NAME,
             temperature=temperature,
             seed=seed,
-            variant=custom_values["treatment_variant"],
-            scenario=scenario
+            scenario=scenario,
+            variant=None,
+            remarks={"treatment_variant": custom_values["treatment_variant"]}
         )
 
         return test_case
