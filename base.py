@@ -311,11 +311,11 @@ class TestGenerator(ABC):
                         test_case = None
                         iteration_seed += 1
                         print(
-                                f"Warning: Generating the test case failed.\nScenario: {scenario}\nIteration seed: {iteration_seed}\nError: {e}\nRetrying..."
+                                f"\nWarning: Generating the test case failed.\nScenario: {scenario}\nIteration seed: {iteration_seed}\nError: {e}\nRetrying...\n"
                             )
                 # checking whether the generation is successful in the end. Otherwise, notify the user
                 if test_case is None:
-                    print(f"Max retries of {max_retries} reached for bias {self.BIAS}, scenario {scenario}.\nSkipping...")
+                    print(f"\nMax retries of {max_retries} reached for bias {self.BIAS}, scenario {scenario}.\nSkipping...\n")
                 test_cases.append(test_case)
                 
         return test_cases
