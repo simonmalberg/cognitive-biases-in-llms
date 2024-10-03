@@ -5,35 +5,52 @@
         <value name='step'>5</value>
     </custom_values>
     <custom_values name="posterior_high">
-        <value name='min'>prior</value>
+        <value name='min'>prior+5</value>
         <value name='max'>95</value>
         <value name='step'>5</value>
     </custom_values>
-    <custom_values name="posterior_low">
+    <custom_values name="control_posterior_low">
+        <value name='min'>5</value>
+        <value name='max'>45</value>
+        <value name='step'>5</value>
+    </custom_values>
+    <custom_values name="treatment_posterior_low">
         <value name='min'>55</value>
         <value name='max'>prior</value>
         <value name='step'>5</value>
     </custom_values>
     <variant name="default">
+        <template type="control">
+            <situation>Suppose you are [[a/an]] [[type]] manager at [[organization]].</situation>
+            <situation>[[Description that a one-time event occurred that needs to be handled by the organization.]].</situation>
+            <situation>You are {{prior}} certain that [[a short description of a concrete course of action]] is the best course of action.</situation>
+            <situation>You could [[description of an inquiry that could increase or decrease confidence in the course of action]].</situation>
+            <situation>This could increase your confidence in [[mention of the course of action]] to {{posterior_high}} or decrease it to {{control_posterior_low}}.</situation>
+            <situation>Whether you [[short mention of the inquiry]] or not, you will always choose the course of action that is most likely to succeed.</situation>
+            <prompt>[[Ask to rate the value of the described inquiry.]]? [[In one sentence, state that 'Not at all valuable' means that this has no value for deciding on the above-mentioned course of action.]].</prompt>
+            <option>Not at all valuable</option>
+            <option>Slightly valuable</option>
+            <option>Moderately valuable</option>
+            <option>Neutral</option>
+            <option>Fairly valuable</option>
+            <option>Highly valuable</option>
+            <option>Exceptionally valuable</option>
+        </template>
         <template type="treatment">
-            <situation>Suppose you are a [[type]] manager at [[organization]].</situation>
-            <situation>[[Description that onetime event occured that needs to be handled by the company.]]</situation>
-            <situation>You are {{prior}} certain that [[A short description of a concrete course of action.]] is the best course of action.</situation>
-            <situation>You could [[Description of an inquiry that could increase or decrease confidence on the course of action]].</situation>
-            <situation>This could increase your confidence in [[mention of the course of action]] to {{posterior_high}} or decrease it to {{posterior_low}}.</situation>
-            <situation>Whether you [[Short mention of the inquiry]] or not, you will always choose the course of action which is most likely to succeed.</situation>         
-            <prompt>[[Ask to rate the value of the described inquiry on a scale from 0 to 100.]] [[In one sentence state that 0 would mean that this has no value for making the decision.]]</prompt>
-            <option>0</option>
-            <option>10</option>
-            <option>20</option>
-            <option>30</option>
-            <option>40</option>
-            <option>50</option>
-            <option>60</option>
-            <option>70</option>
-            <option>80</option>
-            <option>90</option>
-            <option>100</option>
-    </template>
+            <situation>Suppose you are [[a/an]] [[type]] manager at [[organization]].</situation>
+            <situation>[[Description that a one-time event occurred that needs to be handled by the organization.]].</situation>
+            <situation>You are {{prior}} certain that [[a short description of a concrete course of action]] is the best course of action.</situation>
+            <situation>You could [[description of an inquiry that could increase or decrease confidence in the course of action]].</situation>
+            <situation>This could increase your confidence in [[mention of the course of action]] to {{posterior_high}} or decrease it to {{treatment_posterior_low}}.</situation>
+            <situation>Whether you [[short mention of the inquiry]] or not, you will always choose the course of action that is most likely to succeed.</situation>
+            <prompt>[[Ask to rate the value of the described inquiry.]]? [[In one sentence, state that 'Not at all valuable' means that this has no value for deciding on the above-mentioned course of action.]].</prompt>
+            <option>Not at all valuable</option>
+            <option>Slightly valuable</option>
+            <option>Moderately valuable</option>
+            <option>Neutral</option>
+            <option>Fairly valuable</option>
+            <option>Highly valuable</option>
+            <option>Exceptionally valuable</option>
+        </template>
     </variant>
 </config>
