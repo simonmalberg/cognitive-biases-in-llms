@@ -1,38 +1,32 @@
 <config bias="Anthropomorphism">
-    <custom_values name="reasons">
-        <value>[[Give a first interpretation of the decision as if made by a human, not a machine (using only human traits)]]</value>
-        <value>[[Give a first interpretation of the decision as if made by a machine, not a human (using only inanimate, machine traits)]]</value>
-    </custom_values>
     <variant name="default">
         <template type="control">
-            <situation>Suppose you are a [[type]] manager at [[organization]].</situation>
-            <situation>Your personal human assistant [[Describe a decision made by an assistant in your organization]].</situation>
-            <situation>You are presented with two possible reasons for the human assistant's action.</situation>
-            <situation>Reason A: {{reason}}.</situation>
-            <situation>Reason B: {{other_reason}}.</situation>
-            <prompt>Which of these reasons best explains the human assistant's action?</prompt>
-            <option>Very likely reason A</option>
-            <option>Likely reason A</option>
-            <option>Somewhat likely reason A</option>
-            <option>Equally likely reason A and reason B</option>
-            <option>Somewhat likely reason B</option>
-            <option>Likely reason B</option>
-            <option>Very likely reason B</option>
+            <situation>Suppose you are [[a/an]] [[type]] manager at [[organization]].</situation>
+            <situation>Recently, you [[came across, read, etc.]] [[debatable, controversial, scandalous article, editorial opinion, etc.]] about [[topic relevant for you job]].</situation>
+            <situation>This [[debatable, controversial, scandalous article, editorial opinion, etc.]] is written by a human author.</situation>
+            <situation>The excerpt from [[this article, editorial opinion, etc.]] is as follows: [[Directly quote a paragraph from this debatable, controversial, scandalous article, editorial opinion, etc.. Give a direct quote in quotation marks.]].</situation>
+            <prompt>How would you evaluate the accuracy, authenticity, and believability of [[this article, editorial opinion, etc.]]?</prompt>
+            <option>Very good</option>
+            <option>Good</option>
+            <option>Somewhat good</option>
+            <option>Neither good nor bad</option>
+            <option>Somewhat bad</option>
+            <option>Bad</option>
+            <option>Very bad</option>
         </template>
         <template type="treatment">
-            <situation>Suppose you are a [[type]] manager at [[organization]].</situation>
-            <situation>Your personal AI assistant [[Describe a decision made by an assistant in your organization]].</situation>
-            <situation>You are presented with two possible reasons for the AI assistant's action.</situation>
-            <situation>Reason A: {{reason}}.</situation>
-            <situation>Reason B: {{other_reason}}.</situation>
-            <prompt>Which of these reasons best explains the AI assistant's action?</prompt>
-            <option>Very likely reason A</option>
-            <option>Likely reason A</option>
-            <option>Somewhat likely reason A</option>
-            <option>Equally likely reason A and reason B</option>
-            <option>Somewhat likely reason B</option>
-            <option>Likely reason B</option>
-            <option>Very likely reason B</option>
+            <situation>Suppose you are [[a/an]] [[type]] manager at [[organization]].</situation>
+            <situation>Recently, you [[came across, read, etc.]] [[debatable, controversial, scandalous article, editorial opinion, etc.]] about [[topic relevant for you job]].</situation>
+            <situation>This [[debatable, controversial, scandalous article, editorial opinion, etc.]] is written by an AI author.</situation>
+            <situation>The excerpt from [[this article, editorial opinion, etc.]] is as follows: [[Directly quote a paragraph from this debatable, controversial, scandalous article, editorial opinion, etc.. Give a direct quote in quotation marks.]].</situation>
+            <prompt>How would you evaluate the accuracy, authenticity, and believability of [[this article, editorial opinion, etc.]]?</prompt>
+            <option>Very good</option>
+            <option>Good</option>
+            <option>Somewhat good</option>
+            <option>Neither good nor bad</option>
+            <option>Somewhat bad</option>
+            <option>Bad</option>
+            <option>Very bad</option>
         </template>
     </variant>
 </config>
