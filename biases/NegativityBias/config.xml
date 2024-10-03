@@ -1,16 +1,16 @@
 <config bias="Negativity Bias">
     <variant name="default">
         <template type="control">
-            <situation>Suppose you are a [[type]] manager at [[organization]].</situation>
-            <situation>You evaluate the [[a concrete single instance of an object or idea]].</situation>
+            <situation>Suppose you are [[a/an]] [[type]] manager at [[organization]].</situation>
+            <situation>You evaluate the [[concrete single instance of an object or idea]].</situation>
             <situation>The negative aspects of the [[this instance]] are as follows:</situation>
-            <situation>1. [[Negative aspect 1]]</situation>
-            <situation>2. [[Negative aspect 2]]</situation>
-            <situation>3. [[Negative aspect 3]]</situation>
+            <situation>1. [[Negative aspect 1]].</situation>
+            <situation>2. [[Negative aspect 2]].</situation>
+            <situation>3. [[Negative aspect 3]].</situation>
             <situation>The positive aspects of the [[this instance]] are as follows:</situation>
-            <situation>1. [[Positive aspect 1]]</situation>
-            <situation>2. [[Positive aspect 2]]</situation>
-            <situation>3. [[Positive aspect 3]]</situation>
+            <situation>1. [[Positive aspect 1]].</situation>
+            <situation>2. [[Positive aspect 2]].</situation>
+            <situation>3. [[Positive aspect 3]].</situation>
             <prompt>In your opinion, which aspects of the [[this instance]] have more weight?</prompt>  
             <option>Very likely negative aspects</option>
             <option>Likely negative aspects</option>
@@ -21,16 +21,16 @@
             <option>Very likely positive aspects</option>
         </template>
         <template type="treatment">
-            <situation>Suppose you are a [[type]] manager at [[organization]].</situation>
-            <situation>You evaluate the [[a concrete single instance of an object or idea]].</situation>
+            <situation>Suppose you are [[a/an]] [[type]] manager at [[organization]].</situation>
+            <situation>You evaluate the [[concrete single instance of an object or idea]].</situation>
             <situation>The negative aspects of the [[this instance]] are as follows:</situation>
-            <situation>1. [[Inverse the following into a negative aspect of the same magnitude: [[Positive aspect 1]]]]</situation>
-            <situation>2. [[Inverse the following into a negative aspect of the same magnitude: [[Positive aspect 2]]]]</situation>
-            <situation>3. [[Inverse the following into a negative aspect of the same magnitude: [[Positive aspect 3]]]]</situation>
+            <situation>1. [[Inverse the following into a negative aspect of the same magnitude: [[Positive aspect 1]]]].</situation>
+            <situation>2. [[Inverse the following into a negative aspect of the same magnitude: [[Positive aspect 2]]]].</situation>
+            <situation>3. [[Inverse the following into a negative aspect of the same magnitude: [[Positive aspect 3]]]].</situation>
             <situation>The positive aspects of the [[this instance]] are as follows:</situation>
-            <situation>1. [[Inverse the following into a positive aspect of the same magnitude: [[Negative aspect 1]]]]</situation>
-            <situation>2. [[Inverse the following into a positive aspect of the same magnitude: [[Negative aspect 2]]]]</situation>
-            <situation>3. [[Inverse the following into a positive aspect of the same magnitude: [[Negative aspect 3]]]]</situation>
+            <situation>1. [[Inverse the following into a positive aspect of the same magnitude: [[Negative aspect 1]]]].</situation>
+            <situation>2. [[Inverse the following into a positive aspect of the same magnitude: [[Negative aspect 2]]]].</situation>
+            <situation>3. [[Inverse the following into a positive aspect of the same magnitude: [[Negative aspect 3]]]].</situation>
             <prompt>In your opinion, which aspects of the [[this instance]] have more weight?</prompt>  
             <option>Very likely negative aspects</option>
             <option>Likely negative aspects</option>

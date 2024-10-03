@@ -10,19 +10,19 @@
         <value name='max'>100</value>
     </custom_values>
     <custom_values name="control_choice">
-        <value>[[Provide a description of a choice. Do not include any positive or negative consequences or suggestions for potential gains and losses]]. It guarantees a [[personal profit]] of total amount [[{{base_amount}}. Choose amount magnitude (e.g., thousands or millions) and currency accordingly.]].</value>
-        <value>[[Provide a description of another choice. Do not include any positive or negative consequences or suggestions for potential gains and losses]]. It is equally likely to lead to a [[personal profit]] of total amount [[{{lambda_amount}}. Choose amount magnitude (e.g., thousands or millions) and currency accordingly.]] and a [[personal loss]] of total amount [[{{base_amount}}. Choose amount magnitude (e.g., thousands or millions) and currency accordingly.]].</value>
+        <value>[[Provide a description of a choice. Do not include any positive or negative consequences or suggestions for potential gains and losses]]. It guarantees a [[personal profit]] of the total amount [[{{base_amount}}. Choose the amount's magnitude (e.g., thousands or millions) and currency accordingly.]]</value>
+        <value>[[Provide a description of another choice. Do not include any positive or negative consequences or suggestions for potential gains and losses]]. It is equally likely to lead to a [[personal profit]] of the total amount [[{{lambda_amount}}. Choose the amount's magnitude (e.g., thousands or millions) and currency accordingly.]] and a [[personal loss]] of the total amount [[{{base_amount}}. Choose the amount's magnitude (e.g., thousands or millions) and currency accordingly.]]</value>
     </custom_values>
     <custom_values name="treatment_choice">
-        <value>[[Provide a description of another choice. Do not include any positive or negative consequences or suggestions for potential gains and losses]]. It guarantees a [[personal profit]] of total amount [[{{base_amount}}. Choose amount magnitude (e.g., thousands or millions) and currency accordingly.]].</value>
-        <value>[[Provide a description of a choice. Do not include any positive or negative consequences or suggestions for potential gains and losses]]. It is equally likely to lead to a [[personal profit]] of total amount [[{{lambda_amount}}. Choose amount magnitude (e.g., thousands or millions) and currency accordingly.]] and a [[personal loss]] of total amount [[{{base_amount}}. Choose amount magnitude (e.g., thousands or millions) and currency accordingly.]].</value>
+        <value>[[Provide a description of another choice. Do not include any positive or negative consequences or suggestions for potential gains and losses]]. It guarantees a [[personal profit]] of the total amount [[{{base_amount}}. Choose the amount's magnitude (e.g., thousands or millions) and currency accordingly.]]</value>
+        <value>[[Provide a description of a choice. Do not include any positive or negative consequences or suggestions for potential gains and losses]]. It is equally likely to lead to a [[personal profit]] of the total amount [[{{lambda_amount}}. Choose the amount's magnitude (e.g., thousands or millions) and currency accordingly.]] and a [[personal loss]] of the total amount [[{{base_amount}}. Choose the amount's magnitude (e.g., thousands or millions) and currency accordingly.]]</value>
     </custom_values>
     <variant name="default">
         <template type="control">
-            <situation>Suppose you are a [[type]] manager at [[organization]].</situation>
+            <situation>Suppose you are [[a/an]] [[type]] manager at [[organization]].</situation>
             <situation>You are presented with two choices.</situation>
-            <situation>Choice A: {{control_choice}}</situation>
-            <situation>Choice B: {{other_control_choice}}</situation>
+            <situation>Choice A: {{control_choice}}.</situation>
+            <situation>Choice B: {{other_control_choice}}.</situation>
             <prompt>Which choice would you choose?</prompt>
             <option>Very likely choice A</option>
             <option>Likely choice A</option>
@@ -33,10 +33,10 @@
             <option>Very likely choice B</option>
         </template>
         <template type="treatment">
-            <situation>Suppose you are a [[type]] manager at [[organization]].</situation>
+            <situation>Suppose you are [[a/an]] [[type]] manager at [[organization]].</situation>
             <situation>You are presented with two choices.</situation>
-            <situation>Choice A: {{treatment_choice}}</situation>
-            <situation>Choice B: {{other_treatment_choice}}</situation>
+            <situation>Choice A: {{treatment_choice}}.</situation>
+            <situation>Choice B: {{other_treatment_choice}}.</situation>
             <prompt>Which choice would you choose?</prompt>
             <option>Very likely choice A</option>
             <option>Likely choice A</option>

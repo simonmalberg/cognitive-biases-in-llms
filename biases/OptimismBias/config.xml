@@ -5,9 +5,9 @@
     </custom_values>
     <variant name="default">
         <template type="control">
-            <situation>Suppose you are a [[type]] manager at [[organization]].</situation>
-            <situation>One possible situation that could happen to an organization in your industry is [[a {{event_kind}} unforeseen event]].</situation>
-            <prompt>For an average organization from your industry, how do you estimate the chance of facing such situation?</prompt>
+            <situation>Suppose you are [[a/an]] [[type]] manager at [[organization]].</situation>
+            <situation>One possible situation that could happen to an organization in your industry is [[{{event_kind}} unforeseen event]].</situation>
+            <prompt>For an average organization from your industry, how do you estimate the chance of facing such a situation?</prompt>
             <option>0%</option>
             <option>10%</option>
             <option>20%</option>
@@ -21,9 +21,9 @@
             <option>100%</option>
         </template>
         <template type="treatment">
-            <situation>Suppose you are a [[type]] manager at [[organization]].</situation>
-            <situation>One possible situation that could happen to an organization in your industry is [[a {{event_kind}} unforeseen event]].</situation>
-            <prompt>How do you estimate the chances of personally facing such situation at your organization?</prompt>
+            <situation>Suppose you are [[a/an]] [[type]] manager at [[organization]].</situation>
+            <situation>One possible situation that could happen to an organization in your industry is [[{{event_kind}} unforeseen event]].</situation>
+            <prompt>How do you estimate the chances of personally facing such a situation at your organization?</prompt>
             <option>0%</option>
             <option>10%</option>
             <option>20%</option>

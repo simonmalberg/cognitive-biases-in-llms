@@ -32,11 +32,14 @@ class HaloEffectTestGenerator(TestGenerator):
         # load the custom values for this test
         custom_values = self.config.get_custom_values()
         # randomly sample each custom value 'num_instances' number of times
+        index = np.random.choice(
+                range(len(custom_values["perception"])), size=num_instances
+                )
         # in this case, we are sampling the type of perception
         for key, value in custom_values.items():
             if key == "perception":
                 sampled_values[key] = [
-                    value[n] for n in range(num_instances)
+                    value[index[n]] for n in range(num_instances)
                 ]
         
         return sampled_values

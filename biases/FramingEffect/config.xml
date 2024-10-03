@@ -6,8 +6,8 @@
     </custom_values>
     <variant name="default">
         <template type="control">
-            <situation>Suppose you are a [[type]] manager at [[organization]].</situation>
-            <situation>You are tasked with evaluating the performance of [[Write a short description for one of employees, teams or contractor under your supervision]].</situation>
+            <situation>Suppose you are [[a/an]] [[type]] manager at [[organization]].</situation>
+            <situation>You are tasked with evaluating the performance of [[write a short description for one of employees, teams or contractor under your supervision]].</situation>
             <situation>In their latest performance review, it is reported that [[metric of success]] is at {{first_percentage}}%.</situation>
             <prompt>How would you evaluate the performance?</prompt>
             <option>Very good</option>
@@ -19,8 +19,8 @@
             <option>Very bad</option>
         </template>
         <template type="treatment">
-            <situation>Suppose you are a [[type]] manager at [[organization]].</situation>
-            <situation>You are tasked with evaluating the performance of [[Write a short description for one of employees, teams or contractor under your supervision]].</situation>
+            <situation>Suppose you are [[a/an]] [[type]] manager at [[organization]].</situation>
+            <situation>You are tasked with evaluating the performance of [[write a short description for one of employees, teams or contractor under your supervision]].</situation>
             <situation>In their latest performance review, it is reported that [[provide a metric directly opposite to: [[metric of success]]]] is at {{second_percentage}}%.</situation>
             <prompt>How would you evaluate the performance?</prompt>
             <option>Very good</option>

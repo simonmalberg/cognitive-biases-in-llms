@@ -111,7 +111,7 @@ class LossAversionMetric(RatioScaleMetric):
     𝔅(â₁, â₂) = k ⋅ (â₁ - â₂) / max(â₁, â₂) ∈ [-1, 1]
 
     Batch metric:
-    𝔅 = (∑ wᵢ𝔅ᵢ) \ (∑ wᵢ) ∈ [-1, 1]
+    𝔅 = (∑ wᵢ𝔅ᵢ) / (∑ wᵢ) ∈ [-1, 1]
 
     where:
     â₂ is the chosen answer for the i-th test;
