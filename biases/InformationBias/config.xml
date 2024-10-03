@@ -1,56 +1,32 @@
 <config bias="Information Bias">
-    <custom_values name="prior">
-        <value name='min'>60</value>
-        <value name='max'>90</value>
-        <value name='step'>5</value>
-    </custom_values>
-    <custom_values name="posterior_high">
-        <value name='min'>prior+5</value>
-        <value name='max'>95</value>
-        <value name='step'>5</value>
-    </custom_values>
-    <custom_values name="control_posterior_low">
-        <value name='min'>5</value>
-        <value name='max'>45</value>
-        <value name='step'>5</value>
-    </custom_values>
-    <custom_values name="treatment_posterior_low">
-        <value name='min'>55</value>
-        <value name='max'>prior</value>
-        <value name='step'>5</value>
-    </custom_values>
     <variant name="default">
         <template type="control">
             <situation>Suppose you are [[a/an]] [[type]] manager at [[organization]].</situation>
-            <situation>[[Description that a one-time event occurred that needs to be handled by the organization.]].</situation>
-            <situation>You are {{prior}} certain that [[a short description of a concrete course of action]] is the best course of action.</situation>
-            <situation>You could [[description of an inquiry that could increase or decrease confidence in the course of action]].</situation>
-            <situation>This could increase your confidence in [[mention of the course of action]] to {{posterior_high}} or decrease it to {{control_posterior_low}}.</situation>
-            <situation>Whether you [[short mention of the inquiry]] or not, you will always choose the course of action that is most likely to succeed.</situation>
-            <prompt>[[Ask to rate the value of the described inquiry.]]? [[In one sentence, state that 'Not at all valuable' means that this has no value for deciding on the above-mentioned course of action.]].</prompt>
-            <option>Not at all valuable</option>
-            <option>Slightly valuable</option>
-            <option>Moderately valuable</option>
-            <option>Neutral</option>
-            <option>Fairly valuable</option>
-            <option>Highly valuable</option>
-            <option>Exceptionally valuable</option>
+            <situation>You need to decide [[description of a decision]]. [[Description that the best choice in this decision is not obvious, with all available choices having advantages and disadvantages]].</situation>
+            <situation>You are now thinking about [[proceeding with/choosing/etc.]] [[mention one of the possible choices to proceed with]].</situation>
+            
+            <prompt>How confident do you feel about [[proceeding with this choice]]?</prompt>
+            <option>I certainly want to proceed</option>
+            <option>I want to proceed</option>
+            <option>I likely want to proceed</option>
+            <option>I am indifferent between proceeding or not proceeding</option>
+            <option>I likely don't want to proceed</option>
+            <option>I don't want to proceed</option>
+            <option>I certainly don't want to proceed</option>
         </template>
         <template type="treatment">
             <situation>Suppose you are [[a/an]] [[type]] manager at [[organization]].</situation>
-            <situation>[[Description that a one-time event occurred that needs to be handled by the organization.]].</situation>
-            <situation>You are {{prior}} certain that [[a short description of a concrete course of action]] is the best course of action.</situation>
-            <situation>You could [[description of an inquiry that could increase or decrease confidence in the course of action]].</situation>
-            <situation>This could increase your confidence in [[mention of the course of action]] to {{posterior_high}} or decrease it to {{treatment_posterior_low}}.</situation>
-            <situation>Whether you [[short mention of the inquiry]] or not, you will always choose the course of action that is most likely to succeed.</situation>
-            <prompt>[[Ask to rate the value of the described inquiry.]]? [[In one sentence, state that 'Not at all valuable' means that this has no value for deciding on the above-mentioned course of action.]].</prompt>
-            <option>Not at all valuable</option>
-            <option>Slightly valuable</option>
-            <option>Moderately valuable</option>
-            <option>Neutral</option>
-            <option>Fairly valuable</option>
-            <option>Highly valuable</option>
-            <option>Exceptionally valuable</option>
+            <situation>You need to decide [[description of a decision]]. [[Description that the best choice in this decision is not obvious, with all available choices having advantages and disadvantages]].</situation>
+            <situation>You are now thinking about [[proceeding with/choosing/etc.]] [[mention one of the possible choices to proceed with]].</situation>
+            
+            <prompt>Do you need any additional information to feel confident enough about [[proceeding with this choice]]?</prompt>
+            <option>I certainly need additional information</option>
+            <option>I need additional information</option>
+            <option>I likely need additional information</option>
+            <option>I am indifferent between needing or not needing additional information</option>
+            <option>I likely don't need additional information</option>
+            <option>I don't need additional information</option>
+            <option>I certainly don't need additional information</option>
         </template>
     </variant>
 </config>
