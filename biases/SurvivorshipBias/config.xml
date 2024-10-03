@@ -5,11 +5,11 @@
     </custom_values>
     <variant name="default">
         <template type="control">
-            <situation>Suppose you are a [[type]] manager at [[organization]].</situation>
-            <situation>You regularly [[a decision task that involves evaluating a set of entities and selecting only the good entities while dismissing the bad entities]]</situation>
+            <situation>Suppose you are [[a/an]] [[type]] manager at [[organization]].</situation>
+            <situation>You regularly [[a decision task that involves evaluating a set of entities and selecting only the good entities while dismissing the bad entities]].</situation>
             <situation>In the past, {{survivor_percentage}}% of the [[good entities]] [[were/had]] [[some measurable characteristic of the entities]].</situation>
             <situation>Among the [[bad entities]], {{non_survivor_percentage}}% [[were/had]] [[some measurable characteristic of the entities]].</situation>
-            <prompt>[[Question to the manager how important he/she thinks the characteristic is, relative to other characteristics, for identifying the good entities among all entities]]</prompt>
+            <prompt>[[Question to the manager how important he/she thinks the characteristic is, relative to other characteristics, for identifying the good entities among all entities]]?</prompt>
             <option>Very important</option>
             <option>Important</option>
             <option>Somewhat important</option>
@@ -19,10 +19,10 @@
             <option>Very unimportant</option>
         </template>
         <template type="treatment">
-            <situation>Suppose you are a [[type]] manager at [[organization]].</situation>
-            <situation>You regularly [[a decision task that involves evaluating a set of entities and selecting only the good entities while dismissing the bad entities]]</situation>
+            <situation>Suppose you are [[a/an]] [[type]] manager at [[organization]].</situation>
+            <situation>You regularly [[a decision task that involves evaluating a set of entities and selecting only the good entities while dismissing the bad entities]].</situation>
             <situation>In the past, {{survivor_percentage}}% of the [[good entities]] [[were/had]] [[some measurable characteristic of the entities]].</situation>
-            <prompt>[[Question to the manager how important he/she thinks the characteristic is, relative to other characteristics, for identifying the good entities among all entities]]</prompt>
+            <prompt>[[Question to the manager how important he/she thinks the characteristic is, relative to other characteristics, for identifying the good entities among all entities]]?</prompt>
             <option>Very important</option>
             <option>Important</option>
             <option>Somewhat important</option>
