@@ -5,8 +5,8 @@
     </custom_values>
     <variant name="default">
         <template type="control">
-            <situation>Suppose you are a [[type]] manager at [[organization]].</situation>
-            <situation>You regularly decide whether to [[hold/keep/maintain]] or [[sell/dispose/stop]] [[some kind of assets]] which fluctuate in [[some kind of value]].</situation>
+            <situation>Suppose you are [[a/an]] [[type]] manager at [[organization]].</situation>
+            <situation>You regularly decide whether to [[hold/keep/maintain]] or [[sell/dispose/stop]] [[some kind of assets]], which fluctuate in [[some kind of value]].</situation>
 
             <situation>Currently, you are [[holding/keeping/maintaining]] the following two [[some kind of assets]], which you previously [[purchased/acquired/started]] for [[large number of resources, e.g., money]]:</situation>
             <situation>- '[[Concrete asset A]]' recently gained {{increase}}% in [[some kind of value]].</situation>
@@ -22,8 +22,8 @@
             <option>Very likely [[sell/dispose/stop]] [[reference to asset B]] and [[hold/keep/maintain]] [[reference to asset A]]</option>
         </template>
         <template type="treatment">
-            <situation>Suppose you are a [[type]] manager at [[organization]].</situation>
-            <situation>You regularly decide whether to [[hold/keep/maintain]] or [[sell/dispose/stop]] [[some kind of assets]] which fluctuate in [[some kind of value]].</situation>
+            <situation>Suppose you are [[a/an]] [[type]] manager at [[organization]].</situation>
+            <situation>You regularly decide whether to [[hold/keep/maintain]] or [[sell/dispose/stop]] [[some kind of assets]], which fluctuate in [[some kind of value]].</situation>
             
             <situation>Currently, you are [[holding/keeping/maintaining]] the following two [[some kind of assets]], which you previously [[purchased/acquired/started]] for [[large number of resources, e.g., money]]:</situation>
             <situation>- '[[Concrete asset B]]' recently gained {{increase}}% in [[some kind of value]].</situation>
