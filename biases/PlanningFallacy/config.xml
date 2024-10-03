@@ -1,13 +1,13 @@
 <config bias="Planning Fallacy">
     <custom_values name="estimation_update">
         <value name='distribution'>randint</value>
-        <value name='min'>10</value>
-        <value name='max'>50</value>
+        <value name='min'>1</value>
+        <value name='max'>5</value>
     </custom_values>
     <variant name="default">
         <template type="control">
             <situation>Suppose you are [[a/an]] [[type]] manager at [[organization]].</situation>
-            <situation>You [[were assigned, given a task or project]] [[description of a concrete project that needs to be implemented]].</situation>
+            <situation>You [[description of a concrete project you were assigned to/given that needs to be implemented]].</situation>
             <prompt>In your estimation, which percent of your time will it require to complete this project in time?</prompt>
             <option>0%</option>
             <option>10%</option>
@@ -23,8 +23,8 @@
         </template>
         <template type="treatment">
             <situation>Suppose you are [[a/an]] [[type]] manager at [[organization]].</situation>
-            <situation>You [[were assigned, given a task or project]] [[description of a concrete project that needs to be implemented]].</situation>
-            <situation>Recently, similar [[tasks or projects]] in other organizations [[provide explicit explanation that the tasks required {{estimation_update}}% more time]].</situation>
+            <situation>You [[description of a concrete project you were assigned to/given that needs to be implemented]].</situation>
+            <situation>Recently, similar [[tasks or projects]] in other organizations [[provide explicit explanation that the tasks/projects required {{estimation_update}}% more time than initially planned]].</situation>
             <prompt>In your estimation, which percent of your time will it require to complete this project in time?</prompt>
             <option>0%</option>
             <option>10%</option>

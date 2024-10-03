@@ -32,7 +32,7 @@ class PlanningFallacyTestGenerator(TestGenerator):
         custom_values = self.config.get_custom_values()
         for key, value in custom_values.items():
             if key == "estimation_update":
-                sampled_values[key] = getattr(np.random, value[0])(
+                sampled_values[key] = 10 * getattr(np.random, value[0])(
                     int(value[1]), int(value[2]), size=num_instances
                 )
         
@@ -90,7 +90,7 @@ class PlanningFallacyMetric(RatioScaleMetric):
     """
     def __init__(self, test_results: list[tuple[TestCase, DecisionResult]]):
         super().__init__(test_results)
-        # extract the options closest to the estimation updates' values and set them as the parameter x_1.
+        # extract the estimation updates' values and set them as the parameter x_1.
         self.x_1 = [
             [
                 insertion.text
@@ -100,9 +100,8 @@ class PlanningFallacyMetric(RatioScaleMetric):
             for (test_case, _) in test_results
         ]
         self.x_1 = np.array(
-            [[round(int(x[0]) / 10)] for x in self.x_1]
+            [[int(x[0]) // 10] for x in self.x_1]
         )
         # account for the sign of the parameter x_1 in the metric
         self.x_1 = -self.x_1
         self.k = 1
-        print(self.x_1)
