@@ -41,7 +41,7 @@
             <situation>Suppose you are [[a/an]] [[type]] manager at [[organization]].</situation>
             <situation>You have to make a decision [[complete the sentence with a description of a business decision with multiple proposals]].</situation>
             <situation>[[One sentence describing a proposal.]].</situation>
-            <situation>{{externality_statement}}</situation>
+            <situation>{{externality_statement}}.</situation>
             <prompt>How would you evaluate this proposal?</prompt>
             <option>Very good</option>
             <option>Good</option>
