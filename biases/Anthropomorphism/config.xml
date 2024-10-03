@@ -12,7 +12,7 @@
             <option>Somewhat high</option>
             <option>Neither high nor low</option>
             <option>Somewhat low</option>
-            <option>low</option>
+            <option>Low</option>
             <option>Very low</option>
         </template>
         <template type="treatment">
@@ -27,7 +27,7 @@
             <option>Somewhat high</option>
             <option>Neither high nor low</option>
             <option>Somewhat low</option>
-            <option>low</option>
+            <option>Low</option>
             <option>Very low</option>
         </template>
     </variant>
