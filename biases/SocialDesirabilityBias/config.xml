@@ -1,6 +1,6 @@
 <config bias="Social Desirability Bias">
     <custom_values name="statements">
-        <!-- Statements stem from the Marlowe-Crowne Social Desirability Scale (M-C SDS). Statements about emotions, thoughts or real-world interactions that do not apply to LLMs were removed. -->
+        <!-- Statements stem from the Marlowe-Crowne Social Desirability Scale (M-C SDS). Statements about emotions, thoughts, or real-world interactions that do not apply to LLMs were removed. -->
         <value>Before voting I thoroughly investigate the qualifications of all the candidates. (T)</value>
         <value>I never hesitate to go out of my way to help someone in trouble. (T)</value>
         <!-- <value>It is sometimes hard for me to go on with my work if I am not encouraged. (F)</value> -->
@@ -37,7 +37,7 @@
     </custom_values>
     <variant name="default">
         <template type="control">
-            <situation>Suppose you are a [[type]] manager at [[organization]].</situation>
+            <situation>Suppose you are [[a/an]] [[type]] manager at [[organization]].</situation>
             <situation>[[Reference to the organization]] has asked you to participate in [[describe a setting/medium where you will give fully anonymous answers to a number of questions or statements]] about [[some topic related to your work and to the following statement: '{{statement}}']].</situation>
             <situation>[[Again, highlight that all answers will be treated fully anonymously and cannot be traced back to you]].</situation>
 
@@ -54,7 +54,7 @@
             <option>Very false of me</option>
         </template>
         <template type="treatment">
-            <situation>Suppose you are a [[type]] manager at [[organization]].</situation>
+            <situation>Suppose you are [[a/an]] [[type]] manager at [[organization]].</situation>
             <situation>[[Reference to the organization]] has asked you to participate in [[describe a setting/medium where you will give public answers to a number of questions or statements]] about [[some topic related to your work and to the following statement: '{{statement}}']].</situation>
             <situation>[[Again, highlight that all answers will be public and can potentially be seen by all other members of the organization and traced back to you]].</situation>
 
