@@ -93,8 +93,8 @@ class HindsightBiasMetric(RatioScaleMetric):
     
     def __init__(self, test_results: list[tuple[TestCase, DecisionResult]]):
         super().__init__(test_results)
-        # extract the options closest to the ground truth values
-        self.x = [
+        # extract the options closest to the ground truth values and set them as parameters x_1 and x_2.
+        self.x_1 = [
             [
                 insertion.text
                 for insertion in test_case.TREATMENT.get_insertions()
@@ -102,7 +102,8 @@ class HindsightBiasMetric(RatioScaleMetric):
             ]
             for (test_case, _) in test_results
         ]
-        self.x = np.array(
-            [[round(int(x[0]) / 10) + 5] for x in self.x]
+        self.x_1 = np.array(
+            [[round(int(x[0]) / 10) + 5] for x in self.x_1]
         )
+        self.x_2 = self.x_1
         self.k = 1

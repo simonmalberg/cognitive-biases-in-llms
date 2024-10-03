@@ -403,26 +403,28 @@ class RatioScaleMetric:
     """
     A metric that measures the presence and strength of a cognitive bias test equipped with a ratio scale.
     
-    𝔅(â₁,â₂,x) = k ⋅ Δ(|Δ[â₁,x]|, |Δ[â₂,x]|) / max(|Δ[â1,x]|, |Δ[â₂,x]|) 
+    𝔅(â₁,â₂,x₁,x₂) = k ⋅ Δ(|Δ[â₁,x₁]|, |Δ[â₂,x₂]|) / max(|Δ[â₁,x₁]|, |Δ[â₂,x₂]|) 
     
     where: 
     - â₁ and â₂ are the control and treatment answers, respectively
-    - x is the test parameter (e.g., present in the Anchoring test and Hindsight Bias test)
+    - x₁ and x₂ are the test parameters (e.g., present in the Anchoring test and Hindsight Bias test)
     - k := ±1 (a constant factor)
     - Δ[â,x] := â - x
     
     Attributes:
         test_results (list[tuple[TestCase, DecisionResult]]): A list of test results to be used for the metric calculation.
         k (np.array): The constant factor for the metric calculation.
-        x (np.array): The test parameter.
+        x_1 (np.array): The first test parameter x₁.
+        x_2 (np.array): The second test parameter x₂.
         test_weights (np.array): The array of weights for the individual tests. Required for the metric aggregation.
         flip_control (bool): Whether to flip the control answer w.r.t. the centre of the scale.
         flip_treatment (bool): Whether to flip the treatment answer w.r.t. the centre of the scale.
     """
-    def __init__(self, test_results: list[tuple[TestCase, DecisionResult]], k: np.array = np.array([-1]), x: np.array = np.array([0]), test_weights: np.array = np.array([1]), flip_control: bool = False, flip_treatment: bool = False):
+    def __init__(self, test_results: list[tuple[TestCase, DecisionResult]], k: np.array = np.array([-1]), x_1: np.array = np.array([0]), x_2: np.array = np.array([0]), test_weights: np.array = np.array([1]), flip_control: bool = False, flip_treatment: bool = False):
         self.test_results = test_results
         self.k = k
-        self.x = x
+        self.x_1 = x_1
+        self.x_2 = x_2
         self.test_weights = np.repeat(test_weights, len(test_results))[:, None]
         self.flip_control = flip_control
         self.flip_treatment = flip_treatment
@@ -439,7 +441,7 @@ class RatioScaleMetric:
         Returns:
             np.array: The metric value for each test case.
         """
-        delta_control_abs, delta_treatment_abs = np.abs(control_answer - self.x), np.abs(treatment_answer - self.x)
+        delta_control_abs, delta_treatment_abs = np.abs(control_answer - self.x_1), np.abs(treatment_answer - self.x_2)
         metric_value = self.k * (delta_control_abs - delta_treatment_abs) / (np.maximum(delta_control_abs, delta_treatment_abs) + 1e-8)
         
         return metric_value

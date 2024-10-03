@@ -92,8 +92,8 @@ class AnchoringMetric(RatioScaleMetric):
         super().__init__(test_results)
         # set the coefficient in the metric
         self.k = 1
-        # set the anchor values as the parameter x in the metric
-        self.x = [
+        # set the anchor values as the parameters x_1 and x_2 in the metric
+        self.x_1 = [
                 [
                     insertion.text
                     for insertion in test_case.TREATMENT.get_insertions()
@@ -101,4 +101,5 @@ class AnchoringMetric(RatioScaleMetric):
                 ]
                 for (test_case, _) in self.test_results
             ]
-        self.x = np.array([[round(int(anchor[0]) / 10)] for anchor in self.x])
+        self.x_1 = np.array([[round(int(anchor[0]) / 10)] for anchor in self.x_1])
+        self.x_2 = self.x_1
