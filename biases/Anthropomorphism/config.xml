@@ -2,11 +2,11 @@
     <variant name="default">
         <template type="control">
             <situation>Suppose you are [[a/an]] [[type]] manager at [[organization]].</situation>
-            <situation>Recently, you [[came across, read, etc.]] [[an/a]] [[debatable, controversial, scandalous article, editorial opinion, etc.]] about [[topic relevant for you job]].</situation>
-            <situation>This [[debatable, controversial, scandalous article, editorial opinion, etc.]] was written by a human author.</situation>
-            <situation>The excerpt from [[this article, editorial opinion, etc.]] is as follows:</situation>
+            <situation>Recently, you [[found, came across or read a debatable, controversial, scandalous article, editorial opinion, etc.]] about [[topic relevant for you job]].</situation>
+            <situation>This [[article, editorial opinion, etc.]] was written by a human author.</situation>
+            <situation>The excerpt from this [[article, editorial opinion, etc.]] is as follows:</situation>
             <situation>"[[Directly quote a paragraph from this debatable, controversial, scandalous article, editorial opinion, etc.. Give a direct quote without quotation marks.]]."</situation>
-            <prompt>How would you evaluate the credibility and accuracy of [[this article, editorial opinion, etc.]]?</prompt>
+            <prompt>How would you evaluate the credibility and accuracy of this [[article, editorial opinion, etc.]]?</prompt>
             <option>Very high</option>
             <option>High</option>
             <option>Somewhat high</option>
@@ -17,11 +17,11 @@
         </template>
         <template type="treatment">
             <situation>Suppose you are [[a/an]] [[type]] manager at [[organization]].</situation>
-            <situation>Recently, you [[came across, read, etc.]] [[an/a]] [[debatable, controversial, scandalous article, editorial opinion, etc.]] about [[topic relevant for you job]].</situation>
-            <situation>This [[debatable, controversial, scandalous article, editorial opinion, etc.]] was written by artificial intelligence.</situation>
-            <situation>The excerpt from [[this article, editorial opinion, etc.]] is as follows:</situation>
+            <situation>Recently, you [[found, came across or read a debatable, controversial, scandalous article, editorial opinion, etc.]] about [[topic relevant for you job]].</situation>
+            <situation>This [[article, editorial opinion, etc.]] was written by artificial intelligence.</situation>
+            <situation>The excerpt from this [[article, editorial opinion, etc.]] is as follows:</situation>
             <situation>"[[Directly quote a paragraph from this debatable, controversial, scandalous article, editorial opinion, etc.. Give a direct quote without quotation marks.]]."</situation>
-            <prompt>How would you evaluate the credibility and accuracy of [[this article, editorial opinion, etc.]]?</prompt>
+            <prompt>How would you evaluate the credibility and accuracy of this [[article, editorial opinion, etc.]]?</prompt>
             <option>Very high</option>
             <option>High</option>
             <option>Somewhat high</option>
