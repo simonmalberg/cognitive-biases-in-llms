@@ -16,7 +16,7 @@
     </custom_values>
     <variant name="default">
         <template type="control">
-            <situation>Suppose you are a [[type]] manager at [[organization]].</situation>
+            <situation>Suppose you are [[a/an]] [[type]] manager at [[organization]].</situation>
             <situation>[[Description of a decision you need to make and how it strongly depends on knowing one certain person well, e.g., a customer, a business partner, a co-worker]].</situation>
             <situation>To make a more informed decision, you first ask yourself [[part of a question about some relevant characteristic of the person (e.g., personality, preferences, appearance, or ability) logically following 'You ask yourself ...']].</situation>
 
@@ -30,7 +30,7 @@
             <option>Very unlikely</option>
         </template>
         <template type="treatment">
-            <situation>Suppose you are a [[type]] manager at [[organization]].</situation>
+            <situation>Suppose you are [[a/an]] [[type]] manager at [[organization]].</situation>
             <situation>[[Description of a decision you need to make and how it strongly depends on knowing one certain person well, e.g., a customer, a business partner, a co-worker]].</situation>
             <situation>You have been told that [[the person]] is {{group}}.</situation>
             <situation>To make a more informed decision, you first ask yourself [[part of a question about some relevant characteristic of the person (e.g., personality, preferences, appearance, or ability) logically following 'You ask yourself ...']].</situation>
