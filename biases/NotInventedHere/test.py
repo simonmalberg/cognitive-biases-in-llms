@@ -57,14 +57,14 @@ class NotInventedHereTestGenerator(TestGenerator):
             
         # Insert the externality statement into the templates
         if externality == "organizational":
-            treatment.insert("externality_statement", "[[A short statement that this was proposed by an employee of an external organization. Do not indicate their level of experience or expertise.]].", origin='user')
+            treatment.insert("externality_statement", "[[A short statement that this was proposed by an employee of an external organization. Do not indicate their level of experience or expertise.]]", origin='user')
             
         elif externality == "contextual":
-            treatment.insert("externality_statement", "[[A short statement that this was proposed by a colleague with a different disciplinary background. Do not indicate their level of experience or expertise.]].", origin='user')
+            treatment.insert("externality_statement", "[[A short statement that this was proposed by a colleague with a different disciplinary background. Do not indicate their level of experience or expertise.]]", origin='user')
 
         elif externality == "spatial":
             country = custom_values["externality"][1]
-            treatment.insert("externality_statement", f"[[A short statement that this was proposed by a colleague from {country}. Do not indicate their level of experience or expertise.]].", origin='user')
+            treatment.insert("externality_statement", f"[[A short statement that this was proposed by a colleague from {country}. Do not indicate their level of experience or expertise.]]", origin='user')
 
 
         # Populate the templates using the model and the scenario
