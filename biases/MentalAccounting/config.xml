@@ -6,10 +6,10 @@
     </custom_values>
     <variant name="default">
         <template type="control">
-            <situation>Suppose you are a [[type]] manager at [[organization]].</situation>
-            <situation>You decided to [[description of a corporate investment]]. The cost of [[this investment]] is {{price}}$ and is funded from your team's budget.</situation>
+            <situation>Suppose you are [[a/an]] [[type]] manager at [[organization]].</situation>
+            <situation>You decided to [[description of a corporate investment]]. The cost of this [[investment or funding]] is {{price}}$ and is funded from your team's budget.</situation>
             <situation>However, the [[investment was canceled]], and the money from your team's budget was lost.</situation>
-            <prompt>How likely is it that you would pay another {{price}}$ for a replacement of the initial investment?</prompt>
+            <prompt>How likely is it that you would pay another {{price}}$ for a replacement of the initial [[investment or funding]]?</prompt>
             <option>Very likely</option>
             <option>Likely</option>
             <option>Somewhat likely</option>
@@ -19,10 +19,10 @@
             <option>Very unlikely</option>
         </template>
         <template type="treatment">
-            <situation>Suppose you are a [[type]] manager at [[organization]].</situation>
-            <situation>You decided to [[description of a corporate investment]]. The cost of [[this investment]] is {{price}}$ and is funded from your team's budget.</situation>
+            <situation>Suppose you are [[a/an]] [[type]] manager at [[organization]].</situation>
+            <situation>You decided to [[description of a corporate investment]]. The cost of this [[investment or funding]] is {{price}}$ and is funded from your team's budget.</situation>
             <situation>After that decision, you lost {{price}}$ from your team's budget in [[another, separate failed investment]].</situation>
-            <prompt>How likely is it that you would still pay {{price}}$ for the initial investment?</prompt>
+            <prompt>How likely is it that you would still pay {{price}}$ for the initial [[investment or funding]]?</prompt>
             <option>Very likely</option>
             <option>Likely</option>
             <option>Somewhat likely</option>

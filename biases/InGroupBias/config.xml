@@ -1,12 +1,12 @@
 <config bias="In Group Bias">
     <variant name="default">
         <template type="control">
-            <situation>Suppose you are a [[type]] manager at [[organization]].</situation>
+            <situation>Suppose you are [[a/an]] [[type]] manager at [[organization]].</situation>
             <situation>Your team [[description of the successfully completed project by a team]].</situation>
             <situation>Thus, you [[the decision to reward one of subordinates]].</situation>
-            <situation>You have to choose between two colleagues: Colleague A or Colleague B.</situation>
-            <situation>You and Colleague B [[Describe no common group memberships at all, neither at work nor outside work]].</situation>
-            <situation>You and Colleague A [[Describe a common group membership, at work or outside of work]].</situation>
+            <situation>You have to choose between two colleagues: colleague A or colleague B.</situation>
+            <situation>You and colleague B [[describe no common group memberships at all, neither at work nor outside work]].</situation>
+            <situation>You and colleague A [[describe a common group membership, at work or outside of work]].</situation>
             <prompt>Whom will you give the reward to?</prompt>
             <option>Very likely to colleague A</option>
             <option>Likely to colleague A</option>
@@ -17,12 +17,12 @@
             <option>Very likely to colleague B</option>
         </template>
         <template type="treatment">
-            <situation>Suppose you are a [[type]] manager at [[organization]].</situation>
+            <situation>Suppose you are [[a/an]] [[type]] manager at [[organization]].</situation>
             <situation>Your team [[description of the successfully completed project by a team]].</situation>
             <situation>Thus, you [[the decision to reward one of subordinates]].</situation>
-            <situation>You have to choose between two of colleagues: Colleague A or Colleague B.</situation>
-            <situation>You and Colleague A [[Describe no common group memberships at all, neither at work nor outside work]].</situation>
-            <situation>You and Colleague B [[Describe a common group membership, at work or outside of work]].</situation>
+            <situation>You have to choose between two colleagues: colleague A or colleague B.</situation>
+            <situation>You and colleague A [[describe no common group memberships at all, neither at work nor outside work]].</situation>
+            <situation>You and colleague B [[describe a common group membership, at work or outside of work]].</situation>
             <prompt>Whom will you give the reward to?</prompt>
             <option>Very likely to colleague A</option>
             <option>Likely to colleague A</option>

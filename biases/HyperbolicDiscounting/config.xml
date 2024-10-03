@@ -24,12 +24,12 @@
     </custom_values>
     <variant name="default">
         <template type="control">
-            <situation>Suppose you are a [[type]] manager at [[organization]].</situation>
+            <situation>Suppose you are [[a/an]] [[type]] manager at [[organization]].</situation>
             <situation>Recently, an unforeseen source of funding has been made available to [[your organization]].</situation>
             <situation>This additional funding is not allocated to your current task but rather to [[your team]] in general.</situation>
             <situation>Two schemes for the funding schedule are available:</situation>
-            <situation>Scheme A: {{control_scheme}}</situation>
-            <situation>Scheme B: {{other_control_scheme}}</situation>
+            <situation>Scheme A: {{control_scheme}}.</situation>
+            <situation>Scheme B: {{other_control_scheme}}.</situation>
             <prompt>Which scheme for the funding schedule do you choose?</prompt>
             <option>Very likely scheme A</option>
             <option>Likely scheme A</option>
@@ -40,12 +40,12 @@
             <option>Very likely scheme B</option>
         </template>
         <template type="treatment">
-            <situation>Suppose you are a [[type]] manager at [[organization]].</situation>
+            <situation>Suppose you are [[a/an]] [[type]] manager at [[organization]].</situation>
             <situation>Recently, an unforeseen source of funding has been made available to [[your organization]].</situation>
             <situation>This additional funding is not allocated to your current task but rather to [[your team]] in general.</situation>
             <situation>Two schemes for the funding schedule are available:</situation>
-            <situation>Scheme A: {{treatment_scheme}}</situation>
-            <situation>Scheme B: {{other_treatment_scheme}}</situation>
+            <situation>Scheme A: {{treatment_scheme}}.</situation>
+            <situation>Scheme B: {{other_treatment_scheme}}.</situation>
             <prompt>Which scheme for the funding schedule do you choose?</prompt>
             <option>Very likely scheme A</option>
             <option>Likely scheme A</option>
