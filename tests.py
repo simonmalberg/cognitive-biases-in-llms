@@ -383,7 +383,7 @@ class Template:
         else:
             return [insertion for insertion in insertions if insertion.origin == origin]
     
-    def format(self, insert_headings: bool = True, show_type: bool = False, drop_user_brackets: bool = True, drop_model_brackets: bool = True, reverse_options: bool = False, shuffle_options: bool = False, seed: int = 42) -> str:
+    def format(self, insert_headings: bool = True, show_type: bool = False, drop_user_brackets: bool = True, drop_model_brackets: bool = True, randomly_flip_options: bool = False, shuffle_options: bool = False, seed: int = 42) -> str:
         """
         Formats the template into a string.
 
@@ -394,7 +394,7 @@ class Template:
             drop_model_brackets (bool): If True, [[ ]] indicating model-made insertions will be removed for every gap with an inserted text.
             reverse_options (bool): If True, answer options will be reversed. If False, answer options will not be reversed.
             shuffle_options (bool): If True, answer options will be shuffled randomly using the provided seed. If False, answer options will not be shuffled.
-            seed (int): The seed used for randomly shuffling answer options. Ignored, if shuffle_options = False and reverse_options = False.
+            seed (int): The seed used for randomly shuffling answer options. Ignored, if shuffle_options = False and randomly_flip_options = False.
 
         Returns:
             str: The formatted string of the template.
@@ -431,18 +431,18 @@ class Template:
         if insert_headings:
             formatted += '\nAnswer Options:\n'
         option_counter = 1
-        for option in self.get_options(reverse_options=reverse_options, shuffle_options=shuffle_options, seed=seed)[0]:
+        for option in self.get_options(randomly_flip_options=randomly_flip_options, shuffle_options=shuffle_options, seed=seed)[0]:
             formatted += format_element(f'Option {option_counter}: {option}', 'option')
             option_counter += 1
 
         return formatted
 
-    def get_options(self, reverse_options: bool = False, shuffle_options: bool = False, apply_insertions: bool = True, seed: int = 42) -> tuple[list[str], list[int]]:
+    def get_options(self, randomly_flip_options: bool = False, shuffle_options: bool = False, apply_insertions: bool = True, seed: int = 42) -> tuple[list[str], list[int]]:
         """
         Gets the answer options defined in this template and offers functionality to randomly shuffle them.
 
         Args:
-            reverse_options (bool): If True, the answer options will be reversed.
+            randomly_flip_options (bool): If True, the answer options will be reversed.
             shuffle_options (bool): If True, the answer options will be randomly shuffled using the provided seed.
             apply_insertions (bool): If True, insertions made into this template will be applied to the answer options.
             seed (int): The seed to used for shuffling the answer options.
@@ -458,9 +458,10 @@ class Template:
         # Create a list of indices for the options with their original position, i.e., [0, 1, 2, ...]
         indices = list(range(len(options)))
 
-        # If requested, reverse the options
-        if reverse_options:
-            indices = indices[::-1]
+        # If requested, reverse the options with probability 0.5
+        if randomly_flip_options:
+            if random.Random(seed).random() < 0.5:
+                indices = indices[::-1]
 
         # If requested, randomly shuffle the options
         if shuffle_options:

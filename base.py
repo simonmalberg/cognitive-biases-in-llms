@@ -39,13 +39,13 @@ class LLM(ABC):
     
     Attributes:
         NAME (str): The name of the model.
-        reverse_answer_options (bool): Whether or not answer options shall be reversed when making a decision.
+        randomly_flip_options (bool): Whether or not answer options shall be reversed when making a decision.
         shuffle_answer_options (bool): Whether or not answer options shall be randomly shuffled when making a decision.
     """
 
-    def __init__(self, reverse_answer_options: bool = False, shuffle_answer_options: bool = False):
+    def __init__(self, randomly_flip_options: bool = False, shuffle_answer_options: bool = False):
         self.NAME = "llm-abstract-base-class"
-        self.reverse_answer_options = reverse_answer_options
+        self.randomly_flip_options = randomly_flip_options
         self.shuffle_answer_options = shuffle_answer_options
 
     @abstractmethod
@@ -100,8 +100,8 @@ class LLM(ABC):
         extraction_prompt = self._PROMPTS['extraction_prompt']
 
         # 2A. Format the template and insert it into the decision prompt
-        decision_prompt = decision_prompt.replace("{{test_case}}", template.format(reverse_options=self.reverse_answer_options, shuffle_options=self.shuffle_answer_options, seed=seed))
-        options, option_order = template.get_options(reverse_options=self.reverse_answer_options, shuffle_options=self.shuffle_answer_options, seed=seed)
+        decision_prompt = decision_prompt.replace("{{test_case}}", template.format(randomly_flip_options=self.randomly_flip_options, shuffle_options=self.shuffle_answer_options, seed=seed))
+        options, option_order = template.get_options(randomly_flip_options=self.randomly_flip_options, shuffle_options=self.shuffle_answer_options, seed=seed)
 
         # 2B. Obtain a response from the LLM
         try:

@@ -63,7 +63,7 @@ def convert_decisions(
 def decide_batch(
     batch: pd.DataFrame,
     model_name: str,
-    reverse_answer_options: bool,
+    randomly_flip_options: bool,
     shuffle_answer_options: bool,
     temperature: float,
     seed: int,
@@ -74,7 +74,7 @@ def decide_batch(
     Args:
     batch (pd.DataFrame): the batch of the dataset to decide
     model_name (str): the model to use
-    reverse_answer_options (bool): whether to reverse the answer options
+    randomly_flip_options (bool): whether to reverse the answer options
     shuffle_answer_options (bool): whether to shuffle the answer options
     temperature (float): the temperature to use
     seed (int): the seed to use
@@ -83,7 +83,7 @@ def decide_batch(
     pd.DataFrame: the DataFrame representation of the decisions for the batch
     """
     # initializing the model
-    model = get_model(model_name, reverse_answer_options=reverse_answer_options, shuffle_answer_options=shuffle_answer_options)
+    model = get_model(model_name, randomly_flip_options=randomly_flip_options, shuffle_answer_options=shuffle_answer_options)
     # initialize decision batch
     decision_batch = None
     # iterating over all required biases
@@ -140,7 +140,7 @@ def decide_dataset(
     batches: list[pd.DataFrame],
     model_name: str,
     num_processors: int,
-    reverse_answer_options: bool,
+    randomly_flip_options: bool,
     shuffle_answer_options: bool,
     temperature: float,
     seed: int,
@@ -152,7 +152,7 @@ def decide_dataset(
     batches (list[pd.DataFrame]): the batches of the dataset to decide (of length num_processors)
     model_name (str): the name of the model to use
     num_processors (int): the number of processors used
-    reverse_answer_options (bool): whether to reverse the answer options
+    randomly_flip_options (bool): whether to reverse the answer options
     shuffle_answer_options (bool): whether to shuffle the answer options
     temperature (float): the temperature to use
     seed (int): the seed to use
@@ -165,7 +165,7 @@ def decide_dataset(
                 partial(
                     decide_batch,
                     model_name=model_name,
-                    reverse_answer_options=reverse_answer_options,
+                    randomly_flip_options=randomly_flip_options,
                     shuffle_answer_options=shuffle_answer_options,
                     temperature=temperature,
                     seed=seed,
@@ -206,7 +206,7 @@ if __name__ == "__main__":
         batches=batches,
         model_name=model_name,
         num_processors=processors,
-        reverse_answer_options=True,
+        randomly_flip_options=True,
         shuffle_answer_options=False,
         temperature=0.0,
         seed=42,

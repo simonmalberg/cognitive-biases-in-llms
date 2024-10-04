@@ -18,7 +18,7 @@ if __name__ == "__main__":
     scenario = random.choice(scenarios)
 
     # Define a cognitive bias to test
-    bias = 'FramingEffect'
+    bias = 'ConfirmationBias'
     # Define seed and temperature
     seed = random.randint(0, 1000)
     temperature = 0.7
@@ -29,7 +29,7 @@ if __name__ == "__main__":
 
     # Instantiate the population and decision LLMs
     population_model = GptFourO()
-    decision_model = GptThreePointFiveTurbo(reverse_answer_options=False, shuffle_answer_options=False)
+    decision_model = GptThreePointFiveTurbo(randomly_flip_options=True, shuffle_answer_options=False)
     
     # Generate test cases and decide for all given scenarios and compute the metric
     try:

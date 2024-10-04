@@ -17,8 +17,8 @@ class FireworksAI(LLM):
         NAME (str): The name of the model.
     """
 
-    def __init__(self, reverse_answer_options: bool = False, shuffle_answer_options: bool = False):
-        super().__init__(reverse_answer_options=reverse_answer_options, shuffle_answer_options=shuffle_answer_options)
+    def __init__(self, randomly_flip_options: bool = False, shuffle_answer_options: bool = False):
+        super().__init__(randomly_flip_options=randomly_flip_options, shuffle_answer_options=shuffle_answer_options)
 
         if "FIREWORKS_AI_API_KEY" not in os.environ:
             raise ValueError("Cannot access Fireworks.ai API due to missing API key. Please store your API key in environment variable 'FIREWORKS_AI_API_KEY'.")
@@ -218,8 +218,8 @@ class FireworksAI(LLM):
         extraction_prompt = self._PROMPTS['extraction_prompt']
 
         # 2A. Format the template and insert it into the decision prompt
-        decision_prompt = decision_prompt.replace("{{test_case}}", template.format(reverse_options=self.reverse_answer_options, shuffle_options=self.shuffle_answer_options, seed=seed))
-        options, option_order = template.get_options(reverse_options=self.reverse_answer_options, shuffle_options=self.shuffle_answer_options, seed=seed)
+        decision_prompt = decision_prompt.replace("{{test_case}}", template.format(randomly_flip_options=self.randomly_flip_options, shuffle_options=self.shuffle_answer_options, seed=seed))
+        options, option_order = template.get_options(randomly_flip_options=self.randomly_flip_options, shuffle_options=self.shuffle_answer_options, seed=seed)
 
         # 2B. Obtain a response from the LLM
         try:
@@ -281,8 +281,8 @@ class LlamaThreePointOneEightB(FireworksAI):
         NAME (str): The name of the model.
     """
 
-    def __init__(self, reverse_answer_options: bool = False, shuffle_answer_options: bool = False):
-        super().__init__(reverse_answer_options=reverse_answer_options, shuffle_answer_options=shuffle_answer_options)
+    def __init__(self, randomly_flip_options: bool = False, shuffle_answer_options: bool = False):
+        super().__init__(randomly_flip_options=randomly_flip_options, shuffle_answer_options=shuffle_answer_options)
         self.NAME = "accounts/fireworks/models/llama-v3p1-8b-instruct"
         self.RESPONSE_FORMAT = None
 
@@ -295,8 +295,8 @@ class LlamaThreePointOneSeventyB(FireworksAI):
         NAME (str): The name of the model.
     """
 
-    def __init__(self, reverse_answer_options: bool = False, shuffle_answer_options: bool = False):
-        super().__init__(reverse_answer_options=reverse_answer_options, shuffle_answer_options=shuffle_answer_options)
+    def __init__(self, randomly_flip_options: bool = False, shuffle_answer_options: bool = False):
+        super().__init__(randomly_flip_options=randomly_flip_options, shuffle_answer_options=shuffle_answer_options)
         self.NAME = "accounts/fireworks/models/llama-v3p1-70b-instruct"
         self.RESPONSE_FORMAT = None
 
@@ -309,7 +309,7 @@ class LlamaThreePointOneFourHundredFiveB(FireworksAI):
         NAME (str): The name of the model.
     """
 
-    def __init__(self, reverse_answer_options: bool = False, shuffle_answer_options: bool = False):
-        super().__init__(reverse_answer_options=reverse_answer_options, shuffle_answer_options=shuffle_answer_options)
+    def __init__(self, randomly_flip_options: bool = False, shuffle_answer_options: bool = False):
+        super().__init__(randomly_flip_options=randomly_flip_options, shuffle_answer_options=shuffle_answer_options)
         self.NAME = "accounts/fireworks/models/llama-v3p1-405b-instruct"
         self.RESPONSE_FORMAT = None
