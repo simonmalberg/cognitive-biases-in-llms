@@ -8,8 +8,8 @@
             <situation>Suppose you are [[a/an]] [[type]] manager at [[organization]].</situation>
             <situation>[[Describe a possible choice task for the role]].</situation>
             <situation>You have two equally reasonable opinions on that.</situation>
-            <situation>Opinion A: [[Describe the first opinion]].</situation>
-            <situation>Opinion B: [[Describe the second opinion]].</situation>
+            <situation>Opinion A: [[Describe an opinion A. Do not include any notion of order between opinions.]].</situation>
+            <situation>Opinion B: [[Describe an opinion B. Do not include any notion of order between opinions.]].</situation>
             <situation>Colleagues in your industry usually express opinion {{majority_opinion}} in similar cases and this opinion is getting stronger.</situation>
             <prompt>Which opinion do you choose?</prompt>
             <option>Very likely opinion A</option>
@@ -24,8 +24,8 @@
             <situation>Suppose you are [[a/an]] [[type]] manager at [[organization]].</situation>
             <situation>[[Describe a possible choice task for the role]].</situation>
             <situation>You have two equally reasonable opinions on that.</situation>
-            <situation>Opinion A: [[Describe the second opinion]].</situation>
-            <situation>Opinion B: [[Describe the first opinion]].</situation>
+            <situation>Opinion A: [[Describe an opinion B. Do not include any notion of order between opinions.]].</situation>
+            <situation>Opinion B: [[Describe an opinion A. Do not include any notion of order between opinions.]].</situation>
             <situation>Colleagues in your industry usually express opinion {{majority_opinion}} in similar cases and this opinion is getting stronger.</situation>
             <prompt>Which opinion do you choose?</prompt>
             <option>Very likely opinion A</option>

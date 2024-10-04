@@ -17,8 +17,8 @@ class MistralModel(LLM):
         NAME (str): The name of the model.
     """
 
-    def __init__(self, shuffle_answer_options: bool = False):
-        super().__init__(shuffle_answer_options=shuffle_answer_options)
+    def __init__(self, randomly_flip_options: bool = False, shuffle_answer_options: bool = False):
+        super().__init__(randomly_flip_options=randomly_flip_options, shuffle_answer_options=shuffle_answer_options)
         with open("./models/MistralAI/prompts.yml") as f:
             self._PROMPTS = yaml.safe_load(f)
 
@@ -156,10 +156,10 @@ class MistralModel(LLM):
         # 2A. Format the template and insert it into the decision prompt
         decision_prompt = decision_prompt.replace(
             "{{test_case}}",
-            template.format(shuffle_options=self.shuffle_answer_options, seed=seed),
+            template.format(randomly_flip_options=self.randomly_flip_options, shuffle_options=self.shuffle_answer_options, seed=seed),
         )
         options, option_order = template.get_options(
-            shuffle_options=self.shuffle_answer_options, seed=seed
+            randomly_flip_options=self.randomly_flip_options, shuffle_options=self.shuffle_answer_options, seed=seed
         )
 
         # 2B. Obtain a response from the LLM
@@ -219,8 +219,8 @@ class MistralLargeTwo(MistralModel):
         NAME (str): The name of the model.
     """
 
-    def __init__(self, shuffle_answer_options: bool = False):
-        super().__init__(shuffle_answer_options=shuffle_answer_options)
+    def __init__(self, randomly_flip_options: bool = False, shuffle_answer_options: bool = False):
+        super().__init__(randomly_flip_options=randomly_flip_options, shuffle_answer_options=shuffle_answer_options)
         # TODO: agree on the logic to load the model and tokenizer
         self.MODEL = "mistral_models/mistral-large-instruct-2407"
         self.TOKENIZER = "mistral_models/mistral-large-instruct-2407/tokenizer.model"
@@ -234,8 +234,8 @@ class Mixtral8x7b(MistralModel):
         NAME (str): The name of the model.
     """
 
-    def __init__(self, shuffle_answer_options: bool = False):
-        super().__init__(shuffle_answer_options=shuffle_answer_options)
+    def __init__(self, randomly_flip_options: bool = False, shuffle_answer_options: bool = False):
+        super().__init__(randomly_flip_options=randomly_flip_options, shuffle_answer_options=shuffle_answer_options)
         # TODO: agree on the logic to load the model and tokenizer
         self.MODEL = "mistral_models/8x7b_instruct"
         self.TOKENIZER = "mistral_models/8x7b_instruct/tokenizer.model"

@@ -16,8 +16,8 @@ class GPT(LLM):
         _PROMPTS (dict): A dictionary containing the system and user prompts.
     """
 
-    def __init__(self, shuffle_answer_options: bool = False):
-        super().__init__(shuffle_answer_options=shuffle_answer_options)
+    def __init__(self, randomly_flip_options: bool = False, shuffle_answer_options: bool = False):
+        super().__init__(randomly_flip_options=randomly_flip_options, shuffle_answer_options=shuffle_answer_options)
         self._CLIENT = OpenAI()
         self.RESPONSE_FORMAT = "json_object"
         with open("./models/OpenAI/prompts.yml") as f:
@@ -206,8 +206,8 @@ class GptThreePointFiveTurbo(GPT):
         NAME (str): The name of the model.
     """
 
-    def __init__(self, shuffle_answer_options: bool = False):
-        super().__init__(shuffle_answer_options=shuffle_answer_options)
+    def __init__(self, randomly_flip_options: bool = False, shuffle_answer_options: bool = False):
+        super().__init__(randomly_flip_options=randomly_flip_options, shuffle_answer_options=shuffle_answer_options)
         self.NAME = "gpt-3.5-turbo-0125"
 
 
@@ -222,7 +222,7 @@ class GptFourO(GPT):
         RESPONSE_FORMAT (str): The response format for the model.
     """
 
-    def __init__(self, shuffle_answer_options: bool = False):
-        super().__init__(shuffle_answer_options=shuffle_answer_options)
+    def __init__(self, randomly_flip_options: bool = False, shuffle_answer_options: bool = False):
+        super().__init__(randomly_flip_options=randomly_flip_options, shuffle_answer_options=shuffle_answer_options)
         self.NAME = "gpt-4o-2024-08-06"
         self.RESPONSE_FORMAT = "json_schema"

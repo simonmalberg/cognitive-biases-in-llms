@@ -39,11 +39,13 @@ class LLM(ABC):
     
     Attributes:
         NAME (str): The name of the model.
+        randomly_flip_options (bool): Whether or not answer options shall be reversed when making a decision.
         shuffle_answer_options (bool): Whether or not answer options shall be randomly shuffled when making a decision.
     """
 
-    def __init__(self, shuffle_answer_options: bool = False):
+    def __init__(self, randomly_flip_options: bool = False, shuffle_answer_options: bool = False):
         self.NAME = "llm-abstract-base-class"
+        self.randomly_flip_options = randomly_flip_options
         self.shuffle_answer_options = shuffle_answer_options
 
     @abstractmethod
@@ -98,8 +100,8 @@ class LLM(ABC):
         extraction_prompt = self._PROMPTS['extraction_prompt']
 
         # 2A. Format the template and insert it into the decision prompt
-        decision_prompt = decision_prompt.replace("{{test_case}}", template.format(shuffle_options=self.shuffle_answer_options, seed=seed))
-        options, option_order = template.get_options(shuffle_options=self.shuffle_answer_options, seed=seed)
+        decision_prompt = decision_prompt.replace("{{test_case}}", template.format(randomly_flip_options=self.randomly_flip_options, shuffle_options=self.shuffle_answer_options, seed=seed))
+        options, option_order = template.get_options(randomly_flip_options=self.randomly_flip_options, shuffle_options=self.shuffle_answer_options, seed=seed)
 
         # 2B. Obtain a response from the LLM
         try:
@@ -155,10 +157,12 @@ class LLM(ABC):
             control_options=control_option_texts,
             control_option_order=control_option_order,
             control_answer=control_answer,
+            control_extraction=control_extraction,
             control_decision=control_option,
             treatment_options=treatment_option_texts,
             treatment_option_order=treatment_option_order,
             treatment_answer=treatment_answer,
+            treatment_extraction=treatment_extraction,
             treatment_decision=treatment_option,
             temperature=temperature,
             seed=seed
@@ -182,10 +186,11 @@ class LLM(ABC):
         all_decisions = []
         for test_id, test_case in enumerate(test_cases):
             # try to make a decision for the test case within max_retries times
-            for _ in range(max_retries):
+            for retry in range(max_retries):
                 try:
                     test_decision = self.decide(test_case, temperature, seed)
-                    seed += max_retries + 1
+                    # if the test case is decided successfully, break the retry loop and increment the seed to the next position
+                    seed += (max_retries - retry)
                     break
                 except DecisionError as e:
                     test_decision = None

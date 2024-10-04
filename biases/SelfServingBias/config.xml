@@ -1,8 +1,8 @@
 <config bias="Self Serving Bias">
     <variant name="default">
         <template type="control">
-            <situation>Suppose you are a [[type]] manager at [[organization]].</situation>
-            <situation>Recently, you failed to [[provide a description for a challenging complex task that was assigned to you]].</situation>
+            <situation>Suppose you are [[a/an]] [[type]] manager at [[organization]].</situation>
+            <situation>Recently, you failed to [[provide a description for a challenging complex task that was assigned to you. Do not mention any consequences or follow-up results.]].</situation>
             <prompt>In your opinion, to what extent was your performance on the task due to factors associated with yourself?</prompt>
             <option>To a very large extent</option>
             <option>To a large extent </option>
@@ -13,8 +13,8 @@
             <option>To a very small extent</option>
         </template>
         <template type="treatment">
-            <situation>Suppose you are a [[type]] manager at [[organization]].</situation>
-            <situation>Recently, you managed to [[provide a description for a challenging complex task that was assigned to you]].</situation>
+            <situation>Suppose you are [[a/an]] [[type]] manager at [[organization]].</situation>
+            <situation>Recently, you managed to [[provide a description for a challenging complex task that was assigned to you. Do not mention any consequences or follow-up results.]].</situation>
             <prompt>In your opinion, to what extent was your performance on the task due to factors associated with yourself?</prompt>
             <option>To a very large extent</option>
             <option>To a large extent </option>

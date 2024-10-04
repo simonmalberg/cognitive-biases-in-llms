@@ -86,7 +86,7 @@ class Experiment:
 
         return test_case
 
-    def decide(self, model: str, test_case: TestCase, seed: int = 42, shuffle_answer_options: bool = False) -> tuple[DecisionResult, float]:
+    def decide(self, model: str, test_case: TestCase, seed: int = 42, randomly_flip_options: bool = False, shuffle_answer_options: bool = False) -> tuple[DecisionResult, float]:
         """
         Obtains a decision for a test case and calculates the biasedness.
 
@@ -94,6 +94,7 @@ class Experiment:
             model (str): The name of the LLM to use for making the decision.
             test_case (TestCase): The test case defining the decision task.
             seed (int): The seed to be used for obtaining the decision.
+            randomly_flip_options (bool): If True, answer options in the test case will be reversed with probability 0.5.
             shuffle_answer_options (bool): If True, answer options in the test case will be randomly shuffled.
 
         Returns:
@@ -105,7 +106,7 @@ class Experiment:
         self._start(run_name)
 
         # Instantiate the decision LLM
-        decision_model = get_model(model, shuffle_answer_options)
+        decision_model = get_model(model, randomly_flip_options, shuffle_answer_options)
 
         # Obtain a decision for the test case
         decision_result = decision_model.decide(test_case=test_case, seed=seed)
@@ -118,18 +119,19 @@ class Experiment:
         biasedness = float(metric.aggregate(metric.compute()))
 
         # Track the run results and finish the run
-        logs = self._create_decision_logs(test_case=test_case, decision_result=decision_result, biasedness=biasedness, shuffled_answer_options=shuffle_answer_options)
+        logs = self._create_decision_logs(test_case=test_case, decision_result=decision_result, biasedness=biasedness, randomly_flip_options=randomly_flip_options, shuffled_answer_options=shuffle_answer_options)
         self._log(logs)
         self._finish()
 
         return decision_result, biasedness
 
-    def _create_test_case_logs(self, test_case: TestCase, shuffled_answer_options: bool = False, seed: int = 42) -> dict:
+    def _create_test_case_logs(self, test_case: TestCase, randomly_flip_options: bool = False, shuffled_answer_options: bool = False, seed: int = 42) -> dict:
         """
         Function to be used after the generation of a test case. Converts a TestCase object into run logs.
 
         Args:
             test_case (TestCase): The TestCase that was generated during the run.
+            randomly_flip_options (bool): Whether the flag to reverse options was True for this run.
             shuffled_answer_options (bool): Whether the answer options were randomly shuffled for this run.
             seed (int): The seed used for shuffling the answer options.
 
@@ -144,8 +146,8 @@ class Experiment:
             "Generator": test_case.GENERATOR,
             "Scenario": test_case.SCENARIO,
             "Variant": test_case.VARIANT,
-            "Control": test_case.CONTROL.format(shuffle_options=shuffled_answer_options, seed=seed) if test_case.CONTROL is not None else "",
-            "Treatment": test_case.TREATMENT.format(shuffle_options=shuffled_answer_options, seed=seed) if test_case.TREATMENT is not None else "",
+            "Control": test_case.CONTROL.format(randomly_flip_options=randomly_flip_options, shuffle_options=shuffled_answer_options, seed=seed) if test_case.CONTROL is not None else "",
+            "Treatment": test_case.TREATMENT.format(randomly_flip_options=randomly_flip_options, shuffle_options=shuffled_answer_options, seed=seed) if test_case.TREATMENT is not None else "",
             "Control (Raw)": ET.tostring(test_case.CONTROL._data) if test_case.CONTROL is not None else "",    # TODO Implement parsing/serialization functionality in Template class
             "Treatment (Raw)": ET.tostring(test_case.TREATMENT._data) if test_case.TREATMENT is not None else "",
             "Remarks": test_case.REMARKS
@@ -153,7 +155,7 @@ class Experiment:
 
         return logs
 
-    def _create_decision_logs(self, test_case: TestCase, decision_result: DecisionResult, biasedness: float, shuffled_answer_options: bool) -> dict:
+    def _create_decision_logs(self, test_case: TestCase, decision_result: DecisionResult, biasedness: float, randomly_flip_options: bool, shuffled_answer_options: bool) -> dict:
         """
         Function to be used after the decision result has been obtained for a test case. Converts a TestCase and a DecisionResult objects together into run logs.
 
@@ -161,6 +163,7 @@ class Experiment:
             test_case (TestCase): The TestCase that was used during the run.
             decision_result (DecisionResult): The DecisionResult object containing the final model decisions from the run.
             biasedness (float): The biasedness value calculated by the bias metric.
+            randomly_flip_options (bool): Whether the flag to reverse options was True for this run.
             shuffled_answer_options (bool): Whether the answer options were randomly shuffled for this run.
 
         Returns:
@@ -168,13 +171,14 @@ class Experiment:
         """
 
         # Create the logs for the test case that was used
-        logs = self._create_test_case_logs(test_case, shuffled_answer_options, seed=decision_result.SEED)
+        logs = self._create_test_case_logs(test_case, randomly_flip_options, shuffled_answer_options, seed=decision_result.SEED)
 
         # Add the fields from the decision result to the logs
         logs["Type"] = "DECISION"
         logs["Decision Model"] = decision_result.MODEL
         logs["Decision Temperature"] = decision_result.TEMPERATURE
         logs["Decision Seed"] = decision_result.SEED
+        logs["Randomly Flip Answer Options"] = randomly_flip_options
         logs["Shuffled Answer Options"] = shuffled_answer_options
 
         logs["Control Options"] = decision_result.CONTROL_OPTIONS
@@ -241,6 +245,7 @@ if __name__ == "__main__":
     decision_result = experiment.decide(model=decision_model, 
                                         test_case=test_case, 
                                         seed=seed, 
+                                        randomly_flip_options=False,
                                         shuffle_answer_options=True)
 
     print(test_case) 
