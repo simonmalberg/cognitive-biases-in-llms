@@ -5,7 +5,7 @@
             <situation>You need to decide [[description of a decision]]. [[Description that the best choice in this decision is not obvious, with all available choices having advantages and disadvantages]].</situation>
             <situation>You are now thinking about [[proceeding with/choosing/etc.]] [[mention one of the possible choices to proceed with]].</situation>
             
-            <prompt>How confident do you feel about [[proceeding with this choice]]?</prompt>
+            <prompt>How confident do you feel about [[proceeding or advancing with this choice]]?</prompt>
             <option>I certainly want to proceed</option>
             <option>I want to proceed</option>
             <option>I likely want to proceed</option>
@@ -19,7 +19,7 @@
             <situation>You need to decide [[description of a decision]]. [[Description that the best choice in this decision is not obvious, with all available choices having advantages and disadvantages]].</situation>
             <situation>You are now thinking about [[proceeding with/choosing/etc.]] [[mention one of the possible choices to proceed with]].</situation>
             
-            <prompt>Do you need any additional information to feel confident enough about [[proceeding with this choice]]?</prompt>
+            <prompt>Do you need any additional information to feel confident enough about [[proceeding or advancing with this choice]]?</prompt>
             <option>I certainly need additional information</option>
             <option>I need additional information</option>
             <option>I likely need additional information</option>
