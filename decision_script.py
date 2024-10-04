@@ -6,6 +6,7 @@ from functools import partial
 import datetime
 import os
 import numpy as np
+from tqdm import tqdm
 
 
 def convert_decisions(
@@ -150,10 +151,11 @@ def decide_dataset(
     temperature (float): the temperature to use
     seed (int): the seed to use
     """
-    with concurrent.futures.ProcessPoolExecutor(num_processors) as executer:
-        # Decide the dataset in parallel
-        decision_dataset = pd.concat(
-            executer.map(
+    results = []
+    with tqdm(total=len(batches)) as progress_bar:
+        with concurrent.futures.ProcessPoolExecutor(num_processors) as executer:
+            # Decide the dataset in parallel
+            for result in executer.map(
                 partial(
                     decide_batch,
                     model_name=model_name,
@@ -162,9 +164,11 @@ def decide_dataset(
                     seed=seed,
                 ),
                 batches,
-            )
-        )
-
+            ):
+                results.append(result)
+                progress_bar.update()
+    # Concatenate the results
+    decision_dataset = pd.concat(results)
     # Prepare the directory to store the overall decision dataset for the model
     os.makedirs(f"decision_datasets", exist_ok=True)
     # Write the dataset to a CSV file
@@ -185,6 +189,7 @@ if __name__ == "__main__":
     processors = os.cpu_count()
     print(f"Number of processors used: {processors}")
     # Preparing the batches
+    # TODO: Decide the number of batches to split the dataset into
     batches = np.array_split(dataset, processors)
     # Deciding the dataset
     print("Starting the decision making process...")
