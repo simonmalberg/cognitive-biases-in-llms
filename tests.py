@@ -17,14 +17,16 @@ class DecisionResult:
         CONTROL_OPTIONS (list[str]): A list containing the non-shuffled and non-reversed options available for the control template.
         CONTROL_OPTION_SHUFFLING (list[int]): A list containing the zero-based IDs (original positions before shuffling) of the shuffled or reversed options in the control template.
         CONTROL_ANSWER (str): The raw decision output from the deciding LLM for the control template.
+        CONTROL_EXTRACTION (str): The final extracted decision by the deciding LLM for the control template.
         CONTROL_DECISION (int): The decision made by the LLM for the control template, corresponding to the zero-based index of the option in the non-shuffled and non-reversed control template.
         TREATMENT_OPTIONS (list[str]): A list containing the non-shuffled and non-reversed options available for the treatment template.
         TREATMENT_OPTION_SHUFFLING (list[int]): A list containing the zero-based IDs (original positions before shuffling) of the shuffled or reversed options in the treatment template.
         TREATMENT_ANSWER (str): The raw decision output from the deciding LLM for the treatment template.
+        TREATMENT_EXTRACTION (str): The final extracted decision by the deciding LLM for the treatment template.
         TREATMENT_DECISION (int): The decision made by the LLM for the treatment template, corresponding to the zero-based index of the option in the non-shuffled and non-reversed treatment template.
     """
 
-    def __init__(self, model: str, control_options: list[str], control_option_order: list[int], control_answer: str, control_decision: int, treatment_options: list[str], treatment_option_order: list[int], treatment_answer: str, treatment_decision: int, temperature: float = None, seed: int = None):
+    def __init__(self, model: str, control_options: list[str], control_option_order: list[int], control_answer: str, control_extraction: str, control_decision: int, treatment_options: list[str], treatment_option_order: list[int], treatment_answer: str, treatment_extraction: str, treatment_decision: int, temperature: float = None, seed: int = None):
         """
         Instantiates a new DecisionResult object.
 
@@ -33,10 +35,12 @@ class DecisionResult:
             control_options (list[str]): A list containing the (shuffled or reversed) options available for the control template.
             control_option_order (list[int]): A list containing the zero-based IDs (original positions before shuffling) of the options in the control template.
             control_answer (str): The raw decision output from the deciding LLM for the control template.
+            control_extraction (str): The final extracted decision by the deciding LLM for the control template.
             control_decision (int): The decision made by the LLM for the control template, corresponding to the position in the shuffled or reversed options list with one-based indexing.
             treatment_options (list[str]): A list containing the (shuffled or reversed) options available for the treatment template.
             treatment_option_order (list[int]): A list containing the zero-based IDs (original positions before shuffling) of the options in the treatment template.
             treatment_answer (str): The raw decision output from the deciding LLM for the treatment template.
+            treatment_extraction (str): The final extracted decision by the deciding LLM for the treatment template.
             treatment_decision (int): The decision made by the LLM for the treatment template, corresponding to the position in the shuffled or reversed options list with one-based indexing.
             temperature (float): The LLM temperature parameter used to generate the decisions.
             seed (int): The LLM seed used to generate the decisions.
@@ -56,11 +60,13 @@ class DecisionResult:
         self.CONTROL_OPTIONS: list[str] = control_options
         self.CONTROL_OPTION_SHUFFLING: list[int] = control_option_order
         self.CONTROL_ANSWER: str = control_answer
+        self.CONTROL_EXTRACTION: str = control_extraction
         self.CONTROL_DECISION: int = control_decision
 
         self.TREATMENT_OPTIONS: list[str] = treatment_options
         self.TREATMENT_OPTION_SHUFFLING: list[int] = treatment_option_order
         self.TREATMENT_ANSWER: str = treatment_answer
+        self.TREATMENT_EXTRACTION: str = treatment_extraction
         self.TREATMENT_DECISION: int = treatment_decision
 
     def _unshuffle(self, options: list[str], option_order: list[int], decision: int, convert_to_zero_based: bool = True) -> tuple[list[str], list[int], int]:
@@ -110,7 +116,7 @@ class DecisionResult:
         return unshuffled_options, unshuffled_option_order, unshuffled_decision
 
     def __str__(self) -> str:
-        return f"---DecisionResult---\n\nTIMESTAMP: {self.TIMESTAMP}\nMODEL: {self.MODEL}\nTEMPERATURE: {self.TEMPERATURE}\nSEED: {self.SEED}\n\nCONTROL OPTIONS: {self.CONTROL_OPTIONS}\nCONTROL OPTION SHUFFLING: {self.CONTROL_OPTION_SHUFFLING}\nRAW CONTROL ANSWER: {self.CONTROL_ANSWER}\nCONTROL DECISION: {self.CONTROL_DECISION}\n\nTREATMENT OPTIONS: {self.TREATMENT_OPTIONS}\nTREATMENT OPTION SHUFFLING: {self.TREATMENT_OPTION_SHUFFLING}\nRAW TREATMENT ANSWER: {self.TREATMENT_ANSWER}\nTREATMENT DECISION: {self.TREATMENT_DECISION}\n\n------"
+        return f"---DecisionResult---\n\nTIMESTAMP: {self.TIMESTAMP}\nMODEL: {self.MODEL}\nTEMPERATURE: {self.TEMPERATURE}\nSEED: {self.SEED}\n\nCONTROL OPTIONS: {self.CONTROL_OPTIONS}\nCONTROL OPTION SHUFFLING: {self.CONTROL_OPTION_SHUFFLING}\nRAW CONTROL ANSWER: {self.CONTROL_ANSWER}\nCONTROL EXTRACTION: {self.CONTROL_EXTRACTION}\nCONTROL DECISION: {self.CONTROL_DECISION}\n\nTREATMENT OPTIONS: {self.TREATMENT_OPTIONS}\nTREATMENT OPTION SHUFFLING: {self.TREATMENT_OPTION_SHUFFLING}\nRAW TREATMENT ANSWER: {self.TREATMENT_ANSWER}\nTREATMENT EXTRACTION: {self.TREATMENT_EXTRACTION}\nTREATMENT DECISION: {self.TREATMENT_DECISION}\n\n------"
 
     def __repr__(self) -> str:
         return self.__str__()

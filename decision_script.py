@@ -31,10 +31,12 @@ def convert_decisions(
             decision_result.CONTROL_OPTIONS,
             decision_result.CONTROL_OPTION_SHUFFLING,
             decision_result.CONTROL_ANSWER,
+            decision_result.CONTROL_EXTRACTION,
             decision_result.CONTROL_DECISION,
             decision_result.TREATMENT_OPTIONS,
             decision_result.TREATMENT_OPTION_SHUFFLING,
             decision_result.TREATMENT_ANSWER,
+            decision_result.TREATMENT_EXTRACTION,
             decision_result.TREATMENT_DECISION,
         ]
         for decision_result in decision_results
@@ -49,11 +51,13 @@ def convert_decisions(
         "control_options": list(zip(*decision_data))[4],
         "control_option_order": list(zip(*decision_data))[5],
         "control_answer": list(zip(*decision_data))[6],
-        "control_decision": list(zip(*decision_data))[7],
-        "treatment_options": list(zip(*decision_data))[8],
-        "treatment_option_order": list(zip(*decision_data))[9],
-        "treatment_answer": list(zip(*decision_data))[10],
-        "treatment_decision": list(zip(*decision_data))[11],
+        "control_extraction": list(zip(*decision_data))[7],
+        "control_decision": list(zip(*decision_data))[8],
+        "treatment_options": list(zip(*decision_data))[9],
+        "treatment_option_order": list(zip(*decision_data))[10],
+        "treatment_answer": list(zip(*decision_data))[11],
+        "treatment_extraction": list(zip(*decision_data))[12],
+        "treatment_decision": list(zip(*decision_data))[13],
     }
     # storing the results in a new dataset
     decision_df = pd.DataFrame(decision_data)
@@ -190,7 +194,7 @@ if __name__ == "__main__":
     # TODO: name of the decision model as per the get_model function
     model_name = "GPT-3.5-Turbo"
     # TODO: Decide the number of batches to split the dataset into:
-    N_BATCHES = 3000
+    N_BATCHES = 10
 
     # Provide the path to the overall dataset if location is different from the default
     dataset = pd.read_csv("datasets/dataset.csv")

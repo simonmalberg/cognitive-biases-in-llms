@@ -157,10 +157,12 @@ class LLM(ABC):
             control_options=control_option_texts,
             control_option_order=control_option_order,
             control_answer=control_answer,
+            control_extraction=control_extraction,
             control_decision=control_option,
             treatment_options=treatment_option_texts,
             treatment_option_order=treatment_option_order,
             treatment_answer=treatment_answer,
+            treatment_extraction=treatment_extraction,
             treatment_decision=treatment_option,
             temperature=temperature,
             seed=seed
