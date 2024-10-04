@@ -90,11 +90,13 @@ def decide_batch(
     model = get_model(model_name, randomly_flip_options=randomly_flip_options, shuffle_answer_options=shuffle_answer_options)
     # initialize decision batch
     decision_batch = None
+    # identify the biases in the batch
+    biases = [''.join(' ' + char if char.isupper() else char for char in bias).strip().title().replace(' ', '') for bias in batch["bias"].unique()]
     # iterating over all required biases
-    for bias in batch["bias"].unique():
+    for bias in biases:
         test_cases, ids = [], []
         # constructing test cases for all relevant rows in the batch
-        for i, row in batch[batch["bias"] == bias].iterrows():
+        for i, row in batch[batch['bias'].str.strip().str.title().str.replace(' ', '') == bias].iterrows():
             ids.append(i)
             test_cases.append(
                 TestCase(
@@ -116,7 +118,7 @@ def decide_batch(
         # storing the results in a new DataFrame
         decision_df = convert_decisions(ids, decision_results)
         # calculating the metrics
-        metric = get_metric("".join(bias.split()))(
+        metric = get_metric(bias)(
             test_results=list(zip(test_cases, decision_results))
         )
         # compute individual and aggregated scores
