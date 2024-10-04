@@ -82,7 +82,7 @@ class NotInventedHereTestGenerator(TestGenerator):
             seed=seed,
             scenario=scenario,
             variant=None,
-            remarks={"externality": custom_values["externality"][0]}
+            remarks=str({"externality": custom_values["externality"][0]})
         )
 
         return test_case

@@ -69,7 +69,7 @@ class DispositionEffectTestGenerator(TestGenerator):
             seed=seed,
             scenario=scenario,
             variant=None,
-            remarks={"increase": custom_values["increase"], "decrease": custom_values["decrease"]}
+            remarks=str({"increase": custom_values["increase"], "decrease": custom_values["decrease"]})
         )
 
         return test_case

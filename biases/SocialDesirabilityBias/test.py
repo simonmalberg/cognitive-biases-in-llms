@@ -2,6 +2,7 @@ from base import TestGenerator, LLM, RatioScaleMetric
 from tests import TestCase, Template, TestConfig, DecisionResult
 import numpy as np
 import random
+import ast
 
 
 class SocialDesirabilityBiasTestGenerator(TestGenerator):
@@ -69,7 +70,7 @@ class SocialDesirabilityBiasTestGenerator(TestGenerator):
             seed=seed,
             scenario=scenario,
             variant=None,
-            remarks={"statement": custom_values["statement"], "desirable": custom_values["desirable"]}
+            remarks=str({"statement": custom_values["statement"], "desirable": custom_values["desirable"]})
         )
 
         return test_case
@@ -85,7 +86,8 @@ class SocialDesirabilityBiasMetric(RatioScaleMetric):
 
     def __init__(self, test_results: list[tuple[TestCase, DecisionResult]]):
         super().__init__(test_results)
-        self.k = np.array([
-            [1] if test_case.REMARKS["desirable"] else [-1]
-            for (test_case, _) in self.test_results
-        ])
+
+        # Extract from the remarks whether the statements used for the tests where socially desirable or not
+        desirable = [ast.literal_eval(test_case.REMARKS)["desirable"] for (test_case, _) in self.test_results]
+
+        self.k = np.array([[1] if d else [-1] for d in desirable])

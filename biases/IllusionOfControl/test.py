@@ -63,7 +63,7 @@ class IllusionOfControlTestGenerator(TestGenerator):
             seed=seed,
             scenario=scenario,
             variant=None,
-            remarks={"treatment_variant": custom_values["treatment_variant"]}
+            remarks=str({"treatment_variant": custom_values["treatment_variant"]})
         )
 
         return test_case

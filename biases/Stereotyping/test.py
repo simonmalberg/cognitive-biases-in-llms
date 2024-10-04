@@ -66,7 +66,7 @@ class StereotypingTestGenerator(TestGenerator):
             seed=seed,
             scenario=scenario,
             variant=None,
-            remarks={"group": custom_values["group"]}
+            remarks=str({"group": custom_values["group"]})
         )
 
         return test_case
