@@ -63,6 +63,7 @@ def convert_decisions(
 def decide_batch(
     batch: pd.DataFrame,
     model_name: str,
+    reverse_answer_options: bool,
     shuffle_answer_options: bool,
     temperature: float,
     seed: int,
@@ -73,6 +74,7 @@ def decide_batch(
     Args:
     batch (pd.DataFrame): the batch of the dataset to decide
     model_name (str): the model to use
+    reverse_answer_options (bool): whether to reverse the answer options
     shuffle_answer_options (bool): whether to shuffle the answer options
     temperature (float): the temperature to use
     seed (int): the seed to use
@@ -81,7 +83,7 @@ def decide_batch(
     pd.DataFrame: the DataFrame representation of the decisions for the batch
     """
     # initializing the model
-    model = get_model(model_name, shuffle_answer_options=shuffle_answer_options)
+    model = get_model(model_name, reverse_answer_options=reverse_answer_options, shuffle_answer_options=shuffle_answer_options)
     # initialize decision batch
     decision_batch = None
     # iterating over all required biases
@@ -104,7 +106,9 @@ def decide_batch(
                 )
             )
         # deciding the test cases and obtaining the DecisionResult objects
-        decision_results = model.decide_all(test_cases, temperature, seed)
+        decision_results = model.decide_all(test_cases, temperature, seed, max_retries=5)
+        # removing potential failed decisions (None values) from the decision results
+        decision_results = [decision_result for decision_result in decision_results if decision_result is not None]
         # storing the results in a new DataFrame
         decision_df = convert_decisions(ids, decision_results)
         # calculating the metrics
@@ -136,6 +140,7 @@ def decide_dataset(
     batches: list[pd.DataFrame],
     model_name: str,
     num_processors: int,
+    reverse_answer_options: bool,
     shuffle_answer_options: bool,
     temperature: float,
     seed: int,
@@ -147,6 +152,7 @@ def decide_dataset(
     batches (list[pd.DataFrame]): the batches of the dataset to decide (of length num_processors)
     model_name (str): the name of the model to use
     num_processors (int): the number of processors used
+    reverse_answer_options (bool): whether to reverse the answer options
     shuffle_answer_options (bool): whether to shuffle the answer options
     temperature (float): the temperature to use
     seed (int): the seed to use
@@ -159,6 +165,7 @@ def decide_dataset(
                 partial(
                     decide_batch,
                     model_name=model_name,
+                    reverse_answer_options=reverse_answer_options,
                     shuffle_answer_options=shuffle_answer_options,
                     temperature=temperature,
                     seed=seed,
@@ -182,6 +189,8 @@ if __name__ == "__main__":
 
     # TODO: name of the decision model as per the get_model function
     model_name = "GPT-3.5-Turbo"
+    # TODO: Decide the number of batches to split the dataset into:
+    N_BATCHES = 3000
 
     # Provide the path to the overall dataset if location is different from the default
     dataset = pd.read_csv("datasets/dataset.csv")
@@ -189,8 +198,7 @@ if __name__ == "__main__":
     processors = os.cpu_count()
     print(f"Number of processors used: {processors}")
     # Preparing the batches
-    # TODO: Decide the number of batches to split the dataset into
-    batches = np.array_split(dataset, processors)
+    batches = np.array_split(dataset, N_BATCHES)
     # Deciding the dataset
     print("Starting the decision making process...")
     start_time = datetime.datetime.now()
@@ -198,6 +206,7 @@ if __name__ == "__main__":
         batches=batches,
         model_name=model_name,
         num_processors=processors,
+        reverse_answer_options=True,
         shuffle_answer_options=False,
         temperature=0.0,
         seed=42,

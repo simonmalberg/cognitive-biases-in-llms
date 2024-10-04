@@ -16,8 +16,8 @@ class GeminiModel(LLM):
         NAME (str): The name of the model.
     """
 
-    def __init__(self, shuffle_answer_options: bool = False):
-        super().__init__(shuffle_answer_options=shuffle_answer_options)
+    def __init__(self, reverse_answer_options: bool = False, shuffle_answer_options: bool = False):
+        super().__init__(reverse_answer_options=reverse_answer_options, shuffle_answer_options=shuffle_answer_options)
         genai.configure(api_key=os.environ["GOOGLE_API_KEY"])
         with open("./models/Google/prompts.yml") as f:
             self._PROMPTS = yaml.safe_load(f)
@@ -144,10 +144,10 @@ class GeminiModel(LLM):
         # 2A. Format the template and insert it into the decision prompt
         decision_prompt = decision_prompt.replace(
             "{{test_case}}",
-            template.format(shuffle_options=self.shuffle_answer_options, seed=seed),
+            template.format(reverse_options=self.reverse_answer_options, shuffle_options=self.shuffle_answer_options, seed=seed),
         )
         options, option_order = template.get_options(
-            shuffle_options=self.shuffle_answer_options, seed=seed
+            reverse_options=self.reverse_answer_options, shuffle_options=self.shuffle_answer_options, seed=seed
         )
 
         # 2B. Obtain a response from the LLM
@@ -207,6 +207,6 @@ class GeminiOneFiveFlash(GeminiModel):
         NAME (str): The name of the model.
     """
 
-    def __init__(self, shuffle_answer_options: bool = False):
-        super().__init__(shuffle_answer_options=shuffle_answer_options)
+    def __init__(self, reverse_answer_options: bool = False, shuffle_answer_options: bool = False):
+        super().__init__(reverse_answer_options=reverse_answer_options, shuffle_answer_options=shuffle_answer_options)
         self.NAME = "gemini-1.5-flash"

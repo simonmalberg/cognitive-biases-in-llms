@@ -29,7 +29,7 @@ if __name__ == "__main__":
 
     # Instantiate the population and decision LLMs
     population_model = GptFourO()
-    decision_model = LlamaThreePointOneSeventyB(shuffle_answer_options=True)
+    decision_model = GptThreePointFiveTurbo(reverse_answer_options=False, shuffle_answer_options=False)
     
     # Generate test cases and decide for all given scenarios and compute the metric
     try:

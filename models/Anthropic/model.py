@@ -13,8 +13,8 @@ class Claude(LLM):
         NAME (str): The name of the model.
     """
 
-    def __init__(self, shuffle_answer_options: bool = False):
-        super().__init__(shuffle_answer_options=shuffle_answer_options)
+    def __init__(self, reverse_answer_options: bool = False, shuffle_answer_options: bool = False):
+        super().__init__(reverse_answer_options=reverse_answer_options, shuffle_answer_options=shuffle_answer_options)
         self._CLIENT = anthropic.Anthropic()
         with open("./models/Anthropic/prompts.yml") as f:
             self._PROMPTS = yaml.safe_load(f)
@@ -141,10 +141,10 @@ class Claude(LLM):
         # 2A. Format the template and insert it into the decision prompt
         decision_prompt = decision_prompt.replace(
             "{{test_case}}",
-            template.format(shuffle_options=self.shuffle_answer_options, seed=seed),
+            template.format(reverse_options=self.reverse_answer_options, shuffle_options=self.shuffle_answer_options, seed=seed),
         )
         options, option_order = template.get_options(
-            shuffle_options=self.shuffle_answer_options, seed=seed
+            reverse_options=self.reverse_answer_options, shuffle_options=self.shuffle_answer_options, seed=seed
         )
 
         # 2B. Obtain a response from the LLM
@@ -204,6 +204,6 @@ class ClaudeThreeFiveSonnet(Claude):
         NAME (str): The name of the model.
     """
 
-    def __init__(self, shuffle_answer_options: bool = False):
-        super().__init__(shuffle_answer_options=shuffle_answer_options)
+    def __init__(self, reverse_answer_options: bool = False, shuffle_answer_options: bool = False):
+        super().__init__(reverse_answer_options=reverse_answer_options, shuffle_answer_options=shuffle_answer_options)
         self.NAME = "claude-3-5-sonnet-20240620"
