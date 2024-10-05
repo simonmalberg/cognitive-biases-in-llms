@@ -252,6 +252,9 @@ def get_model(model_name: str, randomly_flip_options: bool = False, shuffle_answ
     elif model_name == "Llama-3.1-405B":
         from models.Meta.model import LlamaThreePointOneFourHundredFiveB
         return LlamaThreePointOneFourHundredFiveB(randomly_flip_options, shuffle_answer_options)
+    elif model_name == "Llama-3.2-90B":
+        from models.Meta.model import LlamaThreePointTwoNinetyB
+        return LlamaThreePointTwoNinetyB(randomly_flip_options, shuffle_answer_options)
     elif model_name == "Gemini-1.5-Flash":
         from models.Google.model import GeminiOneFiveFlash
         return GeminiOneFiveFlash(randomly_flip_options, shuffle_answer_options)
