@@ -192,7 +192,7 @@ class LLM(ABC):
                     # if the test case is decided successfully, break the retry loop and increment the seed to the next position
                     seed += (max_retries - retry)
                     break
-                except DecisionError as e:
+                except Exception as e:
                     test_decision = None
                     seed += 1
                     print(f"Warning: the model {self.NAME} failed to make a decision on the test case {test_id}.\nError: {e}\nRetrying...")
