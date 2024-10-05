@@ -198,12 +198,12 @@ if __name__ == "__main__":
     # TODO: name of the decision model as per the get_model function
     model_name = 'Llama-3.1-8B'
     # TODO: Decide the number of batches to split the dataset into:
-    N_BATCHES = 1#3000 # 10 tests per batch
+    N_BATCHES = 3000 # 10 tests per batch
     # TODO: Number of processors to use
-    max_workers = 1
+    max_workers = 100
 
     # Provide the path to the overall dataset if location is different from the default
-    dataset = pd.read_csv("datasets/full_dataset.csv").sample(n=20)
+    dataset = pd.read_csv("datasets/full_dataset.csv")
     print(f"Number of workers used: {max_workers}")
     # Preparing the batches
     batches = np.array_split(dataset, N_BATCHES)
