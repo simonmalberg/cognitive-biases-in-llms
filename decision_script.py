@@ -38,6 +38,8 @@ def convert_decisions(
             decision_result.TREATMENT_ANSWER,
             decision_result.TREATMENT_EXTRACTION,
             decision_result.TREATMENT_DECISION,
+            decision_result.STATUS,
+            decision_result.ERROR_MESSAGE
         ]
         for decision_result in decision_results
     ]
@@ -58,6 +60,8 @@ def convert_decisions(
         "treatment_answer": list(zip(*decision_data))[11],
         "treatment_extraction": list(zip(*decision_data))[12],
         "treatment_decision": list(zip(*decision_data))[13],
+        "status": list(zip(*decision_data))[14],
+        "error_message": list(zip(*decision_data))[15]
     }
     # storing the results in a new dataset
     decision_df = pd.DataFrame(decision_data)
@@ -113,28 +117,25 @@ def decide_batch(
             )
         # deciding the test cases and obtaining the DecisionResult objects
         decision_results = model.decide_all(test_cases, temperature, seed, max_retries=5)
-        # get indices of failed decisions
-        failed_decisions = [i for i, decision_result in enumerate(decision_results) if decision_result is None]
-        # remove failed decisions from the test cases and ids
-        test_cases = [test_case for i, test_case in enumerate(test_cases) if i not in failed_decisions]
-        ids = [id for i, id in enumerate(ids) if i not in failed_decisions]
-        # removing potential failed decisions (None values) from the decision results
-        decision_results = [decision_result for decision_result in decision_results if decision_result is not None]
-        # storing the results in a new DataFrame
+        # storing all the results (both failed and completed) in a new DataFrame
         decision_df = convert_decisions(ids, decision_results)
-        # calculating the metrics
-        metric = get_metric(bias)(
-            test_results=list(zip(test_cases, decision_results))
-        )
-        # compute individual and aggregated scores
-        individual_scores = metric.compute()
-        # We are not aggregating the scores as using parallel processing
-        # aggregated_score = metric.aggregate(individual_scores)
-        # store the results
-        decision_df.loc[:, "individual_score"] = individual_scores
-        # store the weights of the individual scores
-        decision_df.loc[:, "weight"] = metric.test_weights
-        # decision_df.loc[:, "aggregated_score"] = aggregated_score
+        # get indices of the decisions that failed: they have status "ERROR"
+        failed_idx = [i for i, decision_result in enumerate(decision_results) if decision_result.STATUS == "ERROR"]
+        # removing failed decisions from the decision results to calculate the metric
+        decision_results = [decision_result for i, decision_result in enumerate(decision_results) if i not in failed_idx]
+        # remove corresponding test cases to calculate the metric
+        test_cases = [test_case for i, test_case in enumerate(test_cases) if i not in failed_idx]
+        # calculating the metrics if we have any correct decisions
+        if len(test_cases) > 0 and len(decision_results) > 0:
+            metric = get_metric(bias)(
+                test_results=list(zip(test_cases, decision_results))
+            )
+            # compute individual and aggregated scores
+            individual_scores = metric.compute()
+            # store the results in the rows of the "OK" decisions
+            decision_df.loc[decision_df['status'] == "OK", "individual_score"] = individual_scores
+            # store the weights of the individual scores of "OK" decisions
+            decision_df.loc[decision_df['status'] == "OK", "weight"] = metric.test_weights
         decision_df.loc[:, "bias"] = bias
 
         # appending this bias' decisions with the overall decision for the batch
@@ -195,14 +196,14 @@ def decide_dataset(
 if __name__ == "__main__":
 
     # TODO: name of the decision model as per the get_model function
-    model_name = "GPT-4o-Mini"
+    model_name = 'Llama-3.1-8B'
     # TODO: Decide the number of batches to split the dataset into:
-    N_BATCHES = 3000 # 10 tests per batch
+    N_BATCHES = 1#3000 # 10 tests per batch
     # TODO: Number of processors to use
-    max_workers = 100
+    max_workers = 1
 
     # Provide the path to the overall dataset if location is different from the default
-    dataset = pd.read_csv("datasets/full_dataset.csv")
+    dataset = pd.read_csv("datasets/full_dataset.csv").sample(n=20)
     print(f"Number of workers used: {max_workers}")
     # Preparing the batches
     batches = np.array_split(dataset, N_BATCHES)
