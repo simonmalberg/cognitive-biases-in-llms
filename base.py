@@ -63,7 +63,6 @@ class LLM(ABC):
         """
         pass
 
-    @abstractmethod
     def populate(self, control: Template, treatment: Template, scenario: str, temperature: float = 0.0, seed: int = 42) -> tuple[Template, Template]:
         """
         Populates given control and treatment templates based on the provided scenario.
