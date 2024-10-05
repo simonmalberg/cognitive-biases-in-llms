@@ -244,13 +244,13 @@ def get_model(model_name: str, randomly_flip_options: bool = False, shuffle_answ
         from models.OpenAI.gpt import GptThreePointFiveTurbo
         return GptThreePointFiveTurbo(randomly_flip_options, shuffle_answer_options)
     elif model_name == "Llama-3.1-8B":
-        from models.Llama.model import LlamaThreePointOneEightB
+        from models.Meta.model import LlamaThreePointOneEightB
         return LlamaThreePointOneEightB(randomly_flip_options, shuffle_answer_options)
     elif model_name == "Llama-3.1-70B":
-        from models.Llama.model import LlamaThreePointOneSeventyB
+        from models.Meta.model import LlamaThreePointOneSeventyB
         return LlamaThreePointOneSeventyB(randomly_flip_options, shuffle_answer_options)
     elif model_name == "Llama-3.1-405B":
-        from models.Llama.model import LlamaThreePointOneFourHundredFiveB
+        from models.Meta.model import LlamaThreePointOneFourHundredFiveB
         return LlamaThreePointOneFourHundredFiveB(randomly_flip_options, shuffle_answer_options)
     elif model_name == "Gemini-1.5-Flash":
         from models.Google.model import GeminiOneFiveFlash
