@@ -107,3 +107,21 @@ class LlamaThreePointOneEightB(Llama):
             shuffle_answer_options=shuffle_answer_options,
         )
         self.NAME = "meta-llama/Meta-Llama-3.1-8B-Instruct"
+        
+
+class LlamaThreePointTwoNinetyB(Llama):
+    """
+    A class representing a Llama-3.2-90B-Vision-Instruct LLM.
+
+    Attributes:
+        NAME (str): The name of the model.
+    """
+
+    def __init__(
+        self, randomly_flip_options: bool = False, shuffle_answer_options: bool = False
+    ):
+        super().__init__(
+            randomly_flip_options=randomly_flip_options,
+            shuffle_answer_options=shuffle_answer_options,
+        )
+        self.NAME = "meta-llama/Llama-3.2-90B-Vision-Instruct"
