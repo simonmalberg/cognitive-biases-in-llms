@@ -192,11 +192,30 @@ class LLM(ABC):
                     seed += (max_retries - retry)
                     break
                 except Exception as e:
+                    current_error = e
                     test_decision = None
                     seed += 1
-                    print(f"Warning: the model {self.NAME} failed to make a decision on the test case {test_id}.\nError: {e}\nRetrying...")
+                    print(f"Warning: the model {self.NAME} failed to make a decision on the test case {test_id}.\nError: {current_error}\nRetrying...")
             # checking if the decision was successful in the end
             if test_decision is None:
+                # if not, manually create a DecisionResult object with None values and corresponding status and error message
+                test_decision = DecisionResult(
+                    model=self.NAME,
+                    control_options=None,
+                    control_option_order=None,
+                    control_answer=None,
+                    control_extraction=None,
+                    control_decision=None,
+                    treatment_options=None,
+                    treatment_option_order=None,
+                    treatment_answer=None,
+                    treatment_extraction=None,
+                    treatment_decision=None,
+                    temperature=temperature,
+                    seed=seed,
+                    status="ERROR",
+                    error_message=current_error
+                )
                 print(f"Max retries of {max_retries} reached for the test case {test_id} by the model {self.NAME}.\nSkipping...")
             all_decisions.append(test_decision)
             
