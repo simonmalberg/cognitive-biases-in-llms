@@ -45,12 +45,14 @@ class Claude(LLM):
         # Call the chat completions API endpoint
         response = self._CLIENT.messages.create(
             model=self.NAME,
+            # we use a max_tokens (required parameter) of 1024 exactly as in the Anthropic API documentation
+            max_tokens=1024,
             temperature=temperature,
             messages=[{"role": "user", "content": prompt}],
         )
 
         # Extract and return the answer
-        return response["content"][0]["text"]
+        return response.content[0].text
 
 
 class ClaudeThreeFiveSonnet(Claude):
@@ -69,3 +71,21 @@ class ClaudeThreeFiveSonnet(Claude):
             shuffle_answer_options=shuffle_answer_options,
         )
         self.NAME = "claude-3-5-sonnet-20240620"
+        
+
+class ClaudeThreeHaiku(Claude):
+    """
+    A class representing a Claude 3 Haiku LLM that decides on the test cases provided.
+
+    Attributes:
+        NAME (str): The name of the model.
+    """
+
+    def __init__(
+        self, randomly_flip_options: bool = False, shuffle_answer_options: bool = False
+    ):
+        super().__init__(
+            randomly_flip_options=randomly_flip_options,
+            shuffle_answer_options=shuffle_answer_options,
+        )
+        self.NAME = "claude-3-haiku-20240307"
