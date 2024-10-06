@@ -285,6 +285,12 @@ def get_model(model_name: str, randomly_flip_options: bool = False, shuffle_answ
     elif model_name == "Qwen-2.5-72B-Instruct":
         from models.Alibaba.model import QwenTwoPointFiveSeventyTwoB
         return QwenTwoPointFiveSeventyTwoB(randomly_flip_options, shuffle_answer_options)
+    elif model_name == "WizardLM-2-8x22B":
+        from models.Microsoft.model import WizardLMTwoEightTwentyTwoB
+        return WizardLMTwoEightTwentyTwoB(randomly_flip_options, shuffle_answer_options)
+    elif model_name == "WizardLM-2-7B":
+        from models.Microsoft.model import WizardLMTwoSevenB
+        return WizardLMTwoSevenB(randomly_flip_options, shuffle_answer_options)
     
     raise ValueError(f"Model '{model_name}' is not supported. Please choose one of 'GPT-4o', 'GPT-3.5-Turbo', 'Llama-3.1-8B', 'Llama-3.1-70B', 'Llama-3.1-405B', 'Gemini-1.5-Flash', 'Claude-3.5-Sonnet', 'Mistral-Large-2', 'Mixtral-8x7b'.")
 
