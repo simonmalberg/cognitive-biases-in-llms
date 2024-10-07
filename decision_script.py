@@ -116,7 +116,7 @@ def decide_batch(
                 )
             )
         # deciding the test cases and obtaining the DecisionResult objects
-        decision_results = model.decide_all(test_cases, temperature, seed, max_retries=5)
+        decision_results = model.decide_all(test_cases, temperature, seed, max_retries=1)
         # storing all the results (both failed and completed) in a new DataFrame
         decision_df = convert_decisions(ids, decision_results)
         # get indices of the decisions that failed: they have status "ERROR"
@@ -196,11 +196,11 @@ def decide_dataset(
 if __name__ == "__main__":
 
     # TODO: name of the decision model as per the get_model function
-    model_name = 'Llama-3.1-8B'
+    model_name = 'Llama-3.2-3B'
     # TODO: Decide the number of batches to split the dataset into:
     N_BATCHES = 3000 # 10 tests per batch
     # TODO: Number of processors to use
-    max_workers = 100
+    max_workers = 150
 
     # Provide the path to the overall dataset if location is different from the default
     dataset = pd.read_csv("datasets/full_dataset.csv")
