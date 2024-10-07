@@ -7,3 +7,4 @@ generated_tests/*
 txt_logs/*
 datasets/*
 decision_datasets/*
+checked_datasets/*
