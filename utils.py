@@ -279,9 +279,9 @@ def get_model(model_name: str, randomly_flip_options: bool = False, shuffle_answ
     elif model_name == "Mistral-Large-2":
         from models.MistralAI.model import MistralLargeTwo
         return MistralLargeTwo(randomly_flip_options, shuffle_answer_options)
-    elif model_name == "Mixtral-8x7b":
-        from models.MistralAI.model import Mixtral8x7b
-        return Mixtral8x7b(randomly_flip_options, shuffle_answer_options)
+    elif model_name == "Mistral-Small":
+        from models.MistralAI.model import MistralSmall
+        return MistralSmall(randomly_flip_options, shuffle_answer_options)
     elif model_name == "Gemma-2-9B-IT":
         from models.Google.model import GemmaTwoNineB
         return GemmaTwoNineB(randomly_flip_options, shuffle_answer_options)
