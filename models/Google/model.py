@@ -139,6 +139,25 @@ class GeminiOneFiveFlash(Gemini):
         )
         self.NAME = "models/gemini-1.5-flash"
         self.MODEL = genai.GenerativeModel("models/gemini-1.5-flash")
+        
+
+class GeminiOneFiveFlashEightB(Gemini):
+    """
+    A class representing a Gemini 1.5 Flash 8B LLM.
+
+    Attributes:
+        NAME (str): The name of the model.
+    """
+    
+    def __init__(
+        self, randomly_flip_options: bool = False, shuffle_answer_options: bool = False
+    ):
+        super().__init__(
+            randomly_flip_options=randomly_flip_options,
+            shuffle_answer_options=shuffle_answer_options,
+        )
+        self.NAME = "models/gemini-1.5-flash-8b"
+        self.MODEL = genai.GenerativeModel("models/gemini-1.5-flash-8b")
 
 
 class GemmaTwoNineB(Gemma):

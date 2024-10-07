@@ -267,6 +267,9 @@ def get_model(model_name: str, randomly_flip_options: bool = False, shuffle_answ
     elif model_name == "Gemini-1.5-Flash":
         from models.Google.model import GeminiOneFiveFlash
         return GeminiOneFiveFlash(randomly_flip_options, shuffle_answer_options)
+    elif model_name == "Gemini-1.5-Flash-8B":
+        from models.Google.model import GeminiOneFiveFlashEightB
+        return GeminiOneFiveFlashEightB(randomly_flip_options, shuffle_answer_options)
     elif model_name == "Gemini-1.5-Pro":
         from models.Google.model import GeminiOneFivePro
         return GeminiOneFivePro(randomly_flip_options, shuffle_answer_options)
