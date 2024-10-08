@@ -276,6 +276,9 @@ def get_model(model_name: str, randomly_flip_options: bool = False, shuffle_answ
     elif model_name == "Claude-3.5-Sonnet":
         from models.Anthropic.model import ClaudeThreeFiveSonnet
         return ClaudeThreeFiveSonnet(randomly_flip_options, shuffle_answer_options)
+    elif model_name == "Claude-3.5-Haiku":
+        from models.Anthropic.model import ClaudeThreeHaiku
+        return ClaudeThreeHaiku(randomly_flip_options, shuffle_answer_options)
     elif model_name == "Mistral-Large-2":
         from models.MistralAI.model import MistralLargeTwo
         return MistralLargeTwo(randomly_flip_options, shuffle_answer_options)
@@ -297,6 +300,13 @@ def get_model(model_name: str, randomly_flip_options: bool = False, shuffle_answ
     elif model_name == "WizardLM-2-7B":
         from models.Microsoft.model import WizardLMTwoSevenB
         return WizardLMTwoSevenB(randomly_flip_options, shuffle_answer_options)
+    elif model_name == "Phi-3-Vision-128K-Instruct":
+        from models.Microsoft.model import PhiThree
+        return PhiThree(randomly_flip_options, shuffle_answer_options)
+    elif model_name == "Yi-Large":
+        from models.ZeroOneAI.model import YiLarge
+        return YiLarge(randomly_flip_options, shuffle_answer_options)
+        
     
     raise ValueError(f"Model '{model_name}' is not supported. Please choose one of 'GPT-4o', 'GPT-3.5-Turbo', 'Llama-3.1-8B', 'Llama-3.1-70B', 'Llama-3.1-405B', 'Gemini-1.5-Flash', 'Claude-3.5-Sonnet', 'Mistral-Large-2', 'Mixtral-8x7b'.")
 
