@@ -26,7 +26,7 @@ class Yi(LLM):
         # The client object for the Fireworks API
         self._CLIENT = Fireworks(api_key=os.environ["FIREWORKS_API_KEY"])
         self.RESPONSE_FORMAT = None
-        with open("./models/01AI/prompts.yml") as f:
+        with open("./models/ZeroOneAI/prompts.yml") as f:
             self._PROMPTS = yaml.safe_load(f)
 
     def prompt(self, prompt: str, temperature: float = 0.0, seed: int = 42) -> str:
