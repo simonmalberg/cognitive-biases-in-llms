@@ -8,3 +8,4 @@ txt_logs/*
 datasets/*
 decision_datasets/*
 checked_datasets/*
+plots/*
