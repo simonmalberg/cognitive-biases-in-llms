@@ -102,7 +102,27 @@ MODEL_SIZE_MAPPING = {
 
 # TODO Find a suitable benchmark giving us scores for how 'intelligent' each model is
 MODEL_SCORE_MAPPING = {
-    k: v*19 % 17 for k, v in MODEL_SIZE_MAPPING.items()
+     'GPT-4o': 1264,
+    'GPT-4o-mini': 1273,
+    'GPT-3.5-Turbo': 1106,
+    'Llama 3.1 405B': 1267,
+    'Llama 3.1 70B': 1248,
+    'Llama 3.1 8B': 1172,
+    'Llama 3.2 3B': 1102,
+    'Llama 3.2 1B': 1054,
+    'Claude 3 Haiku': 1179,
+    'Gemini 1.5 Pro': 1304,
+    'Gemini 1.5 Flash': 1227,
+    'Gemma 2 27B': 1218,
+    'Gemma 2 9B': 1189,
+    'Mistral Small': None,
+    'Mistral Large 2': 1251,
+    'WizardLM 2 8x22B': None,
+    'WizardLM-2-7B': None,
+    'Phi 3': None,
+    'Qwen2.5 72B': 1257,
+    'Yi-Large': 1212,
+    'Random': None
 }
 
 MODEL_ORDER = list(MODEL_NAME_MAPPING.values())
@@ -524,6 +544,7 @@ def plot_bubble_plot(df: pd.DataFrame, x: str, y: str, size: str, color: str, la
     unique_colors = df[color].cat.categories
     color_mapping = {cat: idx for idx, cat in enumerate(unique_colors)}
     color_values = df[color].map(color_mapping)
+    
 
     # Create the bubble plot
     plt.figure(figsize=(10, 6))
@@ -548,3 +569,4 @@ def plot_bubble_plot(df: pd.DataFrame, x: str, y: str, size: str, color: str, la
 
     # Display the heatmap
     plt.show()
+    
