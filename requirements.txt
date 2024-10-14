@@ -1,9 +1,13 @@
-numpy
+numpy==2.0
 pandas
+scikit-learn
 matplotlib
 seaborn
+umap-learn
+hdbscan
 pyyaml
 wandb
+ipywidgets
 openai
 google-generativeai
 anthropic
