@@ -4,10 +4,10 @@ scikit-learn
 matplotlib
 seaborn
 umap-learn
-hdbscan
 pyyaml
 wandb
 ipywidgets
+tiktoken
 openai
 google-generativeai
 anthropic
