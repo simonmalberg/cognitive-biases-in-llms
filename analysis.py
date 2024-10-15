@@ -77,32 +77,31 @@ MODEL_DEVELOPER_MAPPING = {
     'Random': 'None'
 }
 
-# TODO Complete mapping of model parameters
 MODEL_SIZE_MAPPING = {
-    'GPT-4o': 200, # TBD
-    'GPT-4o mini': 10, # TBD
+    'GPT-4o': 200, # Assumption (real size not published)
+    'GPT-4o mini': 10, # Assumption (real size not published)
     'GPT-3.5 Turbo': 175,
     'Llama 3.1 405B': 405,
     'Llama 3.1 70B': 70,
     'Llama 3.1 8B': 8,
     'Llama 3.2 3B': 3,
     'Llama 3.2 1B': 1,
-    'Claude 3 Haiku': 20, # TBD
-    'Gemini 1.5 Pro': 200, # TBD
-    'Gemini 1.5 Flash': 30, # TBD
+    'Claude 3 Haiku': 20, # Assumption (real size not published)
+    'Gemini 1.5 Pro': 200, # Assumption (real size not published)
+    'Gemini 1.5 Flash': 30, # Assumption (real size not published)
     'Gemma 2 27B': 27,
     'Gemma 2 9B': 9,
-    'Mistral Large': 123, # TBD
-    'Mistral Small': 22, # TBD
+    'Mistral Large': 123,
+    'Mistral Small': 22,
     'WizardLM-2 8x22B': 176,
     'WizardLM-2 7B': 7,
-    'Phi-3.5': 4.2, # TBD
+    'Phi-3.5': 4.2,
     'Qwen2.5 72B': 72,
-    'Yi-Large': 34, # TBD
+    'Yi-Large': 34,
     'Random': 0
 }
 
-# Model scores for chatbot arena
+# Model scores from Chatbot Arena
 MODEL_SCORE_MAPPING = {
     'GPT-4o': 1264,
     'GPT-4o mini': 1273,
