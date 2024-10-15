@@ -1,6 +1,7 @@
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
+import matplotlib.colors as mcolors
 import seaborn as sns
 from sklearn.impute import SimpleImputer
 from sklearn.cluster import KMeans
@@ -8,6 +9,7 @@ from sklearn.cluster import HDBSCAN
 from sklearn.preprocessing import StandardScaler
 from sklearn.decomposition import PCA
 import scipy.cluster.hierarchy as sch
+import tiktoken
 import umap
 import os
 import re
@@ -29,8 +31,8 @@ BIAS_NAME_MAPPING = {
 
 MODEL_NAME_MAPPING = {
     'gpt-4o-2024-08-06': 'GPT-4o',
-    'gpt-4o-mini-2024-07-18': 'GPT-4o-mini',
-    'gpt-3.5-turbo-0125': 'GPT-3.5-Turbo',
+    'gpt-4o-mini-2024-07-18': 'GPT-4o mini',
+    'gpt-3.5-turbo-0125': 'GPT-3.5 Turbo',
     'meta-llama/Meta-Llama-3.1-405B-Instruct': 'Llama 3.1 405B',
     'meta-llama/Meta-Llama-3.1-70B-Instruct': 'Llama 3.1 70B',
     'meta-llama/Meta-Llama-3.1-8B-Instruct': 'Llama 3.1 8B',
@@ -42,10 +44,10 @@ MODEL_NAME_MAPPING = {
     'google/gemma-2-27b-it': 'Gemma 2 27B',
     'google/gemma-2-9b-it': 'Gemma 2 9B',
     'mistral-small-2409': 'Mistral Small',
-    'mistral-large-2407': 'Mistral Large 2',
-    'microsoft/WizardLM-2-8x22B': 'WizardLM 2 8x22B',
-    'microsoft/WizardLM-2-7B': 'WizardLM-2-7B',
-    'accounts/fireworks/models/phi-3-vision-128k-instruct': 'Phi 3',
+    'mistral-large-2407': 'Mistral Large',
+    'microsoft/WizardLM-2-8x22B': 'WizardLM-2 8x22B',
+    'microsoft/WizardLM-2-7B': 'WizardLM-2 7B',
+    'accounts/fireworks/models/phi-3-vision-128k-instruct': 'Phi-3.5',
     'Qwen/Qwen2.5-72B-Instruct': 'Qwen2.5 72B',
     'accounts/yi-01-ai/models/yi-large': 'Yi-Large',
     'random-model': 'Random'
@@ -53,8 +55,8 @@ MODEL_NAME_MAPPING = {
 
 MODEL_DEVELOPER_MAPPING = {
     'GPT-4o': 'OpenAI',
-    'GPT-4o-mini': 'OpenAI',
-    'GPT-3.5-Turbo': 'OpenAI',
+    'GPT-4o mini': 'OpenAI',
+    'GPT-3.5 Turbo': 'OpenAI',
     'Llama 3.1 405B': 'Meta',
     'Llama 3.1 70B': 'Meta',
     'Llama 3.1 8B': 'Meta',
@@ -66,10 +68,10 @@ MODEL_DEVELOPER_MAPPING = {
     'Gemma 2 27B': 'Google',
     'Gemma 2 9B': 'Google',
     'Mistral Small': 'Mistral',
-    'Mistral Large 2': 'Mistral',
-    'WizardLM 2 8x22B': 'Microsoft',
-    'WizardLM-2-7B': 'Microsoft',
-    'Phi 3': 'Microsoft',
+    'Mistral Large': 'Mistral',
+    'WizardLM-2 8x22B': 'Microsoft',
+    'WizardLM-2 7B': 'Microsoft',
+    'Phi-3.5': 'Microsoft',
     'Qwen2.5 72B': 'Alibaba',
     'Yi-Large': '01.AI',
     'Random': 'None'
@@ -77,32 +79,52 @@ MODEL_DEVELOPER_MAPPING = {
 
 # TODO Complete mapping of model parameters
 MODEL_SIZE_MAPPING = {
-    'GPT-4o': 1800, # TBD
-    'GPT-4o-mini': 175, # TBD
-    'GPT-3.5-Turbo': 175,
+    'GPT-4o': 200, # TBD
+    'GPT-4o mini': 10, # TBD
+    'GPT-3.5 Turbo': 175,
     'Llama 3.1 405B': 405,
     'Llama 3.1 70B': 70,
     'Llama 3.1 8B': 8,
     'Llama 3.2 3B': 3,
     'Llama 3.2 1B': 1,
-    'Claude 3 Haiku': 70, # TBD
-    'Gemini 1.5 Pro': 175, # TBD
-    'Gemini 1.5 Flash': 70, # TBD
+    'Claude 3 Haiku': 20, # TBD
+    'Gemini 1.5 Pro': 200, # TBD
+    'Gemini 1.5 Flash': 30, # TBD
     'Gemma 2 27B': 27,
     'Gemma 2 9B': 9,
-    'Mistral Large 2': 175, # TBD
-    'Mistral Small': 70, # TBD
-    'WizardLM 2 8x22B': 176,
-    'WizardLM-2-7B': 7,
-    'Phi 3': 3.8, # TBD
+    'Mistral Large': 123, # TBD
+    'Mistral Small': 22, # TBD
+    'WizardLM-2 8x22B': 176,
+    'WizardLM-2 7B': 7,
+    'Phi-3.5': 4.2, # TBD
     'Qwen2.5 72B': 72,
-    'Yi-Large': 36, # TBD
+    'Yi-Large': 34, # TBD
     'Random': 0
 }
 
-# TODO Find a suitable benchmark giving us scores for how 'intelligent' each model is
+# Model scores for chatbot arena
 MODEL_SCORE_MAPPING = {
-    k: v*19 % 17 for k, v in MODEL_SIZE_MAPPING.items()
+    'GPT-4o': 1264,
+    'GPT-4o mini': 1273,
+    'GPT-3.5 Turbo': 1106,
+    'Llama 3.1 405B': 1267,
+    'Llama 3.1 70B': 1248,
+    'Llama 3.1 8B': 1172,
+    'Llama 3.2 3B': 1102,
+    'Llama 3.2 1B': 1054,
+    'Claude 3 Haiku': 1179,
+    'Gemini 1.5 Pro': 1304,
+    'Gemini 1.5 Flash': 1265,
+    'Gemma 2 27B': 1218,
+    'Gemma 2 9B': 1189,
+    'Mistral Small': None,
+    'Mistral Large': 1251,
+    'WizardLM-2 8x22B': None,
+    'WizardLM-2 7B': None,
+    'Phi-3.5': None,
+    'Qwen2.5 72B': 1257,
+    'Yi-Large': 1212,
+    'Random': None
 }
 
 MODEL_ORDER = list(MODEL_NAME_MAPPING.values())
@@ -184,6 +206,87 @@ def load_model_bias_data(df_decisions: pd.DataFrame = None, df_tests: pd.DataFra
     df = df.apply(lambda row: row.explode(), axis=0).reset_index()
 
     return df
+
+
+def load_model_failures(df_decisions: pd.DataFrame):
+    """
+    Loads a DataFrame capturing the success rate (1 - failure rate) of all models.
+    """
+
+    # Calculate the average success rate per model
+    df_failures = df_decisions[["model", "status"]].copy()
+    df_failures["status"] = df_failures["status"].map({"OK": 1, "ERROR": 0}) * 100.0
+    df_failures = df_failures.groupby("model").mean()
+    df_failures = df_failures.sort_values(by="status", ascending=False).reset_index()
+
+    # Rename the column
+    df_failures = df_failures.rename(columns={"status": "Valid Answers"})
+
+    return df_failures
+
+
+def load_model_answer_length(df_decisions: pd.DataFrame):
+    """
+    Loads a DataFrame capturing the average length (in tokens) of answers per model.
+    """
+
+    # Load tiktoken tokenizer encodings
+    encoding = tiktoken.get_encoding("cl100k_base")
+
+    # Define a reusable function for counting tokens
+    def count_tokens(s: str):
+        return len(encoding.encode(s))
+
+    # Count the number of tokens in the model answer
+    df_lengths = df_decisions[["model", "control_answer", "treatment_answer"]].copy()
+    df_lengths["tokens_control_answer"] = df_decisions["control_answer"].astype(str).apply(count_tokens)
+    df_lengths["tokens_treatment_answer"] = df_decisions["treatment_answer"].astype(str).apply(count_tokens)
+
+    # Sum up the token counts
+    df_lengths["Average Output Tokens"] = df_lengths["tokens_control_answer"] + df_lengths["tokens_treatment_answer"]
+    
+    # Calculate the average output token count per model
+    df_lengths = df_lengths[["model", "Average Output Tokens"]].groupby("model").mean().reset_index().sort_values(by="Average Output Tokens", ascending=False)
+
+    return df_lengths
+
+
+def load_model_characteristics(df_decisions: pd.DataFrame, df_biasedness: pd.DataFrame, incl_failures: bool = False, incl_lengths: bool = False, incl_random: bool = False, fill_na_scores: bool = True):
+    """
+    Loads a DataFrame with a summary of model characteristics.
+    """
+
+    # Put all relevant information about the models into a single DataFrame
+    df_mean_abs_bias = calculate_mean_absolute(df_biasedness, by="model", col_name="Bias")
+    df_mean_abs_bias["Parameters"] = df_mean_abs_bias["model"].map(MODEL_SIZE_MAPPING)
+    df_mean_abs_bias["Developer"] = df_mean_abs_bias["model"].map(MODEL_DEVELOPER_MAPPING)
+    df_mean_abs_bias["Score"] = df_mean_abs_bias["model"].map(MODEL_SCORE_MAPPING)
+
+    # If requested, load additional information on the % of failed answers per model
+    if incl_failures:
+        df_failures = load_model_failures(df_decisions)
+        df_mean_abs_bias = df_mean_abs_bias.merge(df_failures)
+
+    # If requested, load additional information on the average output tokens per model
+    if incl_lengths:
+        df_lengths = load_model_answer_length(df_decisions)
+        df_mean_abs_bias = df_mean_abs_bias.merge(df_lengths)
+
+    # Rename some columns
+    df_mean_abs_bias = df_mean_abs_bias.rename(columns={"Bias": "Mean Absolute Bias", "Score": "Chatbot Arena Score"})
+
+    # If requested, fill in missing score values with the mean score and add an asterisk to the model name
+    if fill_na_scores:
+        missing_scores = df_mean_abs_bias["Chatbot Arena Score"].isna()
+        mean_score = df_mean_abs_bias["Chatbot Arena Score"].mean()
+        df_mean_abs_bias["Chatbot Arena Score"] = df_mean_abs_bias["Chatbot Arena Score"].fillna(mean_score)
+        df_mean_abs_bias.loc[missing_scores, "model"] = df_mean_abs_bias.loc[missing_scores, "model"] + '*'
+
+    # Unless requested, exclude the Random model
+    if not incl_random:
+        df_mean_abs_bias = df_mean_abs_bias[df_mean_abs_bias["model"] != "Random*"].reset_index(drop=True)
+
+    return df_mean_abs_bias
 
 
 def format_decision_data(df: pd.DataFrame, format_bias_names: bool = True, format_model_names: bool = True) -> pd.DataFrame:
@@ -335,13 +438,14 @@ def cluster_with_hdbscan(df: pd.DataFrame, **kwargs):
     return clusters
 
 
-def plot_bias_heatmap(df: pd.DataFrame, model_order: list[str] = MODEL_ORDER, save_plot: bool = True, abs: bool = False, agg: str = 'mean'):
+def plot_bias_heatmap(df: pd.DataFrame, model_order: list[str] = MODEL_ORDER, abs: bool = False, add_avg_abs: bool = True, legend: bool = True, agg: str = 'mean', figsize: tuple[float] = (11, 12), save_plot: bool = True):
     """
     Plots a heatmap showing the bias scores of all model-bias combinations
     """
 
-    # Convert all scores to absolute values, if requested
+    # If requested, convert all scores to absolute values
     if abs:
+        df = df.copy()
         df['individual_score'] = df['individual_score'].abs()
 
     # Pivot the data to create the matrix needed for the heatmap
@@ -357,11 +461,20 @@ def plot_bias_heatmap(df: pd.DataFrame, model_order: list[str] = MODEL_ORDER, sa
     average_row = heatmap_data.mean(axis=0)
     heatmap_data.loc['Average'] = average_row
 
+    # If requested, perform similar calculations to add a 'Average Absolute' row at the bottom
+    if add_avg_abs:
+        df_abs = df[["model", "bias", "individual_score"]].copy()
+        df_abs["individual_score"] = df_abs["individual_score"].abs()
+        df_abs = df_abs.pivot_table(values='individual_score', index='bias', columns='model', aggfunc='mean')
+        df_abs['Average'] = df_abs.mean(axis=1)
+        abs_values = df_abs.mean(axis=0)
+        heatmap_data.loc['Average Absolute'] = abs_values
+
     # Reindex the dataframe with the custom column order
     heatmap_data = heatmap_data.reindex(columns=(model_order + ['Average']))
 
     # Create the figure and set up subplots with appropriate spacing
-    fig, ax = plt.subplots(figsize=(11, 12))
+    fig, ax = plt.subplots(figsize=figsize)
 
     # Create the heatmap without the default colorbar
     sns.heatmap(
@@ -391,14 +504,18 @@ def plot_bias_heatmap(df: pd.DataFrame, model_order: list[str] = MODEL_ORDER, sa
 
     # Remove the black lines around the white gap for 'Average' row and column
     ax.hlines([heatmap_data.shape[0] - 1], *ax.get_xlim(), color='white', linewidth=5)  # Row gap
+    if add_avg_abs:
+        ax.hlines([heatmap_data.shape[0] - 2], *ax.get_xlim(), color='white', linewidth=5)  # Row gap
     ax.vlines([heatmap_data.shape[1] - 1], *ax.get_ylim(), color='white', linewidth=5)  # Column gap
 
-    # Manually add the colorbar below the heatmap
-    cbar_ax = fig.add_axes([0.2, 0.08, 0.6, 0.03])  # Adjust [left, bottom, width, height]
-    cbar = plt.colorbar(ax.collections[0], cax=cbar_ax, orientation='horizontal', label='Bias')
+    # If requested, add a colorbar legend
+    if legend:
+        # Manually add the colorbar below the heatmap
+        cbar_ax = fig.add_axes([0.2, 0.08, 0.6, 0.03])  # Adjust [left, bottom, width, height]
+        cbar = plt.colorbar(ax.collections[0], cax=cbar_ax, orientation='horizontal', label='Bias')
 
-    # Remove the border around the colorbar
-    cbar.outline.set_visible(False)
+        # Remove the border around the colorbar
+        cbar.outline.set_visible(False)
 
     # Adjust the space to avoid overlap using subplots_adjust instead of tight_layout
     plt.subplots_adjust(left=0.1, right=0.9, top=0.95, bottom=0.15)  # Modify these values if needed
@@ -454,7 +571,7 @@ def plot_scatter(df: pd.DataFrame, label: str, dot_size: int = 1, dot_alpha: flo
     plt.show()
 
 
-def plot_dendrogram(df: pd.DataFrame, label: str, scale_first: bool = False, method: str = 'complete', metric: str = 'euclidean', save_plot: bool = True):
+def plot_dendrogram(df: pd.DataFrame, label: str, scale_first: bool = False, method: str = 'complete', metric: str = 'euclidean', n_clusters: int = 10, save_plot: bool = True):
     """
     Performs agglomerative clustering and plots the results as a dendrogram.
     """
@@ -470,10 +587,18 @@ def plot_dendrogram(df: pd.DataFrame, label: str, scale_first: bool = False, met
     # Perform Agglomerative Clustering and compute the linkage matrix
     linkage_matrix = sch.linkage(df[num_cols], method=method, metric=metric)
 
+    # Create a color palette from the 'Spectral' colormap with alpha = 0.7
+    cmap = plt.get_cmap('Spectral', n_clusters)
+    # colors = [cmap(i / n_clusters) for i in range(n_clusters)]
+    colors = [(*cmap(i / n_clusters)[:3], 0.7) for i in range(n_clusters)]
+
+    # Function to apply colors to dendrogram
+    def color_func(x):
+        return mcolors.to_hex(colors[x % n_clusters])
+
     # Plot the dendrogram
-    plt.figure(figsize=(12, 8))
-    sch.dendrogram(linkage_matrix, labels=df[label].values, orientation='right')
-    plt.title("Dendrogram")
+    plt.figure(figsize=(5, 5))
+    sch.dendrogram(linkage_matrix, labels=df[label].values, orientation='right', link_color_func=color_func)
     plt.xlabel(f"{metric.title()} Distance")
     
     # Save the plot
@@ -512,39 +637,81 @@ def plot_correlation_matrix(df: pd.DataFrame, save_plot: bool = True):
     plt.show()
 
 
-def plot_bubble_plot(df: pd.DataFrame, x: str, y: str, size: str, color: str, label: str, save_plot: bool = True):
+def plot_correlation_matrix_with_dendrogram(df: pd.DataFrame, save_plot: bool = True):
+    """
+    Plots a correlation matrix heatmap with a connected dendrogram for all numeric columns in the DataFrame.
+    """
+
+    # Step 1: Select all numeric columns
+    numeric_columns = df.select_dtypes(include=["number"]).columns
+
+    # Step 2: Calculate the correlation matrix
+    correlation_matrix = df[numeric_columns].corr()
+
+    # Step 3: Plot the correlation matrix using seaborn's heatmap
+    plt.figure(figsize=(8, 6.5))
+    # sns.heatmap(correlation_matrix, annot=False, fmt=".1f", cmap=sns.diverging_palette(220, 20, as_cmap=True), center=0, cbar=True)
+
+    g = sns.clustermap(correlation_matrix, annot=False, fmt=".1f", cmap=sns.diverging_palette(220, 20, as_cmap=True), center=0, cbar=True)
+    g.ax_row_dendrogram.remove()
+    
+    # Step 4: Set plot title and labels
+    plt.title("Correlation Matrix")
+    plt.xlabel("")
+    plt.ylabel("")
+
+    # Save the plot
+    if save_plot:
+        plt.savefig(PLOT_OUTPUT_FOLDER + "bias_correlation.pdf", format='pdf', bbox_inches='tight')
+
+    # Display the heatmap
+    plt.show()
+
+
+def plot_bubble_plot(df: pd.DataFrame, x: str, y: str, size: str, color: str, label: str, xlim: tuple[float] = None, ylim: tuple[float] = None, legendloc: str = 'lower right', alpha: float = 1.0, label_offset: dict = {}, save_plot: bool = True):
     """
     Creates a bubble plot with the x and y axis representing the given columns, bubble size based on the 'size' column, and bubble color based on the 'color' column.
     """
 
-    # Make sure the color column is treated as categorical
+    # Ensure the color column is treated as categorical
     df[color] = df[color].astype('category')
 
-    # Get unique colors and assign a unique color for each category
+    # Get unique colors and assign a consistent color for each category
     unique_colors = df[color].cat.categories
     color_mapping = {cat: idx for idx, cat in enumerate(unique_colors)}
-    color_values = df[color].map(color_mapping)
+
+    # Create a colormap
+    cmap = plt.get_cmap('Spectral', len(unique_colors))
+    
+    # Create a color list to ensure consistent colors for both plot and legend
+    color_list = [cmap(color_mapping[cat]) for cat in df[color]]
 
     # Create the bubble plot
-    plt.figure(figsize=(10, 6))
-    bubble = plt.scatter(df[x], df[y], s=df[size]*10, c=color_values, cmap='Spectral', alpha=1.0)
+    plt.figure(figsize=(7, 5.5))
+    scatter = plt.scatter(df[x], df[y], s=df[size]*10, c=color_list, alpha=alpha, edgecolor='lightgrey', linewidth=0.5)
 
     # Add labels to each bubble
     for i, row in df.iterrows():
-        plt.text(row[x], row[y], str(row[label]), fontsize=9, ha='center', va='center', color='black')
+        offset = label_offset[row[label]] if row[label] in label_offset else (0.0, 0.0)
+        plt.text(row[x] + offset[0], row[y] + offset[1], str(row[label]), fontsize=9, ha='center', va='center', color='black')
 
-    # Create a legend with categorical labels
-    handles = [plt.Line2D([0], [0], marker='o', color=plt.cm.Spectral(i / len(unique_colors)), linestyle='', markersize=10) for i in range(len(unique_colors))]
-    plt.legend(handles, unique_colors, title=color, bbox_to_anchor=(1.05, 1), loc='upper left')
+    # Create a legend with categorical labels, using the same colormap
+    handles = [plt.Line2D([0], [0], marker='o', color=cmap(i / len(unique_colors)), linestyle='', markersize=10, markeredgecolor='lightgrey', markeredgewidth=0.5, alpha=alpha) for i in range(len(unique_colors))]
+    plt.legend(handles, unique_colors, title=color, loc=legendloc)
 
     # Set plot labels and title
     plt.xlabel(x)
     plt.ylabel(y)
-    plt.title(f"Bubble Plot")
+
+    # Manually set the axis limits, if provided
+    if xlim:
+        plt.xlim(*xlim)
+    if ylim:
+        plt.ylim(*ylim)
 
     # Save the plot
     if save_plot:
         plt.savefig(PLOT_OUTPUT_FOLDER + "bubble_plot.pdf", format='pdf', bbox_inches='tight')
 
-    # Display the heatmap
+    # Show the plot
     plt.show()
