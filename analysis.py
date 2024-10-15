@@ -715,3 +715,4 @@ def plot_bubble_plot(df: pd.DataFrame, x: str, y: str, size: str, color: str, la
 
     # Show the plot
     plt.show()
+    
