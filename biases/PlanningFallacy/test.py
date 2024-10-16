@@ -104,4 +104,6 @@ class PlanningFallacyMetric(RatioScaleMetric):
         )
         # account for the sign of the parameter x_1 in the metric
         self.x_1 = -self.x_1
+        # to make the estimator unbiased, we set the parameter x_2 to -𝔼[x_1] = -3
+        self.x_2 = -3
         self.k = 1
