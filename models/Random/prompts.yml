@@ -1,0 +1,76 @@
+system_prompt: >-
+    You are a helpful assistant designed to output JSON.
+position_generation_prompt: >-
+    You will be given a list of names of the industry. For every industry in the list, you need to generate a list of {{n}} manager positions that are commonly found in it.
+
+    --- INDUSTRIES ---
+
+    {{industry_groups}}
+
+    Provide the answer in the following JSON format:
+    
+    """{
+        "industry1": ["position1", "position2", ..., "position{{n}}"],
+        "industry2": ["position1", "position2", ..., "position{{n}}"],
+        ...
+    }"""
+    
+    where the key is the industry and the value is a list of {{n}} manager positions for this industry.
+scenario_generation_prompt: >-
+    You will be given a list of scenarios containing names of industries and managerial positions. You need to complete each scenario by inserting a suitable short decision-making situation in the gap highlighted by {{}}.
+
+    --- SCENARIOS ---
+
+    {{scenarios}}
+
+    Provide the answer in the following JSON format:
+    
+    """{
+        1: "filled_scenario_1",
+        2: "filled_scenario_2",
+        ...
+    }"""
+    
+    where the key is the position of the scenario and the value is a filled scenario.
+population_prompt: >-
+    You will be given a scenario and a template.
+    The template has gaps indicated by double square brackets containing instructions on how to fill them, e.g., [[write a sentence]].
+
+
+    --- SCENARIO ---
+
+    {{scenario}}
+
+
+    --- TEMPLATE ---
+
+    {{template}}
+
+
+    Fill in the gaps according to the instructions and scenario. Provide the answer in the following JSON format:
+
+    {{format}}
+
+    where the keys are the original instructions for the gaps and values are the texts to fill the gaps.
+decision_prompt: >-
+    You will be given a decision-making task with multiple answer options.
+
+    {{test_case}}
+
+    Select exactly one option.
+extraction_prompt: >-
+    You will be given answer options from a decision-making task and a written answer.
+
+    --- OPTIONS ---
+
+    {{options}}
+
+
+    --- ANSWER ---
+
+    {{answer}}
+
+    
+    --- INSTRUCTION ---
+
+    Extract the option selected in the above answer (explicitly write "Option N" and nothing else where N is the number of the option). If you cannot extract the selected option, write 'No option selected'.
