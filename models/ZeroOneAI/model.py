@@ -1,4 +1,4 @@
-from base import LLM
+from core.base import LLM
 from fireworks.client import Fireworks
 import yaml
 import os

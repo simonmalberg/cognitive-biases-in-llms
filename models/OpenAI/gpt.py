@@ -1,5 +1,5 @@
-from tests import Template
-from base import LLM
+from core.testing import Template
+from core.base import LLM
 from openai import OpenAI
 import json
 import yaml
