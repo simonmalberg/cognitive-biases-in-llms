@@ -3,7 +3,7 @@ from models.OpenAI.model import GptThreePointFiveTurbo, GptFourO
 import random
 
 
-# Define a cognitive bias to test
+# Define a cognitive bias to test (provide the name in Pascal Case, e.g., 'IllusionOfControl')
 BIAS = 'Anchoring'               
 
 # Define other execution parameters
