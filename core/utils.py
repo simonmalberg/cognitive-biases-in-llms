@@ -251,13 +251,13 @@ def get_model(model_name: str, randomly_flip_options: bool = False, shuffle_answ
     """
 
     if model_name == "GPT-4o":
-        from models.OpenAI.gpt import GptFourO
+        from models.OpenAI.model import GptFourO
         return GptFourO(randomly_flip_options, shuffle_answer_options)
     elif model_name == "GPT-4o-Mini":
-        from models.OpenAI.gpt import GptFourOMini
+        from models.OpenAI.model import GptFourOMini
         return GptFourOMini(randomly_flip_options, shuffle_answer_options)
     elif model_name == "GPT-3.5-Turbo":
-        from models.OpenAI.gpt import GptThreePointFiveTurbo
+        from models.OpenAI.model import GptThreePointFiveTurbo
         return GptThreePointFiveTurbo(randomly_flip_options, shuffle_answer_options)
     elif model_name == "Llama-3.1-8B":
         from models.Meta.model import LlamaThreePointOneEightB
