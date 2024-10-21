@@ -1,4 +1,4 @@
-from core.base import TestGenerator, LLM, RatioScaleMetric, MetricCalculationError
+from core.base import TestGenerator, LLM, RatioScaleMetric
 from core.testing import TestCase, Template, TestConfig, DecisionResult
 import numpy as np
 
