@@ -1,11 +1,7 @@
-.idx/dev.nix
 *.pyc
-.env
-myenv/*
-wandb/*
-generated_tests/*
-txt_logs/*
-datasets/*
-decision_datasets/*
-checked_datasets/*
+data/generated_tests/*
+data/generation_logs/*
+data/generated_datasets/*
+data/decision_results/*
+data/full_dataset.csv
 plots/*
