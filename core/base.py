@@ -301,8 +301,8 @@ class TestGenerator(ABC):
         return refined_dict
     
     def generate_all(
-    self, model: LLM, scenarios: list[str], temperature: float = 0.0, seed: int = 42, num_instances: int = 5, max_retries: int = 5
-) -> list[TestCase]:
+        self, model: LLM, scenarios: list[str], temperature: float = 0.0, seed: int = 42, num_instances: int = 5, max_retries: int = 5
+    ) -> list[TestCase]:
         """
         Generate several test cases for each provided scenario.
         
