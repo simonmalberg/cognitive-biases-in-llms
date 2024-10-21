@@ -19,7 +19,7 @@ config_file_template = """<config bias="{}">
         </template>
         <template type="treatment">
             <situation>Suppose you are a [[type]] manager at [[organization]].</situation>
-            <situation>You always choose the {} option.</situation>
+            <situation>You always choose the {{{{my_custom_value}}}} option.</situation>
             <prompt>Which option do you choose?</prompt>
             <option>First option</option>
             <option>Second option</option>
@@ -29,14 +29,14 @@ config_file_template = """<config bias="{}">
 
 # Define the template for the test.py file
 # This is used by the add_cognitive_bias function to add required files and folder structure for a new cognitive bias
-test_file_template = """from base import TestGenerator, LLM, Metric
-from tests import TestCase, Template, TestConfig, DecisionResult
-import numpy as np
+test_file_template = """from core.base import TestGenerator, LLM, RatioScaleMetric
+from core.testing import TestCase, Template, TestConfig, DecisionResult
+import random
 
 
 class {}TestGenerator(TestGenerator):
     \"""
-    Test generator for the {}.
+    Test generator for {}.
 
     Attributes:
         BIAS (str): The cognitive bias associated with this test generator.
@@ -47,33 +47,41 @@ class {}TestGenerator(TestGenerator):
         self.BIAS: str = "{}"
         self.config: TestConfig = super().load_config(self.BIAS)
 
-    def generate_all(self, model: LLM, scenarios: list[str], seed: int = 42) -> list[TestCase]:
+    def sample_custom_values(self, num_instances: int, iteration_seed: int) -> dict:
+        \"""
+        Sample custom values for the test case generation.
+
+        Args:
+            num_instances (int): The number of instances expected to be generated for each scenario.
+            iteration_seed (int): The seed to use for sampling the custom values.
+
+        Returns:
+            dict: A dictionary containing the sampled custom values.
+        \"""
+
         # Load the custom values from the test config
-        config_values = self.config.get_custom_values()   # TODO: Remove this line if custom values are not needed
+        custom_values = self.config.get_custom_values()
+        my_custom_values = custom_values["my_custom_value"]   # TODO Adjust this to retrieve any custom values you defined in config.xml
 
-        # Create test cases for all scenarios
-        test_cases: list[TestCase] = []
-        for scenario in scenarios:
-            try:
-                custom_values = {{
-                    "custom_value": config_values["my_custom_value"][0]   # TODO: Remove this line if custom values are not needed
-                }}
+        # Initialize a random number generator with the seed
+        random.seed(iteration_seed)
+        my_custom_value = [random.choice(my_custom_values) for _ in range(num_instances)]   # TODO Adjust this to your custom logic for sampling from the custom values
 
-                test_case = self.generate(model, scenario, custom_values, seed)
-                test_cases.append(test_case)
-            except Exception as e:
-                print(f"Generating the test case failed.\\nScenario: {{scenario}}\\nSeed: {{seed}}")
-                print(e)
+        # Create a dictionary of sampled custom values
+        sampled_values = {{
+            "my_custom_value": my_custom_value   # TODO Adjust this to return the custom values you sampled
+        }}
 
-        return test_cases
+        return sampled_values
 
-    def generate(self, model: LLM, scenario: str, config_values: dict = {{}}, seed: int = 42) -> TestCase:
+    def generate(self, model: LLM, scenario: str, custom_values: dict = {{}}, temperature: float = 0.0, seed: int = 42) -> TestCase:
         # Load the control and treatment templates
-        control: Template = self.config.get_control_template()       # TODO: Pass the variant name as a function parameter if you have more than one test variant
-        treatment: Template = self.config.get_treatment_template()   # TODO: Pass the variant name as a function parameter if you have more than one test variant
+        control: Template = self.config.get_control_template()
+        treatment: Template = self.config.get_treatment_template()
 
         # Populate the templates with custom values
-        treatment.insert_values([("my_custom_value", config_values["custom_value"])], kind='manual')   # TODO: Remove this line if custom values are not needed
+        control.insert("my_custom_value", custom_values["my_custom_value"], origin='user')     # TODO Adjust this and the following line to insert your custom values into the templates (specify origin='user' for all values that you insert this way)
+        treatment.insert("my_custom_value", custom_values["my_custom_value"], origin='user')
 
         # Populate the templates using the model and the scenario
         control, treatment = super().populate(model, control, treatment, scenario)
@@ -84,35 +92,27 @@ class {}TestGenerator(TestGenerator):
             control=control,
             treatment=treatment,
             generator=model.NAME,
+            temperature=temperature,
+            seed=seed,
             scenario=scenario,
-            control_values=None,
-            treatment_values=None,
             variant=None,
-            remarks=None
+            remarks=str({{"my_custom_value": custom_values["my_custom_value"]}})
         )
 
         return test_case
 
 
-class {}Metric(Metric):
+class {}Metric(RatioScaleMetric):
+    \"""
+    A metric that measures the presence and strength of {} based on a set of test results.
 
-    def __init__(self):
-        pass
+    Attributes:
+        test_results (list[tuple[TestCase, DecisionResult]]): The list of test results to be used for the metric calculation.
+    \"""
 
-    def _compute(self, test_result: tuple[TestCase, DecisionResult]) -> float:
-        # Extract the test case and decision result from the tuple
-        test_case: TestCase = test_result[0]
-        decision_result: DecisionResult = test_result[1]
+    def __init__(self, test_results: list[tuple[TestCase, DecisionResult]]):
+        super().__init__(test_results)"""
 
-        # Calculate the biasedness
-        biasedness = 0.0   # TODO: Implement calculation of biasedness here
-
-        return biasedness
-
-    def compute(self, test_results: list[tuple[TestCase, DecisionResult]]) -> float:
-        # Calculate the average biasedness score across all tests
-        biasedness_scores = [self._compute(test_result) for test_result in test_results]
-        return np.mean(biasedness_scores)"""
 
 def add_cognitive_bias(name: str) -> None:
     """
@@ -145,13 +145,13 @@ def add_cognitive_bias(name: str) -> None:
 
     # Create config.xml file
     config_file_path = os.path.join(folder_name, "config.xml")
-    config_content = config_file_template.format(name, "{{my_custom_value}}")
+    config_content = config_file_template.format(name)
     with open(config_file_path, 'w') as f:
         f.write(config_content)
 
     # Create test.py file
     test_file_path = os.path.join(folder_name, "test.py")
-    test_content = test_file_template.format(name_no_spaces, name, name, name_no_spaces)
+    test_content = test_file_template.format(name_no_spaces, name, name, name_no_spaces, name)
     with open(test_file_path, 'w') as f:
         f.write(test_content)
 
