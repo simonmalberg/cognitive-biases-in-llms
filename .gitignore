@@ -1,7 +1,7 @@
 *.pyc
-data/generated_tests/*
-data/generation_logs/*
-data/generated_datasets/*
-data/decision_results/*
+data/generated_tests/*/*.xml
+data/generation_logs/*/*.txt
+data/generated_datasets/*.csv
+data/decision_results/*.csv
 data/full_dataset.csv
 plots/*
