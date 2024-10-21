@@ -218,14 +218,30 @@ def get_model(model_name: str, randomly_flip_options: bool = False, shuffle_answ
     """
     Returns a model instance of the specified type. Currently supported model names:
     - GPT-4o
+    - GPT-4o-Mini
     - GPT-3.5-Turbo
     - Llama-3.1-8B
     - Llama-3.1-70B
     - Llama-3.1-405B
+    - Llama-3.2-1B
+    - Llama-3.2-3B
+    - Llama-3.2-11B
+    - Llama-3.2-90B
     - Gemini-1.5-Flash
+    - Gemini-1.5-Flash-8B
+    - Gemini-1.5-Pro
     - Claude-3.5-Sonnet
+    - Claude-3.5-Haiku
     - Mistral-Large-2
-    - Mixtral-8x7b
+    - Mistral-Small
+    - Gemma-2-9B-IT
+    - Gemma-2-27B-IT
+    - Qwen-2.5-72B-Instruct
+    - WizardLM-2-8x22B
+    - WizardLM-2-7B
+    - Phi-3-Vision-128K-Instruct
+    - Yi-Large
+    - Random
 
     Args:
         model_name (str): The name of the model.
@@ -309,13 +325,12 @@ def get_model(model_name: str, randomly_flip_options: bool = False, shuffle_answ
     elif model_name == "Random":
         from models.Random.model import RandomModel
         return RandomModel(randomly_flip_options, shuffle_answer_options)
-        
     
     raise ValueError(f"Model '{model_name}' is not supported.")
 
 
 if __name__ == "__main__":
-    print("You are running the script to add a new cognitive bias.")
+    print("You are running the script for adding a new cognitive bias test.")
 
     done = False
     while not done:
