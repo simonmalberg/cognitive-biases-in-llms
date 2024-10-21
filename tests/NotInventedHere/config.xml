@@ -1,0 +1,55 @@
+<config bias="Not Invented Here">
+    <custom_values name="externality">
+        <value>organizational</value>
+        <value>contextual</value>
+        <value>spatial</value>
+    </custom_values>
+    <custom_values name="country">
+        <value>Nigeria</value>
+        <value>Ethiopia</value>
+        <value>Egypt</value>
+        <value>India</value>
+        <value>China</value>
+        <value>Indonesia</value>
+        <value>Russia</value>
+        <value>Germany</value>
+        <value>United Kingdom</value>
+        <value>USA</value>
+        <value>Canada</value>
+        <value>Brazil</value>
+        <value>Mexico</value>
+        <value>Colombia</value>
+        <value>Australia</value>
+        <value>New Zealand</value>
+    </custom_values>
+    <variant name="default">
+        <template type="control">
+            <situation>Suppose you are [[a/an]] [[type]] manager at [[organization]].</situation>
+            <situation>You have to make a decision [[complete the sentence with a description of a business decision with multiple proposals]].</situation>
+            <situation>[[One sentence describing a proposal.]].</situation>
+            <situation>[[A short statement that this was proposed by a colleague of the manager's own team. Use second-person. Do not indicate their level of experience or expertise.]].</situation>
+            <prompt>How would you evaluate this proposal?</prompt>
+            <option>Very good</option>
+            <option>Good</option>
+            <option>Somewhat good</option>
+            <option>Neither good nor bad</option>
+            <option>Somewhat bad</option>
+            <option>Bad</option>
+            <option>Very bad</option>
+        </template>
+        <template type="treatment">
+            <situation>Suppose you are [[a/an]] [[type]] manager at [[organization]].</situation>
+            <situation>You have to make a decision [[complete the sentence with a description of a business decision with multiple proposals]].</situation>
+            <situation>[[One sentence describing a proposal.]].</situation>
+            <situation>{{externality_statement}}.</situation>
+            <prompt>How would you evaluate this proposal?</prompt>
+            <option>Very good</option>
+            <option>Good</option>
+            <option>Somewhat good</option>
+            <option>Neither good nor bad</option>
+            <option>Somewhat bad</option>
+            <option>Bad</option>
+            <option>Very bad</option>
+        </template>
+    </variant>
+</config>

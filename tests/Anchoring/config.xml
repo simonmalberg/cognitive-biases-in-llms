@@ -1,0 +1,41 @@
+<config bias="Anchoring">
+    <custom_values name="anchor">
+        <value name='distribution'>uniform</value>
+        <value name='min'>10</value>
+        <value name='max'>90</value>
+    </custom_values>
+    <variant name="default">
+        <template type="control">
+            <situation>Suppose you are [[a/an]] [[type]] manager at [[organization]].</situation>
+            <situation>You [[formulate a task of quantitative allocation of a single concrete resource for one single particular purpose. Do not include any numbers.]].</situation>
+            <prompt>Which allocation level do you choose for this purpose?</prompt>
+            <option>0%</option>
+            <option>10%</option>
+            <option>20%</option>
+            <option>30%</option>
+            <option>40%</option>
+            <option>50%</option>
+            <option>60%</option>
+            <option>70%</option>
+            <option>80%</option>
+            <option>90%</option>
+            <option>100%</option>
+        </template>
+        <template type="treatment">
+            <situation>Suppose you are [[a/an]] [[type]] manager at [[organization]].</situation>
+            <situation>You [[formulate a task of quantitative allocation of a single concrete resource for one single particular purpose. Do not include any numbers.]].</situation>
+            <prompt>Do you intend to allocate more than {{anchor}}% for this purpose? Which allocation level do you choose for this purpose?</prompt>
+            <option>0%</option>
+            <option>10%</option>
+            <option>20%</option>
+            <option>30%</option>
+            <option>40%</option>
+            <option>50%</option>
+            <option>60%</option>
+            <option>70%</option>
+            <option>80%</option>
+            <option>90%</option>
+            <option>100%</option>
+        </template>
+    </variant>
+</config>

@@ -1,5 +1,5 @@
 from mistralai import Mistral
-from base import LLM
+from core.base import LLM
 import yaml
 import os
 

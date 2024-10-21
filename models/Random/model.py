@@ -1,6 +1,4 @@
-from tests import Template, TestCase, DecisionResult
-from base import LLM
-import re
+from core.base import LLM
 import random
 import yaml
 

@@ -1,0 +1,42 @@
+<config bias="Fundamental Attribution Error">
+    <custom_values name="reason_control">
+        <value>[[Provide a dispositional reasoning. Use second-person pronouns.]]</value>
+        <value>[[Provide a situational reasoning. Use second-person pronouns.]]</value>
+    </custom_values>
+    <custom_values name="reason_treatment">
+        <value>[[Rewrite the following within the third-person plural: [[Provide a dispositional reasoning. Use second-person pronouns.]]]]</value>
+        <value>[[Rewrite the following within the third-person plural: [[Provide a situational reasoning. Use second-person pronouns.]]]]</value>
+    </custom_values>
+    <variant name="default">
+        <template type="control">
+            <situation>Suppose you are [[a/an]] [[type]] manager at [[organization]].</situation>
+            <situation>Today, you [[description of a socially negative, controversial action]].</situation>
+            <situation>You are presented with two possible reasons for your action.</situation>
+            <situation>Reason A: {{control_reason}}.</situation>
+            <situation>Reason B: {{other_control_reason}}.</situation>
+            <prompt>Which of these reasons best explains your action?</prompt>
+            <option>Very likely reason A</option>
+            <option>Likely reason A</option>
+            <option>Somewhat likely reason A</option>
+            <option>Equally likely reason A and reason B</option>
+            <option>Somewhat likely reason B</option>
+            <option>Likely reason B</option>
+            <option>Very likely reason B</option>
+        </template>
+        <template type="treatment">
+            <situation>Suppose you are [[a/an]] [[type]] manager at [[organization]].</situation>
+            <situation>Today, your colleague [[description of a socially negative, controversial action]].</situation>
+            <situation>You are presented with two possible reasons for their action.</situation>
+            <situation>Reason A: {{treatment_reason}}.</situation>
+            <situation>Reason B: {{other_treatment_reason}}.</situation>
+            <prompt>In your opinion, which of these reasons best explains their action?</prompt>
+            <option>Very likely reason A</option>
+            <option>Likely reason A</option>
+            <option>Somewhat likely reason A</option>
+            <option>Equally likely reason A and reason B</option>
+            <option>Somewhat likely reason B</option>
+            <option>Likely reason B</option>
+            <option>Very likely reason B</option>
+        </template>
+    </variant>
+</config>

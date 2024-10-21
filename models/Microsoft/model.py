@@ -1,4 +1,4 @@
-from base import LLM
+from core.base import LLM
 from openai import OpenAI
 from fireworks.client import Fireworks
 import yaml

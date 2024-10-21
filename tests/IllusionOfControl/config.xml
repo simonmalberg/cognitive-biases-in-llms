@@ -1,0 +1,47 @@
+<config bias="Illusion of Control">
+    <custom_values name="treatment_variants">
+        <value name='default'> </value>
+        <value name='competition'>You are competing against several other [[type]] managers within [[reference to the organization]] and all [[type]] managers will be evaluated based on the share of [[second reference to the business activity]] that are successful.</value>
+        <value name='choice'>You have full authority to make all the critical choices related to [[reference to the business activity]].</value>
+        <value name='familiarity'>You are very familiar with [[reference to the business activity]] and have several years of experience in the field.</value>
+        <value name='involvement'>For each [[reference to the business activity]], you will be personally and deeply involved in the execution.</value>
+    </custom_values>
+    <variant name="default">
+        <template type="control">
+            <situation>Suppose you are [[a/an]] [[type]] manager at [[organization]].</situation>
+            <situation>They recently hired you to supervise [[regular business activity under your supervision]].</situation>
+
+            <prompt>What share of [[final reference to the business activity]] are typically successful in your industry when supervised by other [[type]] managers?</prompt>
+            <option>0%</option>
+            <option>10%</option>
+            <option>20%</option>
+            <option>30%</option>
+            <option>40%</option>
+            <option>50%</option>
+            <option>60%</option>
+            <option>70%</option>
+            <option>80%</option>
+            <option>90%</option>
+            <option>100%</option>
+        </template>
+        <template type="treatment">
+            <situation>Suppose you are [[a/an]] [[type]] manager at [[organization]].</situation>
+            <situation>They recently hired you to supervise [[regular business activity under your supervision]].</situation>
+
+            <situation>{{treatment_variant}}</situation>
+
+            <prompt>What share of [[final reference to the business activity]] do you expect to be successful under your supervision?</prompt>
+            <option>0%</option>
+            <option>10%</option>
+            <option>20%</option>
+            <option>30%</option>
+            <option>40%</option>
+            <option>50%</option>
+            <option>60%</option>
+            <option>70%</option>
+            <option>80%</option>
+            <option>90%</option>
+            <option>100%</option>
+        </template>
+    </variant>
+</config>

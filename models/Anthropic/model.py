@@ -1,5 +1,5 @@
 import anthropic
-from base import LLM
+from core.base import LLM
 import yaml
 import os
 import requests
