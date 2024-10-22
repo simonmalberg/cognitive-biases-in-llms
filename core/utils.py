@@ -2,6 +2,36 @@ from core.base import TestGenerator, LLM, RatioScaleMetric
 import importlib
 
 
+# A list of all currently supported models
+SUPPORTED_MODELS = [
+    "GPT-4o",
+    "GPT-4o-Mini",
+    "GPT-3.5-Turbo",
+    "Llama-3.1-8B",
+    "Llama-3.1-70B",
+    "Llama-3.1-405B",
+    "Llama-3.2-1B",
+    "Llama-3.2-3B",
+    "Llama-3.2-11B",
+    "Llama-3.2-90B",
+    "Gemini-1.5-Flash",
+    "Gemini-1.5-Flash-8B",
+    "Gemini-1.5-Pro",
+    "Claude-3.5-Sonnet",
+    "Claude-3.5-Haiku",
+    "Mistral-Large-2",
+    "Mistral-Small",
+    "Gemma-2-9B-IT",
+    "Gemma-2-27B-IT",
+    "Qwen-2.5-72B-Instruct",
+    "WizardLM-2-8x22B",
+    "WizardLM-2-7B",
+    "Phi-3-Vision-128K-Instruct",
+    "Yi-Large",
+    "Random"
+]
+
+
 def get_generator(bias: str) -> TestGenerator:
     """
     Returns a test generator for the specified cognitive bias.
@@ -12,6 +42,7 @@ def get_generator(bias: str) -> TestGenerator:
     Returns:
         A TestGenerator object for the specified cognitive bias.
     """
+
     try:
         # Construct the module path
         module_path = f'tests.{bias}.test'
@@ -40,6 +71,7 @@ def get_metric(bias: str) -> RatioScaleMetric:
     Returns:
         A Metric object for the specified cognitive bias.
     """
+    
     try:
         # Construct the module path
         module_path = f'tests.{bias}.test'
@@ -60,40 +92,18 @@ def get_metric(bias: str) -> RatioScaleMetric:
 
 def get_model(model_name: str, randomly_flip_options: bool = False, shuffle_answer_options: bool = False) -> LLM:
     """
-    Returns a model instance of the specified type. Currently supported model names:
-    - GPT-4o
-    - GPT-4o-Mini
-    - GPT-3.5-Turbo
-    - Llama-3.1-8B
-    - Llama-3.1-70B
-    - Llama-3.1-405B
-    - Llama-3.2-1B
-    - Llama-3.2-3B
-    - Llama-3.2-11B
-    - Llama-3.2-90B
-    - Gemini-1.5-Flash
-    - Gemini-1.5-Flash-8B
-    - Gemini-1.5-Pro
-    - Claude-3.5-Sonnet
-    - Claude-3.5-Haiku
-    - Mistral-Large-2
-    - Mistral-Small
-    - Gemma-2-9B-IT
-    - Gemma-2-27B-IT
-    - Qwen-2.5-72B-Instruct
-    - WizardLM-2-8x22B
-    - WizardLM-2-7B
-    - Phi-3-Vision-128K-Instruct
-    - Yi-Large
-    - Random
+    Returns a model instance of the specified type. See utils.SUPPORTED_MODELS for a list of all currently supported model.
 
     Args:
-        model_name (str): The name of the model.
+        model_name (str): The name of the model. One from utils.SUPPORTED_MODELS.
 
     Returns:
         A LLM object for the specified model.
     """
 
+    if model_name not in SUPPORTED_MODELS:
+        raise ValueError(f"Model '{model_name}' is not supported. Please choose one of: {SUPPORTED_MODELS}")
+    
     if model_name == "GPT-4o":
         from models.OpenAI.model import GptFourO
         return GptFourO(randomly_flip_options, shuffle_answer_options)
@@ -171,3 +181,14 @@ def get_model(model_name: str, randomly_flip_options: bool = False, shuffle_answ
         return RandomModel(randomly_flip_options, shuffle_answer_options)
     
     raise ValueError(f"Model '{model_name}' is not supported.")
+
+
+def get_supported_models() -> list[str]:
+    """
+    Returns a list of all currently supported models.
+
+    Returns:
+        list[str]: A list with names of all currently supported models.
+    """
+
+    return SUPPORTED_MODELS
