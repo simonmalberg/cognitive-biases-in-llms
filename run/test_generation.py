@@ -1,12 +1,26 @@
+import sys
+import os
+
+# Add the project root directory to sys.path to be able to import functionality from core/
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
 from core.utils import get_generator, get_model
 from core.base import TestCase, Template
-import hashlib
-import os
-import xml.etree.ElementTree as ET
 from collections import defaultdict
-from xml.dom import minidom
 from tqdm import tqdm
+from xml.dom import minidom
+import xml.etree.ElementTree as ET
 import pandas as pd
+import hashlib
+import argparse
+
+
+# References to relevant data directories
+SCENARIOS_PATH = os.path.join(".", "data", "scenarios.txt")
+TEST_CASES_PATH = os.path.join(".", "data", "generated_tests")
+GENERATION_LOGS_PATH = os.path.join(".", "data", "generation_logs")
+DATASETS_PATH = os.path.join(".", "data", "generated_datasets")
+TESTS_PATH = os.path.join(".", "tests")
 
 
 def get_all_biases() -> list[str]:
@@ -16,65 +30,63 @@ def get_all_biases() -> list[str]:
     Returns:
         list[str]: A list of cognitive biases.
     """
-    return [dir for dir in os.listdir("biases") if dir.isalpha()]
+
+    return [dir for dir in os.listdir(TESTS_PATH) if dir.isalpha()]
 
 
 def prettify_xml(elem: ET.Element) -> str:
     """
-    Return a pretty-printed XML string for the Element, with our custom formatting.
+    Returns a pretty-printed XML string for the Element, with our custom formatting.
+
+    Args:
+        elem (ET.Element): The ElementTree element to pretty-print.
+
+    Returns:
+        str: A pretty-printed XML string of the element.
     """
+
     rough_string = ET.tostring(elem, "utf-8")
     reparsed = minidom.parseString(rough_string)
     pretty_xml = reparsed.toprettyxml(indent="    ")
-    lines = [
-        line for line in pretty_xml.split("\n") if line.strip()
-    ]  # Remove empty lines
+    lines = [line for line in pretty_xml.split("\n") if line.strip()]  # Remove empty lines
     return "\n".join(lines)
 
 
-def write_to_xml(test_cases: list[TestCase], dir_name: str, file_name: str) -> int:
+def write_to_xml(test_cases: list[TestCase], dir_name: str, file_name: str):
     """
-    Writes the test cases to an XML file.
+    Writes the test case instances to an XML file.
 
     Args:
-        test_cases (list[TestCase]): A list of test cases to write to the XML file.
-        dir_name (str): The name of the directory to write the test cases to.
-        file_name (str): The name of the file to write the test cases to.
-    
-    Returns:
-        int: 0 if the file was written successfully.
+        test_cases (list[TestCase]): A list of test case instances to write to the XML file.
+        dir_name (str): The name of the directory to write the test case instances to.
+        file_name (str): The name of the file to write the test case instances to (must end with .xml).
     """
 
+    # Create the directory, if it does not yet exist
     os.makedirs(dir_name, exist_ok=True)
+
+    # Join the directory and file names into the full file path
     file_path = os.path.join(dir_name, file_name)
 
     with open(file_path, "wb") as output:
         # Write the dataset root element
         output.write(b"<dataset>")
-        # Write the test cases to the XML file
+
+        # Write the test case instances to the XML file
         for test_case in test_cases:
             output.write(b"<test_case>")
-            output.write(("<bias>" + test_case.BIAS + "</bias>\n").encode())
-            output.write(
-                ("<variant>" + str(test_case.VARIANT) + "</variant>\n").encode()
-            )
-            output.write(("<scenario>" + test_case.SCENARIO.replace("&", "&amp;") + "</scenario>\n").encode())
-            output.write(
-                ("<generator>" + test_case.GENERATOR + "</generator>\n").encode()
-            )
-            output.write(
-                (
-                    "<temperature>" + str(test_case.TEMPERATURE) + "</temperature>\n"
-                ).encode()
-            )
+            output.write(("<bias>" + str(test_case.BIAS) + "</bias>\n").encode())
+            output.write(("<variant>" + str(test_case.VARIANT) + "</variant>\n").encode())
+            output.write(("<scenario>" + str(test_case.SCENARIO.replace("&", "&amp;")) + "</scenario>\n").encode())
+            output.write(("<generator>" + str(test_case.GENERATOR) + "</generator>\n").encode())
+            output.write(("<temperature>" + str(test_case.TEMPERATURE) + "</temperature>\n").encode())
             output.write(("<timestamp>" + str(test_case.TIMESTAMP) + "</timestamp>\n").encode())
             output.write(("<seed>" + str(test_case.SEED) + "</seed>\n").encode())
             ET.ElementTree(test_case.CONTROL._data).write(output, encoding="utf-8")
             ET.ElementTree(test_case.TREATMENT._data).write(output, encoding="utf-8")
-            output.write(
-                ("<remarks>" + str(test_case.REMARKS) + "</remarks>\n").encode()
-            )
+            output.write(("<remarks>" + str(test_case.REMARKS) + "</remarks>\n").encode())
             output.write(b"</test_case>")
+
         output.write(b"</dataset>")
 
     # Prettify the XML file and write it back to the file
@@ -82,35 +94,59 @@ def write_to_xml(test_cases: list[TestCase], dir_name: str, file_name: str) -> i
     with open(file_path, "w") as f:
         f.write(pretty_xml)
 
-    return 0
 
-
-def assemble_dataset(dir: str = "generated_tests", save_as: str = "dataset.csv") -> int:
+def write_to_txt(test_cases: list[TestCase], dir_name: str, file_name: str):
     """
-    Assembles the dataset from the generated tests in the directory
+    Writes the test case instances to a TXT file.
 
     Args:
-        dir (str): the directory where the .xml tests are stored. The folder should be in the same directory as the script.
-        save_as (str): the name of the file to save the dataset as. The file will be saved in the same directory as the script.
-        
-    Returns:
-        int: 0 if the dataset is successfully assembled and saved.
+        test_cases (list[TestCase]): A list of test case instances to write to the TXT file.
+        dir_name (str): The name of the directory to write the test case instances to.
+        file_name (str): The name of the file to write the test case instances to (must end with .txt).
     """
 
+    # Create the directory, if it does not yet exist
+    os.makedirs(dir_name, exist_ok=True)
+
+    # Write all the test case instances to a .txt file
+    with open(os.path.join(dir_name, file_name), "a+") as f:
+        for test_case in test_cases:
+            f.write(f"{test_case}\n")
+
+
+def assemble_dataset(tests_directory: str, output_directory: str, file_name: str):
+    """
+    Assembles and stores a dataset in CSV format from the generated test case instances in the directory.
+
+    Args:
+        tests_directory (str): The name of the directory where the generated XML test case instances are stored.
+        output_directory (str): The name of the directory where the dataset should be stored.
+        file_name (str): The name of the file to save the dataset as (must end with .csv).
+    """
+
+    # Create the directory, if it does not yet exist
+    os.makedirs(output_directory, exist_ok=True)
+
+    # Join the directory and file names into the full file path
+    file_path = os.path.join(output_directory, file_name)
+
+    # Create a pandas DataFrame to store all test case instances
     dataset = pd.DataFrame()
 
-    for directory, _, files in tqdm(os.walk(dir)):
+    # Iterate over all XML files with generated test case instances
+    for directory, _, files in tqdm(os.walk(tests_directory)):
         for file in files:
             if file.endswith(".xml"):
+                # Load the XML file
                 tree = ET.parse(os.path.join(directory, file))
                 root = tree.getroot()
 
-                # a dictionary to store the tests
+                # Create a dictionary to store the test case instances
                 tests = defaultdict(list)
 
-                # iterating over tests
+                # Parse all test case instances from the XML file
                 for test_case in root:
-                    # saving the templates in the raw string to be easily loaded in the testing
+                    # Keep the raw XML templates in string format to be able to easily load them during testing
                     control_template = test_case.find("./template[@type='control']")
                     treatment_template = test_case.find("./template[@type='treatment']")
                     tests["raw_control"].append(
@@ -119,106 +155,113 @@ def assemble_dataset(dir: str = "generated_tests", save_as: str = "dataset.csv")
                     tests["raw_treatment"].append(
                         ET.tostring(treatment_template, encoding="unicode", method="xml")
                     )
-                    # iterating over components of a test
+
+                    # Parse all other components of the test case instance
                     for child in test_case:
-                        # saving each component of the test to the dictionary
                         if child.tag != "template":
                             tests[child.tag].append(child.text)
                         else:
                             t = Template(from_element=child)
                             tests[child.attrib["type"]].append(t.format())
 
-                # creating a temporary DataFrame from the dictionary
+                # Append the parsed test case instances to the dataset
                 temp_df = pd.DataFrame(tests)
-                # concatenating the temporary DataFrame to the dataset
                 dataset = pd.concat([dataset, temp_df], ignore_index=True)
 
-    # saving the dataset
-    dataset.to_csv(save_as, index=False)
+    # Save the dataset as a CSV file
+    dataset.to_csv(file_path, index=False)
 
-    print(f"Dataset is successfully assembled and saved in {save_as}")
-
-    return 0
+    print(f"Dataset is successfully assembled and saved in {file_path}")
 
 
-def generate_dataset(
-    biases: list[str],
-    population_model: str,
-    scenarios: list[str],
-    temperature: float = 0.0,
-    num_instances: int = 5,
-    max_retries: int = 5,
-    seed: int = 0,
-) -> int:
+def generate_test_cases(biases: list[str], model: str, scenarios: list[str], temperature: float = 0.0, num_instances: int = 5, max_retries: int = 5, seed: int = 0):
     """
-    Generates a dataset of test cases for provided biases.
+    Generates a dataset of test case instances for provided biases.
 
     Args:
         biases (list[str]): A list of cognitive biases to generate the dataset for.
-        population_model (str): The name of the population model to use for generating the test cases.
-        scenarios (list[str]): A list of scenarios to generate the test cases for.
-        temperature (float): The temperature of the LLM to use for generating the test cases.
+        model (str): The name of the model to use for generating the test case instances.
+        scenarios (list[str]): A list of scenarios to generate the test case instances for.
+        temperature (float): The temperature of the LLM to use for generating the test case instances.
         num_instances (int): The number of instances to generate for each scenario.
-        max_retries (int): The maximum number of retries in generation of all tests for a single bias.
-        seed (int): The starting seed to use for generating the test cases.
-    
-    Returns:
-        int: 0 if the dataset is successfully generated.
+        max_retries (int): The maximum number of retries per instance in case of errors.
+        seed (int): The starting seed to use for generating the test case instances.
     """
-    test_cases: list[TestCase] = []
+
+    # Iterate over all passed cognitive biases and generate test case instances for them
     for bias in biases:
+        print(f"Start generation of test case instances for bias: {bias}")
+
+        # Retrieve the test generator for that cognitive bias and the generation model selected by the user
         generator = get_generator(bias)
-        print(f"Start generation of test cases for bias: {bias}")
+        generation_model = get_model(model)
+
+        # Iterate over all passed scenarios and generate num_instances test case instances per scenario
         for scenario in tqdm(scenarios):
-            test_cases = generator.generate_all(
-                get_model(population_model),
+            test_cases: list[TestCase] = generator.generate_all(
+                generation_model,
                 [scenario],
                 temperature,
                 seed,
                 num_instances,
                 max_retries,
             )
-            # Save the generated test cases for given bias and scenario to an XML file
-            os.makedirs(f"generated_tests/{bias}", exist_ok=True)
-            _ = write_to_xml(
-                test_cases,
-                f"generated_tests/{bias}/",
-                f"{int(hashlib.md5(scenario.encode()).hexdigest(), 16)}_{num_instances}.xml",
-            )
-            # additionally, write all the test cases to a single .txt file for easier tracking
-            os.makedirs(f"txt_logs/{bias}", exist_ok=True)
-            with open(f"txt_logs/{bias}/{int(hashlib.md5(scenario.encode()).hexdigest(), 16)}_{num_instances}.txt", "a+") as f:
-                for test_case in test_cases:
-                    f.write(f"{test_case}\n")
-    
-    # Assemble the dataset from the generated tests
-    os.makedirs(f"datasets", exist_ok=True)
-    # If only one bias is provided, save the dataset with the bias name
-    if len(biases) == 1:
-        # Assemble the dataset from the generated tests only from this one bias
-        _ = assemble_dataset(dir=f'generated_tests/{biases[0]}', save_as=f"datasets/{biases[0]}_dataset.csv")
-    else:
-        # Assemble the dataset from all the generated tests
-        _ = assemble_dataset(save_as=f"datasets/dataset.csv")
 
-    return 0
+            # Save the generated test cases
+            file_name = f"{int(hashlib.md5(scenario.encode()).hexdigest(), 16)}_{num_instances}"     # The filename is a hash of the scenario followed by _{num_instances}
+            write_to_xml(test_cases, os.path.join(TEST_CASES_PATH, bias), f"{file_name}.xml")        # Store raw test case instances in an XML
+            write_to_txt(test_cases, os.path.join(GENERATION_LOGS_PATH, bias), f"{file_name}.txt")   # Store formatted test case instances in a TXT for user-friendly logging
+
+
+def main():
+    """
+    The main function of this script that parses the command line arguments and starts the dataset generation.
+    """
+
+    # Define a command line argument parser
+    parser = argparse.ArgumentParser(description="This script generates test case instances.")
+    parser.add_argument("--bias", type=str, help="The names of the cognitive biases to generate test cases for. Separate multiple biases with a comma. If not provided, this will default to all cognitive biases defined in this repository.", default=None)
+    parser.add_argument("--model", type=str, help="The LLM to use as generation model.", default="GPT-4o")
+    parser.add_argument("--scenarios", type=str, help="Path to a file storing scenario strings.", default=SCENARIOS_PATH)
+    parser.add_argument("--temperature", type=float, help="Temperature value of the generation LLM", default=0.7)
+    parser.add_argument("--num_instances", type=int, help="Number of test case instances to generate per scenario.", default=5)
+    parser.add_argument("--max_retries", type=int, help="The maximum number of retries in case of LLM/API-related errors.", default=1)
+    parser.add_argument("--seed", type=int, help="The seed to use for the reproducibility.", default=0)
+    args = parser.parse_args()
+
+    # Parse the list of selected biases to generate test case instances for. If none are provided, select all biases implemented in this repository
+    all_biases = get_all_biases()
+    biases = []
+    if args.bias is not None:
+        biases = [b.strip() for b in args.bias.split(',')]
+        biases = [b.title().replace(' ', '') if ' ' in b else b for b in biases]
+    if len(biases) == 0:
+        biases = all_biases
+
+    # Validate that all selected biases are supported
+    for bias in biases:
+        if bias not in all_biases:
+            raise ValueError(f"Unknown bias '{bias}'. Only the following biases are supported: {all_biases}")
+
+    # Load the scenario strings
+    with open(args.scenarios) as f:
+        scenarios = f.readlines()
+    scenarios = [s.strip() for s in scenarios]
+
+    # Generate the test case instances
+    generate_test_cases(
+        biases=biases,
+        model=args.model,
+        scenarios=scenarios,
+        temperature=args.temperature,
+        num_instances=args.num_instances,
+        max_retries=args.max_retries
+    )
+
+    # Assemble one dataset per bias from the generated test case instances
+    for bias in biases:
+        assemble_dataset(tests_directory=os.path.join(TEST_CASES_PATH, bias), output_directory=DATASETS_PATH, file_name=f"{bias}_dataset.csv")
 
 
 if __name__ == "__main__":
-
-    # Load the pre-defined scenario strings
-    with open("scenarios.txt") as f:
-        scenarios = f.readlines()
-
-    # Format the scenario strings by removing any markdown
-    scenarios = [s.strip() for s in scenarios]
-    model = "GPT-4o"
-
-    generate_dataset(
-        biases=["Anchoring"],
-        population_model=model,
-        scenarios=scenarios,
-        temperature=0.7,
-        num_instances=5,
-        max_retries=5,
-    )
+    main()
