@@ -61,6 +61,8 @@ All scripts for reproducing the experiments from the paper are located in the `r
 
 1. **Generate decision-making scenarios with the `run/scenario_generation.py` script.**
 
+    The `run/scenario_generation.py` is currently undergoing an update and might temporarily not work as intended.
+
 2. **Generate test case instances with the `run/test_generation.py` script.**
 
     ```bash
@@ -99,7 +101,11 @@ All scripts for reproducing the experiments from the paper are located in the `r
 
 5. **Obtain decision results for the generated test case instances with the `run/test_decision.py` script.**
 
-These scripts are currently undergoing updates to point to the right directories inside the `data/` folder and take parameters from the command line. They may temporarily not work as intended.
+    ```bash
+    python run/test_decision.py --model "GPT-4o-Mini" --n_workers=100, --n_batches=3000
+    ```
+
+    Specify the name of the decision model after the `--model` argument. For faster completion, the dataset will be divided into `--n_batches` equally-sized batches that are being executed by `--n_workers` parallel workers. Adjust these parameters to address potential API rate limits you may face (e.g., reduce to only 1 worker for fully sequential execution). Results will be stored in the `data/decision_results/` directory with one folder per model containing the results of all batches and one CSV file `{model_name}.csv` containing all decision results of that model.
 
 ### **Adding Tests**
 To add a new cognitive bias test, run the `core/add_test.py` script. The script will prompt you to enter the name of the new cognitive bias. Enter the name using alphabetic characters only. The script will then create a new subfolder with the name of the new bias in the `tests/` directory and will automatically create three files:

@@ -6,7 +6,6 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 import pandas as pd
 import argparse
-from test_check import get_generated_biases
 
 
 # References to relevant data directories
@@ -15,7 +14,7 @@ FINAL_DATASET_PATH = os.path.join(".", "data")
 FINAL_DATASET_FILENAME = "full_dataset.csv"
 
 
-def merge_datasets(datasets_directory: str, output_directory: str, file_name: str) -> pd.DataFrame:
+def merge_datasets(datasets_directory: str, output_directory: str, file_name: str, add_id: bool = True) -> pd.DataFrame:
     """
     Merges a set of separate datasets into a single dataset and stores the latter as a CSV file.
 
@@ -23,6 +22,7 @@ def merge_datasets(datasets_directory: str, output_directory: str, file_name: st
         datasets_directory (str): The name of the directory where the separate datasets are stored.
         output_directory (str): The name of the directory where the final dataset should be stored.
         file_name (str): The name of the file to save the dataset as (must end with .csv).
+        add_id (bool): Whether to add an 'id' column with unique IDs for each row.
     """
 
     # Create the directory, if it does not yet exist
@@ -34,7 +34,7 @@ def merge_datasets(datasets_directory: str, output_directory: str, file_name: st
     # Load and concatenate all CSV files from the datasets directory
     dataframes = []
     for csv_file in os.listdir(datasets_directory):
-        if csv_file.endswith("_dataset.csv"):
+        if csv_file.endswith(".csv"):
             csv_path = os.path.join(datasets_directory, csv_file)
             df = pd.read_csv(csv_path)
             dataframes.append(df)
@@ -42,10 +42,11 @@ def merge_datasets(datasets_directory: str, output_directory: str, file_name: st
     # Concatenate all the loaded DataFrames into a single DataFrame
     merged_df = pd.concat(dataframes, ignore_index=True)
 
-    # Add a new index column named 'id'
-    merged_df.reset_index(drop=True, inplace=True)
-    merged_df.index.name = 'id'
-    merged_df.reset_index(inplace=True)
+    # Add a new index column named 'id', if requested
+    if add_id:
+        merged_df.reset_index(drop=True, inplace=True)
+        merged_df.index.name = 'id'
+        merged_df.reset_index(inplace=True)
 
     # Store the final DataFrame as a CSV file
     merged_df.to_csv(file_path, index=False)
