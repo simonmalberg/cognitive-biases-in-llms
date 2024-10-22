@@ -59,13 +59,25 @@ The full dataset with 30,000 cognitive bias tests is not included in this reposi
 ### **Reproducing Experiments**
 All scripts for reproducing the experiments from the paper are located in the `run/` directory and all data generated and used by the scripts will be stored in the `data/` directory. The scripts should be executed in the following order:
 
-1. Generate decision-making scenarios with the `run/scenario_generation.py` script.
+1. **Generate decision-making scenarios with the `run/scenario_generation.py` script.**
 
-2. Generate test cases with the `run/test_generation.py` script.
+2. **Generate test case instances with the `run/test_generation.py` script.**
 
-3. Manually check a subset of the generated test cases with the `run/test_check.py` script.
+    ```bash
+    python run/test_generation.py
+    ```
 
-4. Obtain decision results for the generated test cases with the `run/test_decision.py` script.
+    This will generate five test case instances per scenario for all biases defined in the repository. If you only want to generate fewer test case instances per scenario or only for a subset of biases, you can specify them as follows (example):
+
+    ```bash
+    python run/test_generation.py --bias "FramingEffect, IllusionOfControl" --num_instances 2
+    ```
+
+    Generated test case instances will be stored in `data/generated_tests/{bias}/` as XML and `data/generation_logs/{bias}/` as TXT files (one file per scenario with all instances generated for that scenario) or in CSV format in `data/generated_datasets/` with one CSV file per bias.
+
+3. **Manually check a subset of the generated test case instances with the `run/test_check.py` script.**
+
+4. **Obtain decision results for the generated test case instances with the `run/test_decision.py` script.**
 
 These scripts are currently undergoing updates to point to the right directories inside the `data/` folder and take parameters from the command line. They may temporarily not work as intended.
 
