@@ -9,6 +9,7 @@ This repository contains all code used in the research paper **"A Comprehensive 
 - [Usage](#usage)
   - [Reproducing Experiments](#reproducing-experiments)
   - [Adding Tests](#adding-tests)
+  - [Adding Models](#adding-models)
 - [Folder Structure](#folder-structure)
 - [License](#license)
 - [Citation](#citation)
@@ -61,7 +62,7 @@ All scripts for reproducing the experiments from the paper are located in the `r
 
 1. **Generate decision-making scenarios with the `run/scenario_generation.py` script.**
 
-    The `run/scenario_generation.py` is currently undergoing an update and might temporarily not work as intended.
+    The `run/scenario_generation.py` is currently undergoing an update and might temporarily not work as intended. You can safely skip this step as there is already a `data/scenarios.txt` file included in this repository that contains the 200 scenarios used in the paper.
 
 2. **Generate test case instances with the `run/test_generation.py` script.**
 
@@ -117,6 +118,17 @@ To add a new cognitive bias test, run the `core/add_test.py` script. The script 
 - `test.py` defines the specific `TestGenerator` and `Metric` classes implementing the generation of instances of the test case and exact metric parameterization to be used for measuring the test score.
 
 Adjust the contents of the `config.xml` and `test.py` files to implement your test logic.
+
+### **Adding Models**
+To add new large language models (LLMs) to this repository, create the corresponding files inside the `models/` directory. The directory is currently structured to have one folder for each model developer (e.g., OpenAI, Meta, Google). Each of these folders contains two files:
+
+- `model.py` contains the Python classes defining the model.
+
+- `prompts.yml` contains the standardized prompts used by the model.
+
+To add a new model, add a new class inside `model.py` that directly (when adding a new model family or API) or indirectly (when adding a new model for an already defined model family and API) inherits from the `LLM` class in `core/base.py`. For completely new models, you must define at the very least the `__init__` and `prompt` functions to use the model as a decision model (see e.g., `models/Google/models.py` for an example). When adding the model as a generation model, you must also define the other functions of the `LLM` class (see `models/OpenAI/models.py` for an example). When adding a new model to an existing family and API, you may be able to inherit from an existing model class and only set the exact API endpoint name in `__init__` (see e.g., the `GptFourO` class in `models/OpenAI/models.py` for an example). We recommend simply copying the `prompts.yml` from `models/Google/` when adding just a decision model or from `models/OpenAI/` when adding a model that is supposed to be used as a generation and decision model.
+
+Finally, to make your model usable in the framework, you must add it to the `SUPPORTED_MODELS` list and `get_model` function inside `core/utils.py`.
 
 ## **Folder Structure**
 ```bash
