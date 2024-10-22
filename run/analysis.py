@@ -520,7 +520,7 @@ def plot_bias_heatmap(df: pd.DataFrame, model_order: list[str] = MODEL_ORDER, ab
 
     # Save the plot
     if save_plot:
-        plt.savefig(PLOT_OUTPUT_FOLDER + "bias_heatmap.pdf", format='pdf', bbox_inches='tight')
+        plt.savefig(os.path.join(PLOT_OUTPUT_FOLDER, "bias_heatmap.pdf"), format='pdf', bbox_inches='tight')
 
     # Display the heatmap
     plt.show()
@@ -563,7 +563,7 @@ def plot_scatter(df: pd.DataFrame, label: str, dot_size: int = 1, dot_alpha: flo
 
     # Save the plot
     if save_plot:
-        plt.savefig(PLOT_OUTPUT_FOLDER + "cluster_plot.pdf", format='pdf', bbox_inches='tight')
+        plt.savefig(os.path.join(PLOT_OUTPUT_FOLDER, "cluster_plot.pdf"), format='pdf', bbox_inches='tight')
 
     # Display the heatmap
     plt.show()
@@ -601,7 +601,7 @@ def plot_dendrogram(df: pd.DataFrame, label: str, scale_first: bool = False, met
     
     # Save the plot
     if save_plot:
-        plt.savefig(PLOT_OUTPUT_FOLDER + "dendrogram.pdf", format='pdf', bbox_inches='tight')
+        plt.savefig(os.path.join(PLOT_OUTPUT_FOLDER, "dendrogram.pdf"), format='pdf', bbox_inches='tight')
 
     # Display the heatmap
     plt.show()
@@ -629,7 +629,7 @@ def plot_correlation_matrix(df: pd.DataFrame, save_plot: bool = True):
 
     # Save the plot
     if save_plot:
-        plt.savefig(PLOT_OUTPUT_FOLDER + "bias_correlation.pdf", format='pdf', bbox_inches='tight')
+        plt.savefig(os.path.join(PLOT_OUTPUT_FOLDER, "bias_correlation.pdf"), format='pdf', bbox_inches='tight')
 
     # Display the heatmap
     plt.show()
@@ -660,7 +660,7 @@ def plot_correlation_matrix_with_dendrogram(df: pd.DataFrame, save_plot: bool = 
 
     # Save the plot
     if save_plot:
-        plt.savefig(PLOT_OUTPUT_FOLDER + "bias_correlation.pdf", format='pdf', bbox_inches='tight')
+        plt.savefig(os.path.join(PLOT_OUTPUT_FOLDER, "bias_correlation.pdf"), format='pdf', bbox_inches='tight')
 
     # Display the heatmap
     plt.show()
@@ -709,7 +709,7 @@ def plot_bubble_plot(df: pd.DataFrame, x: str, y: str, size: str, color: str, la
 
     # Save the plot
     if save_plot:
-        plt.savefig(PLOT_OUTPUT_FOLDER + "bubble_plot.pdf", format='pdf', bbox_inches='tight')
+        plt.savefig(os.path.join(PLOT_OUTPUT_FOLDER, "bubble_plot.pdf"), format='pdf', bbox_inches='tight')
 
     # Show the plot
     plt.show()
