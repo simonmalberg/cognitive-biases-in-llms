@@ -15,11 +15,10 @@ import os
 import re
 
 
-TEST_CASE_DATA_FOLDER = "./datasets/"
-DECISION_DATA_FOLDER = "./decision_datasets/"
-PLOT_OUTPUT_FOLDER = "./plots/"
-
-TEST_CASE_DATASET = TEST_CASE_DATA_FOLDER + "full_dataset_indexed.csv"
+TEST_CASE_DATA_FOLDER = os.path.join("..", "data", "generated_datasets")
+DECISION_DATA_FOLDER = os.path.join("..", "data", "decision_results")
+PLOT_OUTPUT_FOLDER = os.path.join("..", "plots")
+TEST_CASE_DATASET = os.path.join("..", "data", "full_dataset.csv")
 
 BIAS_NAME_MAPPING = {
     'Escalation Of Commitment': 'Escalation of Commitment', 
