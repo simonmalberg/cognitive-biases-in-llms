@@ -62,7 +62,11 @@ All scripts for reproducing the experiments from the paper are located in the `r
 
 1. **Generate decision-making scenarios with the `run/scenario_generation.py` script.**
 
-    The `run/scenario_generation.py` is currently undergoing an update and might temporarily not work as intended. You can safely skip this step as there is already a `data/scenarios.txt` file included in this repository that contains the 200 scenarios used in the paper.
+    ```bash
+    python run/scenario_generation.py --model "GPT-4o" --n_positions 8
+    ```
+
+    The script generates 200 scenario strings, 8 scenarios (based on 8 common managerial positions in that industry) for each of the 25 industry groups defined in the [Global Industry Classification Standard (GICS)](https://www.msci.com/gics). The scenario strings will be written to `data/scenarios.txt` (one scenario per line). The `data/scenarios.txt` generated for the paper is included in this repository.
 
 2. **Generate test case instances with the `run/test_generation.py` script.**
 
