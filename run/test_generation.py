@@ -255,7 +255,8 @@ def main():
         scenarios=scenarios,
         temperature=args.temperature,
         num_instances=args.num_instances,
-        max_retries=args.max_retries
+        max_retries=args.max_retries,
+        seed=args.seed
     )
 
     # Assemble one dataset per bias from the generated test case instances
