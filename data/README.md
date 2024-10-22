@@ -13,4 +13,4 @@ This `data/` directory holds all data generated or used by scripts. In particula
    ├── README.md             # This file
    ```
 
-Due to the size of the data, the data that was generated for the paper is not pushed to this repository.
+Due to the size of the data, the data that was generated for the paper is not pushed to this repository. All data generated and used by the scripts is separately uploaded [here](https://www.dropbox.com/scl/fo/a2c75wjso016f743fspvy/ALXH_sTUkvUDSfZCS-3Z3a8?rlkey=xg5wrfjj8207vhqk2ykxyqbn3&st=guv1u25w&dl=0).

@@ -30,7 +30,7 @@ This repository contains:
 - Scripts for reproducing the experiments from the paper
 - Functionality and documentation for adding tests for additional cognitive biases
 
-The full dataset with 30,000 cognitive bias tests is not included in this repository due to its size. We are working on releasing the full dataset on HuggingFace very soon.
+The full dataset with 30,000 cognitive bias tests is not included in this repository due to its size. All data generated and used by the scripts is separately uploaded [here](https://www.dropbox.com/scl/fo/a2c75wjso016f743fspvy/ALXH_sTUkvUDSfZCS-3Z3a8?rlkey=xg5wrfjj8207vhqk2ykxyqbn3&st=guv1u25w&dl=0). We are also working on releasing the full dataset on HuggingFace very soon.
 
 ## **Installation**
 
