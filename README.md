@@ -89,7 +89,15 @@ All scripts for reproducing the experiments from the paper are located in the `r
     
     The script will guide the user through all sampled test case instances and ask whether the instances are correct. It will store the check results inside the `data/checked_datasets/` directory with one CSV file per bias. The files will be identical to those stored in `data/generated_datasets/` except that they have one additional column `correct` that contains `1`/`0` for all instances marked as correct/incorrect. 
 
-4. **Obtain decision results for the generated test case instances with the `run/test_decision.py` script.**
+4. **Assemble the generated datasets into a single large dataset with the `run/dataset_assembly.py` script.**
+
+    ```bash
+    python run/dataset_assembly.py
+    ```
+
+    This will take the separate datasets stored in `data/generated_datasets/` and combine them into a single dataset `data/full_dataset.csv`.
+
+5. **Obtain decision results for the generated test case instances with the `run/test_decision.py` script.**
 
 These scripts are currently undergoing updates to point to the right directories inside the `data/` folder and take parameters from the command line. They may temporarily not work as intended.
 
