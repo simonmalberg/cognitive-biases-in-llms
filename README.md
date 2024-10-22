@@ -1,6 +1,6 @@
 # **A Comprehensive Evaluation of Cognitive Biases in LLMs**  
 
-This repository contains all code used in the research paper **"A Comprehensive Evaluation of Cognitive Biases in LLMs"**, published on **arXiv**. The code is made available to support researchers and practitioners interested in exploring and building on our work.
+This repository contains all code used in the research paper **"A Comprehensive Evaluation of Cognitive Biases in LLMs"**, published on **arXiv**. The paper is available [here](https://arxiv.org/abs/2410.15413). The code is made available to support researchers and practitioners interested in exploring and building on our work.
 
 ## **Table of Contents**
 
@@ -35,23 +35,23 @@ The full dataset with 30,000 cognitive bias tests is not included in this reposi
 
 1. **Clone the repository:**
 
-   ```bash
-   git clone https://github.com/simonmalberg/cognitive-biases-in-llms.git
-   cd cognitive-biases-in-llms
-   ```
+    ```bash
+    git clone https://github.com/simonmalberg/cognitive-biases-in-llms.git
+    cd cognitive-biases-in-llms
+    ```
 
 2. **Set up a virtual environment (recommended):**
 
-   ```bash
-   python -m venv .venv
-   source .venv/bin/activate   # On Windows: `.venv\Scripts\activate`
-   ```
+    ```bash
+    python -m venv .venv
+    source .venv/bin/activate   # On Windows: `.venv\Scripts\activate`
+    ```
 
 3. **Install the required dependencies:**
 
-   ```bash
-   pip install -r requirements.txt
-   ```
+    ```bash
+    pip install -r requirements.txt
+    ```
 
 4. **Store API keys in system environment variables**
 
@@ -81,17 +81,17 @@ To add a new cognitive bias test, run the `core/add_test.py` script. The script 
 Adjust the contents of the `config.xml` and `test.py` files to implement your test logic.
 
 ## **Folder Structure**
-   ```bash
-   ├── core/                    # Core components of the test framework
-   ├── data/                    # Data generated or used by scripts
-   ├── models/                  # Interfaces to LLMs from different developers
-   ├── run/                     # Scripts to reproduce the experiments from the paper
-   ├── test/                    # Test case definitions
-   ├── demo.py                  # A simple demo script that generates a test case and obtains a decision result
-   ├── LICENSE.txt              # The license for this code
-   ├── README.md                # This file
-   ├── requirements.txt         # List of dependencies
-   ```
+```bash
+├── core/              # Core components of the test framework
+├── data/              # Data generated or used by scripts
+├── models/            # Interfaces to LLMs from different developers
+├── run/               # Scripts to reproduce the experiments from the paper
+├── test/              # Test case definitions
+├── demo.py            # A simple demo script that generates a test case and obtains a decision result
+├── LICENSE.txt        # The license for this code
+├── README.md          # This file
+├── requirements.txt   # List of dependencies
+```
 
 ## **License**
 This project's code is licensed under the **Creative Commons Attribution-ShareAlike 4.0 International Public License** (CC BY-SA 4.0). See the `LICENSE.txt` file for details.
@@ -99,12 +99,14 @@ This project's code is licensed under the **Creative Commons Attribution-ShareAl
 ## **Citation**
 If you use this code for your research, please cite our paper:
 
-   ```scss
-   @misc{malberg2024cognitivebiasesinllms,
-       title={A Comprehensive Evaluation of Cognitive Biases in LLMs}, 
-       author={Simon Malberg and Roman Poletukhin and Carolin M. Schuster and Georg Groh},
-       year={2024},
-       archivePrefix={arXiv},
-       primaryClass={cs.CL}
-   }
-   ```
+```
+@misc{malberg2024comprehensiveevaluationcognitivebiases,
+    title={A Comprehensive Evaluation of Cognitive Biases in LLMs}, 
+    author={Simon Malberg and Roman Poletukhin and Carolin M. Schuster and Georg Groh},
+    year={2024},
+    eprint={2410.15413},
+    archivePrefix={arXiv},
+    primaryClass={cs.CL},
+    url={https://arxiv.org/abs/2410.15413}, 
+}
+```
