@@ -75,7 +75,19 @@ All scripts for reproducing the experiments from the paper are located in the `r
 
     Generated test case instances will be stored in `data/generated_tests/{bias}/` as XML and `data/generation_logs/{bias}/` as TXT files (one file per scenario with all instances generated for that scenario) or in CSV format in `data/generated_datasets/` with one CSV file per bias.
 
-3. **Manually check a subset of the generated test case instances with the `run/test_check.py` script.**
+3. **(Optional) Manually check a subset of the generated test case instances with the `run/test_check.py` script.**
+
+    ```bash
+    python run/test_check.py
+    ```
+
+    This will sample ten generated test case instances per bias. If you want to conduct the check with a different sample size or for only a subset of biases, you can specify them as follows (example):
+
+    ```bash
+    python run/test_check.py --bias "FramingEffect, IllusionOfControl" --n_sample 2
+    ```
+    
+    The script will guide the user through all sampled test case instances and ask whether the instances are correct. It will store the check results inside the `data/checked_datasets/` directory with one CSV file per bias. The files will be identical to those stored in `data/generated_datasets/` except that they have one additional column `correct` that contains `1`/`0` for all instances marked as correct/incorrect. 
 
 4. **Obtain decision results for the generated test case instances with the `run/test_decision.py` script.**
 
