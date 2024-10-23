@@ -56,6 +56,16 @@ The full dataset with 30,000 cognitive bias tests is not included in this reposi
 
 4. **Store API keys in system environment variables**
 
+    | API Provider | Environment Variable | Supported Models
+    | --- | --- | --- |
+    | DeepInfra API | ``DEEPINFRA_API`` | ``Qwen/Qwen2.5-72B-Instruct``, ``google/gemma-2-9b-it``, ``google/gemma-2-27b-it``, ``meta-llama/Meta-Llama-3.1-405B-Instruct``, ``meta-llama/Meta-Llama-3.1-70B-Instruct``, ``meta-llama/Meta-Llama-3.1-8B-Instruct``, ``meta-llama/Llama-3.2-90B-Vision-Instruct``, ``meta-llama/Llama-3.2-1B-Instruct``, ``meta-llama/Llama-3.2-3B-Instruct``, ``meta-llama/Llama-3.2-11B-Vision-Instruct``, ``microsoft/WizardLM-2-8x22B``, ``microsoft/WizardLM-2-7B`` |
+    | Anthropic API | ``ANTHROPIC_API_KEY`` | ``claude-3-haiku-20240307`` |
+    | AI/ML API | ``AIML_API_KEY`` | ``claude-3-5-sonnet-20240620`` |
+    | Google Generative AI API | ``GOOGLE_API`` | ``models/gemini-1.5-pro``, ``models/gemini-1.5-flash``, ``models/gemini-1.5-flash-8b`` |
+    | Fireworks AI API | ``FIREWORKS_API_KEY`` | ``accounts/fireworks/models/phi-3-vision-128k-instruct``, ``accounts/yi-01-ai/models/yi-large`` |
+    | MistralAI API | ``MISTRAL_API_KEY`` | ``mistral-large-2407``, ``mistral-small-2409`` |
+    | OpenAI API | ``OPENAI_API_KEY`` | ``gpt-3.5-turbo-0125``, ``gpt-4o-2024-08-06``, ``gpt-4o-mini-2024-07-18`` |
+
 ## **Usage**
 ### **Reproducing Experiments**
 All scripts for reproducing the experiments from the paper are located in the `run/` directory and all data generated and used by the scripts will be stored in the `data/` directory. The scripts should be executed in the following order:
