@@ -48,7 +48,7 @@ The full dataset with 30,000 cognitive bias tests is not included in this reposi
     source .venv/bin/activate   # On Windows: `.venv\Scripts\activate`
     ```
 
-3. **Install the required dependencies:**
+3. **Install the required dependencies (tested on Python 3.10):**
 
     ```bash
     pip install -r requirements.txt
