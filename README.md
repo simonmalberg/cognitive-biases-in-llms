@@ -1,6 +1,6 @@
 # **A Comprehensive Evaluation of Cognitive Biases in LLMs**  
 
-This repository contains all code used in the research paper **"A Comprehensive Evaluation of Cognitive Biases in LLMs"**, published on **arXiv**. The paper is available [here](https://arxiv.org/abs/2410.15413). The code is made available to support researchers and practitioners interested in exploring and building on our work.
+This repository contains all code used in the research paper **"A Comprehensive Evaluation of Cognitive Biases in LLMs"**, published in **ACL Anthology**. The paper is available [here](https://aclanthology.org/2025.nlp4dh-1.50/). The full dataset, comprising 30,000 cognitive bias tests, is [available on HuggingFace](https://huggingface.co/datasets/tum-nlp/cognitive-biases-in-llms). The code is made available to support researchers and practitioners interested in exploring and building on our work.
 
 ## **Table of Contents**
 
@@ -30,7 +30,7 @@ This repository contains:
 - Scripts for reproducing the experiments from the paper
 - Functionality and documentation for adding tests for additional cognitive biases
 
-The full dataset with 30,000 cognitive bias tests is not included in this repository due to its size. All data generated and used by the scripts is separately uploaded [here](https://www.dropbox.com/scl/fo/a2c75wjso016f743fspvy/ALXH_sTUkvUDSfZCS-3Z3a8?rlkey=xg5wrfjj8207vhqk2ykxyqbn3&st=guv1u25w&dl=0). We are also working on releasing the full dataset on HuggingFace very soon.
+All data generated and used by the scripts is separately uploaded [here](https://www.dropbox.com/scl/fo/a2c75wjso016f743fspvy/ALXH_sTUkvUDSfZCS-3Z3a8?rlkey=xg5wrfjj8207vhqk2ykxyqbn3&st=guv1u25w&dl=0).
 
 ## **Installation**
 
@@ -164,13 +164,26 @@ This project's code is licensed under the **Creative Commons Attribution-ShareAl
 If you use this code for your research, please cite our paper:
 
 ```
-@misc{malberg2024comprehensiveevaluationcognitivebiases,
-    title={A Comprehensive Evaluation of Cognitive Biases in LLMs}, 
-    author={Simon Malberg and Roman Poletukhin and Carolin M. Schuster and Georg Groh},
-    year={2024},
-    eprint={2410.15413},
-    archivePrefix={arXiv},
-    primaryClass={cs.CL},
-    url={https://arxiv.org/abs/2410.15413}, 
+@inproceedings{malberg-etal-2025-comprehensive,
+    title = "A Comprehensive Evaluation of Cognitive Biases in {LLM}s",
+    author = "Malberg, Simon  and
+      Poletukhin, Roman  and
+      Schuster, Carolin  and
+      Groh, Georg Groh",
+    editor = {H{\"a}m{\"a}l{\"a}inen, Mika  and
+      {\"O}hman, Emily  and
+      Bizzoni, Yuri  and
+      Miyagawa, So  and
+      Alnajjar, Khalid},
+    booktitle = "Proceedings of the 5th International Conference on Natural Language Processing for Digital Humanities",
+    month = may,
+    year = "2025",
+    address = "Albuquerque, USA",
+    publisher = "Association for Computational Linguistics",
+    url = "https://aclanthology.org/2025.nlp4dh-1.50/",
+    doi = "10.18653/v1/2025.nlp4dh-1.50",
+    pages = "578--613",
+    ISBN = "979-8-89176-234-3",
+    abstract = "We present a large-scale evaluation of 30 cognitive biases in 20 state-of-the-art large language models (LLMs) under various decision-making scenarios. Our contributions include a novel general-purpose test framework for reliable and large-scale generation of tests for LLMs, a benchmark dataset with 30,000 tests for detecting cognitive biases in LLMs, and a comprehensive assessment of the biases found in the 20 evaluated LLMs. Our work confirms and broadens previous findings suggesting the presence of cognitive biases in LLMs by reporting evidence of all 30 tested biases in at least some of the 20 LLMs. We publish our framework code and dataset to encourage future research on cognitive biases in LLMs: https://github.com/simonmalberg/cognitive-biases-in-llms."
 }
 ```
