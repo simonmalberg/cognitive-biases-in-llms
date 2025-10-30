@@ -1,4 +1,9 @@
-# **A Comprehensive Evaluation of Cognitive Biases in LLMs**  
+<p align="center"><img width="600" src="assets/image.png" alt="CANNOT dataset"></p>
+<p align="center" display="inline-block">
+  <a href="https://github.com/simonmalberg/cognitive-biases-in-llms">
+  </a>
+</p>
+<h1 align="center">A Comprehensive Evaluation of Cognitive Biases in LLMs</h1>
 
 This repository contains all code used in the research paper **"A Comprehensive Evaluation of Cognitive Biases in LLMs"**, published in **ACL Anthology**. The paper is available [here](https://aclanthology.org/2025.nlp4dh-1.50/). The full dataset, comprising 30,000 cognitive bias tests, is [available on HuggingFace](https://huggingface.co/datasets/tum-nlp/cognitive-biases-in-llms). The code is made available to support researchers and practitioners interested in exploring and building on our work.
 
