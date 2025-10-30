@@ -48,4 +48,4 @@ class ConservatismMetric(RatioScaleMetric):
     """
 
     def __init__(self, test_results: list[tuple[TestCase, DecisionResult]]):
-        super().__init__(test_results, flip_treatment=True)
+        super().__init__(test_results)
