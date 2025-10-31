@@ -160,6 +160,10 @@ def load_decision_data(folder_path: str = DECISION_DATA_FOLDER, format: bool = T
     if format:
         df = format_decision_data(df)
 
+    # As of October 31, 2025, re-compute the bias scores for Conservatism (previously flip_treatment was mistakenly set to True) 
+    conservatism_rows = df[df['bias'] == 'Conservatism']["model"].index
+    df = recompute_bias_scores(df, conservatism_rows, k=-1, x_1=0, x_2=0, flip_control=False, flip_treatment=False)
+
     return df
 
 
@@ -285,6 +289,30 @@ def load_model_characteristics(df_decisions: pd.DataFrame, df_biasedness: pd.Dat
         df_mean_abs_bias = df_mean_abs_bias[df_mean_abs_bias["model"] != "Random*"].reset_index(drop=True)
 
     return df_mean_abs_bias
+
+
+def recompute_bias_scores(df: pd.DataFrame, indices: list[int], k: int = -1, x_1: int = 0, x_2: int = 0, flip_control: bool = False, flip_treatment: bool = False) -> pd.DataFrame:
+    """
+    Recomputes the bias scores in a dataframe with decision results.
+    """
+    # Extract the control and treatment answers for the specified indices
+    control_answers = df.loc[indices, 'control_decision'].to_numpy()
+    treatment_answers = df.loc[indices, 'treatment_decision'].to_numpy()
+
+    # Convert all metric parameters to numpy arrays for vectorized computation
+    k = np.array([k])
+    x_1 = np.array([x_1])
+    x_2 = np.array([x_2])
+
+    # Compute the metric values using the formula
+    delta_control_abs, delta_treatment_abs = np.abs(control_answers - x_1), np.abs(treatment_answers - x_2)
+    metric_values = k * (delta_control_abs - delta_treatment_abs) / (np.maximum(delta_control_abs, delta_treatment_abs) + 1e-8)
+
+    # Update the bias scores for the specified indices with the computed metric values
+    df = df.copy()
+    df.loc[indices, 'individual_score'] = metric_values
+
+    return df
 
 
 def format_decision_data(df: pd.DataFrame, format_bias_names: bool = True, format_model_names: bool = True) -> pd.DataFrame:
